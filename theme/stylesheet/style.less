@@ -3,6 +3,7 @@
 html, body {
   width: 100%;
   height: 100%;
+  font-size: 16px;
 }
 
 h1,
@@ -176,6 +177,10 @@ main {
           font-weight: 600;
         }
       }
+    }
+
+    p {
+      line-height: 1.6em;
     }
 
     code, kbd, samp, pre {
@@ -368,8 +373,8 @@ ul.social {
 
   a:hover {
     z-index: 2;
-    -webkit-transform: translateY(-5px);
-    transform: translateY(-5px);
+    -webkit-transform: translateY(-2px);
+    transform: translateY(-2px);
   }
 
   a {
@@ -378,7 +383,7 @@ ul.social {
     height: 36px;
     border-radius: 100%;
     text-align: center;
-    font-size: .8em;
+    font-size: .6em;
     line-height: 36px;
   }
 
@@ -430,7 +435,7 @@ ul.social {
     background-color: @github-bg-color;
   }
 
-  a.sc-envelope-o {
+  a.sc-envelope-open {
     background-color: @email-bg-color;
   }
 
@@ -454,6 +459,10 @@ ul.social {
     background-color: @bitbucket-bg-color;
   }
 
+  a.sc-mastodon {
+    background-color: @mastodon-bg-color;
+  }
+
 }
 
 .ads-aside {
@@ -475,6 +484,10 @@ ul.social {
 //
 
 @media screen and (min-width: 768px) {
+  html, body {
+      font-size: 20px;
+  }
+
   aside {
     width: 25%;
     height: 100%;
@@ -509,6 +522,7 @@ ul.social {
     left: 25%;
 
     article {
+      margin: 0 20% 2% 4%;
 
       &.single {
         min-height: 80%;
@@ -519,6 +533,11 @@ ul.social {
           padding: 2px;
         }
       }
+    }
+
+    footer {
+      margin-left: 4%;
+      margin-right: 20%;
     }
   }
 
