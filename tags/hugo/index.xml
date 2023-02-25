@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>hugo on Becoming The Unbeatable</title>
+    <link>https://immortal3.github.io/tags/hugo/</link>
+    <description>Recent content in hugo on Becoming The Unbeatable</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 28 Nov 2021 17:08:55 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hugo commands</title>
+      <link>https://immortal3.github.io/posts/hugo-cmds/</link>
+      <pubDate>Sun, 28 Nov 2021 17:08:55 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/hugo-cmds/</guid>
+      <description>run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\icons\favicon.png relative imports: icons\favicon.png
+fix for label image icon: small_icon.jpg instead of icon: small_icon.png
+github issue: https://github.com/adityatelange/hugo-PaperMod/issues/622</description>
+    </item>
+    
+  </channel>
+</rss>

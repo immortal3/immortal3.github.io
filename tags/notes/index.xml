@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>notes on Becoming The Unbeatable</title>
+    <link>https://immortal3.github.io/tags/notes/</link>
+    <description>Recent content in notes on Becoming The Unbeatable</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 03 Jan 2023 09:46:12 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Efficient ML</title>
+      <link>https://immortal3.github.io/notes/efficient-ml/</link>
+      <pubDate>Tue, 03 Jan 2023 09:46:12 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/notes/efficient-ml/</guid>
+      <description>Lec-2 spatial demension</description>
+    </item>
+    
+  </channel>
+</rss>

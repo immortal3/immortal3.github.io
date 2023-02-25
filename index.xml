@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Becoming The Unbeatable</title>
+    <link>https://immortal3.github.io/</link>
+    <description>Recent content on Becoming The Unbeatable</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 12 Feb 2023 12:02:55 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Speeding up the GPT - KV cache</title>
+      <link>https://immortal3.github.io/posts/gpt-kvcache/</link>
+      <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/gpt-kvcache/</guid>
+      <description>The common optimization trick for speeding up transformer inference is KV caching 1 2. This technique is so prominent that huggingface library has use_cache flag is enabled by default 6. A few days ago, I read an awesome blog post on GPT in 60 Lines of NumPy. So, i thought, why not extend it to use the KV cache technique? So, let’s roll up our sleeves and start working on it.</description>
+    </item>
+    
+    <item>
+      <title>Efficient ML</title>
+      <link>https://immortal3.github.io/notes/efficient-ml/</link>
+      <pubDate>Tue, 03 Jan 2023 09:46:12 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/notes/efficient-ml/</guid>
+      <description>Lec-2 spatial demension</description>
+    </item>
+    
+    <item>
+      <title>LC contest problems summary</title>
+      <link>https://immortal3.github.io/posts/leetcode-contest/</link>
+      <pubDate>Sun, 28 Nov 2021 17:09:55 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/leetcode-contest/</guid>
+      <description>Biweekly-66 (27th Nov, 2021) 2085. Count Common Words With One Occurrence Hint 1Use hashmap (Counter)2086. Minimum Number of Buckets Required to Collect Rainwater from Houses&amp;quot; Hint 1First put the bucket at best place and the remove those covering home.Hint 2Answer is (best bucket cnt + remaining house).Hint 3Corner case: check for each house is coverable2087. Minimum Cost Homecoming of a Robot in a Grid Hintdjikstra will fail.</description>
+    </item>
+    
+    <item>
+      <title>Hugo commands</title>
+      <link>https://immortal3.github.io/posts/hugo-cmds/</link>
+      <pubDate>Sun, 28 Nov 2021 17:08:55 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/hugo-cmds/</guid>
+      <description>run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\icons\favicon.png relative imports: icons\favicon.png
+fix for label image icon: small_icon.jpg instead of icon: small_icon.png
+github issue: https://github.com/adityatelange/hugo-PaperMod/issues/622</description>
+    </item>
+    
+  </channel>
+</rss>
