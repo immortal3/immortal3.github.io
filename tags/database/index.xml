@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>database on Becoming The Unbeatable against AGI</title>
+    <link>https://immortal3.github.io/tags/database/</link>
+    <description>Recent content in database on Becoming The Unbeatable against AGI</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Wed, 17 Apr 2024 11:35:38 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Essential Database Design: Five Fields Every Table Must Have</title>
+      <link>https://immortal3.github.io/posts/essential-db-design-1/</link>
+      <pubDate>Wed, 17 Apr 2024 11:35:38 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/essential-db-design-1/</guid>
+      <description>Essential Fields Be it relational or not, every table should have these 5 fields:
+created_at (default now()) updated_at (default now()) deleted_at (default null) created_by (not null) updated_by (not null) Why should you include this fields ? Auditability Incorporating these fields into every table significantly simplifies the auditing process. They enable you to track who created or modified an entry and when these actions occurred. It&amp;rsquo;s important to note that while this doesn&amp;rsquo;t provide a complete audit trail, not all tables require exhaustive audit trails.</description>
+    </item>
+    
+  </channel>
+</rss>
