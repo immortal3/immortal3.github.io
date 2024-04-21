@@ -13,7 +13,8 @@
       
       <guid>https://immortal3.github.io/posts/essential-db-design-1/</guid>
       <description>Essential Fields Be it relational or not, every table should have these 5 fields:
-created_at (default now()) updated_at (default now()) deleted_at (default null) created_by (not null) updated_by (not null) Why should you include this fields ? Auditability Incorporating these fields into every table significantly simplifies the auditing process. They enable you to track who created or modified an entry and when these actions occurred. It&amp;rsquo;s important to note that while this doesn&amp;rsquo;t provide a complete audit trail, not all tables require exhaustive audit trails.</description>
+created_at (default now()) updated_at (default now()) deleted_at (default null) created_by (not null) updated_by (not null) Just to be clear, every table should have these 5 fields and not must. Adding these fields have other side-effects such as bloat, performance and disk size. But, if you&amp;rsquo;re having these problems, i hope you&amp;rsquo;re profitable.
+Why should you include this fields ?</description>
     </item>
     
     <item>
