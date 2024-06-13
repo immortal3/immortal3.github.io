@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ai on Becoming The Unbeatable against AGI</title>
+    <link>https://immortal3.github.io/tags/ai/</link>
+    <description>Recent content in ai on Becoming The Unbeatable against AGI</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Aws Bedrock</title>
+      <link>https://immortal3.github.io/posts/aws-bedrock/</link>
+      <pubDate>Thu, 13 Jun 2024 23:15:53 +0530</pubDate>
+      
+      <guid>https://immortal3.github.io/posts/aws-bedrock/</guid>
+      <description>AWS BedRock - Converse API Overview, A Deeper Look Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI.</description>
+    </item>
+    
+  </channel>
+</rss>
