@@ -7,12 +7,12 @@
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Aws Bedrock</title>
+      <title>AWS BedRock - Converse API - A single endpoint for all models ?</title>
       <link>https://immortal3.github.io/posts/aws-bedrock/</link>
       <pubDate>Thu, 13 Jun 2024 23:15:53 +0530</pubDate>
       
       <guid>https://immortal3.github.io/posts/aws-bedrock/</guid>
-      <description>AWS BedRock - Converse API Overview, A Deeper Look Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI.</description>
+      <description>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources.</description>
     </item>
     
     <item>
