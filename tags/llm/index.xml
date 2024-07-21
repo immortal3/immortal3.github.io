@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>llm on Becoming The Unbeatable against AGI</title>
-    <link>https://immortal3.github.io/tags/llm/</link>
-    <description>Recent content in llm on Becoming The Unbeatable against AGI</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/llm/index.xml" rel="self" type="application/rss+xml" />
+    <title>Llm on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/llm/</link>
+    <description>Recent content in Llm on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/llm/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AWS BedRock - Converse API - A single endpoint for all models ?</title>
-      <link>https://immortal3.github.io/posts/aws-bedrock/</link>
+      <link>https://dipkumar.dev/posts/aws-bedrock/</link>
       <pubDate>Thu, 13 Jun 2024 23:15:53 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/posts/aws-bedrock/</guid>
+      <guid>https://dipkumar.dev/posts/aws-bedrock/</guid>
       <description>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources.</description>
     </item>
-    
   </channel>
 </rss>

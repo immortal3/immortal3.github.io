@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>LC on Becoming The Unbeatable against AGI</title>
-    <link>https://immortal3.github.io/tags/lc/</link>
-    <description>Recent content in LC on Becoming The Unbeatable against AGI</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 28 Nov 2021 17:09:55 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/lc/index.xml" rel="self" type="application/rss+xml" />
+    <title>LC on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/lc/</link>
+    <description>Recent content in LC on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 28 Nov 2021 17:09:55 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/lc/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>LC contest problems summary</title>
-      <link>https://immortal3.github.io/posts/leetcode-contest/</link>
+      <link>https://dipkumar.dev/posts/leetcode-contest/</link>
       <pubDate>Sun, 28 Nov 2021 17:09:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/posts/leetcode-contest/</guid>
+      <guid>https://dipkumar.dev/posts/leetcode-contest/</guid>
       <description>Biweekly-66 (27th Nov, 2021) 2085. Count Common Words With One Occurrence Hint 1Use hashmap (Counter)2086. Minimum Number of Buckets Required to Collect Rainwater from Houses&amp;quot; Hint 1First put the bucket at best place and the remove those covering home.Hint 2Answer is (best bucket cnt + remaining house).Hint 3Corner case: check for each house is coverable2087. Minimum Cost Homecoming of a Robot in a Grid Hintdjikstra will fail.</description>
     </item>
-    
   </channel>
 </rss>

@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>speedup on Becoming The Unbeatable against AGI</title>
-    <link>https://immortal3.github.io/tags/speedup/</link>
-    <description>Recent content in speedup on Becoming The Unbeatable against AGI</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 12 Feb 2023 12:02:55 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/speedup/index.xml" rel="self" type="application/rss+xml" />
+    <title>Speedup on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/speedup/</link>
+    <description>Recent content in Speedup on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 12 Feb 2023 12:02:55 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/speedup/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Speeding up the GPT - KV cache</title>
-      <link>https://immortal3.github.io/posts/gpt-kvcache/</link>
+      <link>https://dipkumar.dev/posts/gpt-kvcache/</link>
       <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/posts/gpt-kvcache/</guid>
+      <guid>https://dipkumar.dev/posts/gpt-kvcache/</guid>
       <description>The common optimization trick for speeding up transformer inference is KV caching 1 2. This technique is so prominent that huggingface library has use_cache flag is enabled by default 6. A few days ago, I read an awesome blog post on GPT in 60 Lines of NumPy. So, i thought, why not extend it to use the KV cache technique? So, let’s roll up our sleeves and start working on it.</description>
     </item>
-    
   </channel>
 </rss>

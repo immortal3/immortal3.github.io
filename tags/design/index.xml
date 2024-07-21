@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>design on Becoming The Unbeatable against AGI</title>
-    <link>https://immortal3.github.io/tags/design/</link>
-    <description>Recent content in design on Becoming The Unbeatable against AGI</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 17 Apr 2024 11:35:38 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/design/index.xml" rel="self" type="application/rss+xml" />
+    <title>Design on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/design/</link>
+    <description>Recent content in Design on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 17 Apr 2024 11:35:38 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/design/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Essential Database Design: Five Fields Every Table Must Have</title>
-      <link>https://immortal3.github.io/posts/essential-db-design-1/</link>
+      <link>https://dipkumar.dev/posts/essential-db-design-1/</link>
       <pubDate>Wed, 17 Apr 2024 11:35:38 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/posts/essential-db-design-1/</guid>
+      <guid>https://dipkumar.dev/posts/essential-db-design-1/</guid>
       <description>Essential Fields Be it relational or not, every table should have these 5 fields:
 created_at (default now()) updated_at (default now()) deleted_at (default null) created_by (not null) updated_by (not null) Just to be clear, every table should have these 5 fields and not must. Adding these fields have other side-effects such as bloat, performance and disk size. But, if you&amp;rsquo;re having these problems, i hope you&amp;rsquo;re profitable.
 Why should you include this fields ?</description>
     </item>
-    
   </channel>
 </rss>

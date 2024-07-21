@@ -1,145 +1,122 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Tags on Becoming The Unbeatable against AGI</title>
-    <link>https://immortal3.github.io/tags/</link>
-    <description>Recent content in Tags on Becoming The Unbeatable against AGI</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate><atom:link href="https://immortal3.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <title>Tags on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/</link>
+    <description>Recent content in Tags on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ai</title>
-      <link>https://immortal3.github.io/tags/ai/</link>
+      <title>Ai</title>
+      <link>https://dipkumar.dev/tags/ai/</link>
       <pubDate>Thu, 13 Jun 2024 23:15:53 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/ai/</guid>
+      <guid>https://dipkumar.dev/tags/ai/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>llm</title>
-      <link>https://immortal3.github.io/tags/llm/</link>
+      <title>Llm</title>
+      <link>https://dipkumar.dev/tags/llm/</link>
       <pubDate>Thu, 13 Jun 2024 23:15:53 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/llm/</guid>
+      <guid>https://dipkumar.dev/tags/llm/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>database</title>
-      <link>https://immortal3.github.io/tags/database/</link>
+      <title>Database</title>
+      <link>https://dipkumar.dev/tags/database/</link>
       <pubDate>Wed, 17 Apr 2024 11:35:38 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/database/</guid>
+      <guid>https://dipkumar.dev/tags/database/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>db</title>
-      <link>https://immortal3.github.io/tags/db/</link>
+      <title>Db</title>
+      <link>https://dipkumar.dev/tags/db/</link>
       <pubDate>Wed, 17 Apr 2024 11:35:38 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/db/</guid>
+      <guid>https://dipkumar.dev/tags/db/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>design</title>
-      <link>https://immortal3.github.io/tags/design/</link>
+      <title>Design</title>
+      <link>https://dipkumar.dev/tags/design/</link>
       <pubDate>Wed, 17 Apr 2024 11:35:38 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/design/</guid>
+      <guid>https://dipkumar.dev/tags/design/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>gpt</title>
-      <link>https://immortal3.github.io/tags/gpt/</link>
+      <title>Gpt</title>
+      <link>https://dipkumar.dev/tags/gpt/</link>
       <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/gpt/</guid>
+      <guid>https://dipkumar.dev/tags/gpt/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>nlp</title>
-      <link>https://immortal3.github.io/tags/nlp/</link>
+      <title>Nlp</title>
+      <link>https://dipkumar.dev/tags/nlp/</link>
       <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/nlp/</guid>
+      <guid>https://dipkumar.dev/tags/nlp/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>speedup</title>
-      <link>https://immortal3.github.io/tags/speedup/</link>
+      <title>Speedup</title>
+      <link>https://dipkumar.dev/tags/speedup/</link>
       <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/speedup/</guid>
+      <guid>https://dipkumar.dev/tags/speedup/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>transformer</title>
-      <link>https://immortal3.github.io/tags/transformer/</link>
+      <title>Transformer</title>
+      <link>https://dipkumar.dev/tags/transformer/</link>
       <pubDate>Sun, 12 Feb 2023 12:02:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/transformer/</guid>
+      <guid>https://dipkumar.dev/tags/transformer/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>course</title>
-      <link>https://immortal3.github.io/tags/course/</link>
+      <title>Course</title>
+      <link>https://dipkumar.dev/tags/course/</link>
       <pubDate>Tue, 03 Jan 2023 09:46:12 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/course/</guid>
+      <guid>https://dipkumar.dev/tags/course/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>ML</title>
-      <link>https://immortal3.github.io/tags/ml/</link>
+      <link>https://dipkumar.dev/tags/ml/</link>
       <pubDate>Tue, 03 Jan 2023 09:46:12 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/ml/</guid>
+      <guid>https://dipkumar.dev/tags/ml/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>notes</title>
-      <link>https://immortal3.github.io/tags/notes/</link>
+      <title>Notes</title>
+      <link>https://dipkumar.dev/tags/notes/</link>
       <pubDate>Tue, 03 Jan 2023 09:46:12 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/notes/</guid>
+      <guid>https://dipkumar.dev/tags/notes/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>algorithms</title>
-      <link>https://immortal3.github.io/tags/algorithms/</link>
+      <title>Algorithms</title>
+      <link>https://dipkumar.dev/tags/algorithms/</link>
       <pubDate>Sun, 28 Nov 2021 17:09:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/algorithms/</guid>
+      <guid>https://dipkumar.dev/tags/algorithms/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>LC</title>
-      <link>https://immortal3.github.io/tags/lc/</link>
+      <link>https://dipkumar.dev/tags/lc/</link>
       <pubDate>Sun, 28 Nov 2021 17:09:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/lc/</guid>
+      <guid>https://dipkumar.dev/tags/lc/</guid>
       <description></description>
     </item>
-    
     <item>
-      <title>hugo</title>
-      <link>https://immortal3.github.io/tags/hugo/</link>
+      <title>Hugo</title>
+      <link>https://dipkumar.dev/tags/hugo/</link>
       <pubDate>Sun, 28 Nov 2021 17:08:55 +0530</pubDate>
-      
-      <guid>https://immortal3.github.io/tags/hugo/</guid>
+      <guid>https://dipkumar.dev/tags/hugo/</guid>
       <description></description>
     </item>
-    
   </channel>
 </rss>

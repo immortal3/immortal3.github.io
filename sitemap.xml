@@ -2,84 +2,88 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://immortal3.github.io/tags/ai/</loc>
+    <loc>https://dipkumar.dev/</loc>
+    <lastmod>2024-07-10T22:11:36+05:30</lastmod>
+  </url><url>
+    <loc>https://dipkumar.dev/posts/</loc>
+    <lastmod>2024-07-10T22:11:36+05:30</lastmod>
+  </url><url>
+    <loc>https://dipkumar.dev/tags/ai/</loc>
     <lastmod>2024-06-13T23:15:53+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/aws-bedrock/</loc>
+    <loc>https://dipkumar.dev/posts/aws-bedrock/</loc>
     <lastmod>2024-06-13T23:15:53+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/</loc>
+    <loc>https://dipkumar.dev/tags/llm/</loc>
     <lastmod>2024-06-13T23:15:53+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/llm/</loc>
+    <loc>https://dipkumar.dev/tags/</loc>
     <lastmod>2024-06-13T23:15:53+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/</loc>
-    <lastmod>2024-06-13T23:15:53+05:30</lastmod>
+    <loc>https://dipkumar.dev/notes/</loc>
+    <lastmod>2024-05-15T12:02:54+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/</loc>
-    <lastmod>2024-06-13T23:15:53+05:30</lastmod>
-  </url><url>
-    <loc>https://immortal3.github.io/tags/database/</loc>
+    <loc>https://dipkumar.dev/tags/database/</loc>
     <lastmod>2024-04-17T11:35:38+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/db/</loc>
+    <loc>https://dipkumar.dev/tags/db/</loc>
     <lastmod>2024-04-17T11:35:38+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/design/</loc>
+    <loc>https://dipkumar.dev/tags/design/</loc>
     <lastmod>2024-04-17T11:35:38+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/essential-db-design-1/</loc>
+    <loc>https://dipkumar.dev/posts/essential-db-design-1/</loc>
     <lastmod>2024-04-17T11:35:38+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/about-me/</loc>
+    <loc>https://dipkumar.dev/about/</loc>
     <lastmod>2023-02-25T11:27:46+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/gpt/</loc>
+    <loc>https://dipkumar.dev/tags/gpt/</loc>
     <lastmod>2023-02-12T12:02:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/nlp/</loc>
+    <loc>https://dipkumar.dev/tags/nlp/</loc>
     <lastmod>2023-02-12T12:02:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/gpt-kvcache/</loc>
+    <loc>https://dipkumar.dev/posts/gpt-kvcache/</loc>
     <lastmod>2023-02-12T12:02:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/speedup/</loc>
+    <loc>https://dipkumar.dev/tags/speedup/</loc>
     <lastmod>2023-02-12T12:02:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/transformer/</loc>
+    <loc>https://dipkumar.dev/tags/transformer/</loc>
     <lastmod>2023-02-12T12:02:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/course/</loc>
+    <loc>https://dipkumar.dev/tags/course/</loc>
     <lastmod>2023-01-03T09:46:12+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/notes/efficient-ml/</loc>
+    <loc>https://dipkumar.dev/notes/efficient-ml/</loc>
     <lastmod>2023-01-03T09:46:12+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/ml/</loc>
+    <loc>https://dipkumar.dev/tags/ml/</loc>
     <lastmod>2023-01-03T09:46:12+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/notes/</loc>
+    <loc>https://dipkumar.dev/tags/notes/</loc>
     <lastmod>2023-01-03T09:46:12+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/notes/</loc>
-    <lastmod>2023-01-03T09:46:12+05:30</lastmod>
-  </url><url>
-    <loc>https://immortal3.github.io/tags/algorithms/</loc>
+    <loc>https://dipkumar.dev/tags/algorithms/</loc>
     <lastmod>2021-11-28T17:09:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/lc/</loc>
+    <loc>https://dipkumar.dev/tags/lc/</loc>
     <lastmod>2021-11-28T17:09:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/leetcode-contest/</loc>
+    <loc>https://dipkumar.dev/posts/leetcode-contest/</loc>
     <lastmod>2021-11-28T17:09:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/tags/hugo/</loc>
+    <loc>https://dipkumar.dev/tags/hugo/</loc>
     <lastmod>2021-11-28T17:08:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/posts/hugo-cmds/</loc>
+    <loc>https://dipkumar.dev/posts/hugo-cmds/</loc>
     <lastmod>2021-11-28T17:08:55+05:30</lastmod>
   </url><url>
-    <loc>https://immortal3.github.io/categories/</loc>
+    <loc>https://dipkumar.dev/categories/</loc>
+  </url><url>
+    <loc>https://dipkumar.dev/search/</loc>
+  </url><url>
+    <loc>https://dipkumar.dev/series/</loc>
   </url>
 </urlset>
