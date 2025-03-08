@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo -- 0.129.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 13 Jun 2024 23:15:53 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 08 Mar 2025 12:23:53 +0530</lastBuildDate>
     <atom:link href="https://dipkumar.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>No Bullshit Guide to Improving Retrieval in RAG</title>
+      <link>https://dipkumar.dev/posts/rag/retrieval-imprv/</link>
+      <pubDate>Sat, 08 Mar 2025 12:23:53 +0530</pubDate>
+      <guid>https://dipkumar.dev/posts/rag/retrieval-imprv/</guid>
+      <description>A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG</description>
+    </item>
     <item>
       <title>AWS BedRock - Converse API - A single endpoint for all models ?</title>
       <link>https://dipkumar.dev/posts/aws-bedrock/</link>
