@@ -14,7 +14,7 @@
     <lastBuildDate>Sat, 08 Mar 2025 12:23:53 +0530</lastBuildDate>
     <atom:link href="https://dipkumar.dev/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>No Bullshit Guide to Improving Retrieval in RAG</title>
+      <title>Improving Retrieval in RAG (via Recall, Precision, and NDCG)</title>
       <link>https://dipkumar.dev/posts/rag/retrieval-imprv/</link>
       <pubDate>Sat, 08 Mar 2025 12:23:53 +0530</pubDate>
       <guid>https://dipkumar.dev/posts/rag/retrieval-imprv/</guid>
