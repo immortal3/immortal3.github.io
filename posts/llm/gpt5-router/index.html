@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>GPT-5 Router - Inevitable Future of Chat Interfaces | Dip&#39;Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.">
+<meta name="author" content="
+Author:
+Dipkumar Patel">
+<link rel="canonical" href="https://dipkumar.dev/posts/llm/gpt5-router/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.9a3a9b6cc85cc3f62d3346fcc6d5b9344945ceca05719846bfd9d1f7a39acc84.css" integrity="sha256-mjqbbMhcw/YtM0b8xtW5NElFzsoFcZhGv9nR96OazIQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://dipkumar.dev/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dipkumar.dev/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://dipkumar.dev/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://dipkumar.dev/apple-touch-icon.png">
+<link rel="mask-icon" href="https://dipkumar.dev/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://dipkumar.dev/posts/llm/gpt5-router/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+  
+
+<meta property="og:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces" />
+<meta property="og:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://dipkumar.dev/posts/llm/gpt5-router/" />
+<meta property="og:image" content="https://dipkumar.dev/images/papermod-cover.png" />
+<meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-08-13T20:48:22+05:30" />
+<meta property="article:modified_time" content="2025-08-13T20:48:22+05:30" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://dipkumar.dev/images/papermod-cover.png" />
+<meta name="twitter:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces"/>
+<meta name="twitter:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://dipkumar.dev/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "GPT-5 Router - Inevitable Future of Chat Interfaces",
+      "item": "https://dipkumar.dev/posts/llm/gpt5-router/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "GPT-5 Router - Inevitable Future of Chat Interfaces",
+  "name": "GPT-5 Router - Inevitable Future of Chat Interfaces",
+  "description": "Why OpenAI's GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.",
+  "keywords": [
+    
+  ],
+  "articleBody": "OpenAI GPT-5 Router is like Apple removing headphone jack.\nIt sucks but everyone will follow it.\n— immortal (@immortal_0698) August 14, 2025 What is GPT-5 Router The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.\nHow It Works: Routing as Classification Problem Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:\nSmaller model: when the query is simple Larger model: when the query is complex In reality, we have more models, but for simplicity, we will stick to two models.\nThe Classification Matrix A compact way to reason about this: a confusion matrix. To keep score, call the positive class “complex” and the negative class “simple”. Rows are the router’s decision; columns are the true difficulty of user query.\nActual Difficulty: Simple Actual Difficulty: Complex Route: Smaller True Negative (TN) False Negative (FN) Route: Larger False Positive (FP) True Positive (TP) We don’t have to worry about the diagonal elements, as they are the cases where the router is correct. But we need to worry about the off-diagonal elements : False Positive and False Negative.\nError Analysis: Both Mistakes Cost Money False Negative (Complex → Smaller): The worst outcome\nBreaks user experience - they get a shallow answer to a deep question Damages trust and perceived quality Users complain, cancel subscriptions, bad reviews Cost: Customer churn and reputation damage False Positive (Simple → Larger): The expensive mistake\nUser gets a great answer but you burn unnecessary compute $0.05 query becomes a $0.60 query (12x cost) At scale, this adds up fast - 10,000 false positives = $5,500 in wasted compute Cost: Direct margin erosion So the strategy becomes: bias toward false positives (overspend on compute) rather than false negatives (lose customers). You can optimize compute costs later, but you can’t win back a user who thinks your AI is “dumber than your previous model.”\nThis is why OpenAI initially erred on the side of caution with the router, then faced backlash when the pendulum swung too far toward false negatives. The sweet spot is narrow and expensive to find.\nEconomic Motivation: The Subscription Squeeze This technical complexity of router exists because OpenAI faces a challenging economic reality: flat subscription pricing becomes difficult when usage explodes exponentially. As per Sam Altman, even $200/month struggles to maintain profitability.\ninsane thing: we are currently losing money on openai pro subscriptions!\npeople use it much more than we expected.\n— Sam Altman (@sama) January 6, 2025 Math Behind the Subscription Pricing Here’s the math behind the subscription pricing:\nUsers pay $20/month for supposedly “unlimited” access (Nothing is unlimited) But Big models can burn upto $0.5+ per query in compute costs (Reasoning models) Deep research runs cost ~$1+ each and take 20+ minutes Other features such as memory, tools, etc. are not free. It’s not just OpenAI - other companies are facing similar challenges:\nAnthropic - Their $20/month subscription includes significant rate limiting. Cursor - They recently announced that after 250 Sonnet requests, they’ll meter usage and charge based on consumption Routers are going to get better Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:\nData Collection at Scale:\nMillions of daily interactions across different complexity levels User feedback signals (thumbs up/down, follow-up questions) Engagement metrics (time spent reading, follow-up queries) Cost-per-query data for model optimization Iterative Improvement Loop:\nRouter misroutes a complex query → user complains or asks follow-up OpenAI labels this as “should have gone to reasoning model” Router learns: similar queries get routed to larger model next time Over time, accuracy improves from 80% → 90% → 95%+ The GPT-5 Launch Backlash When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem “dumber” than GPT-4o.\nUser Backlash:\nUsers reported shallow answers to complex prompts Reddit filled with complaints about the perceived downgrade Loss of manual model selection frustrated paid subscribers OpenAI’s Response:\nBrought back GPT-4o access for Plus users Acknowledged router problems and began tuning improvements Added more transparency about which model responds Conclusion / Prediction The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:\nHigher-tier customers: Will likely get manual model selection options Free/basic tiers: Will live with the router, but a much-improved version Industry trend: Other AI companies will adopt similar routing strategies as costs mount The economics make routers inevitable, but OpenAI’s rough launch showed that execution quality determines success or failure.\n",
+  "wordCount" : "839",
+  "inLanguage": "en",
+  "image": "https://dipkumar.dev/images/papermod-cover.png","datePublished": "2025-08-13T20:48:22+05:30",
+  "dateModified": "2025-08-13T20:48:22+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Dipkumar Patel"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dipkumar.dev/posts/llm/gpt5-router/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Dip'Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dipkumar.dev/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://dipkumar.dev/" accesskey="h" title="Dip&#39;Blog (Alt + H)">Dip&#39;Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://dipkumar.dev/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://dipkumar.dev/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://dipkumar.dev/tags/" title="tags">
+                    <span>tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      GPT-5 Router - Inevitable Future of Chat Interfaces
+    </h1>
+    <div class="post-description">
+      Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.
+    </div>
+    <div class="post-meta"><span title='2025-08-13 20:48:22 +0530 IST'> August 13, 2025</span>&nbsp;|&nbsp;Estimated Reading Time: 4 min&nbsp;|&nbsp;
+Author:
+Dipkumar Patel&nbsp;|&nbsp;<a href="https://github.com/adityatelange/hugo-PaperMod/tree/exampleSite/content/posts/llm/gpt5-router.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#what-is-gpt-5-router" aria-label="What is GPT-5 Router">What is GPT-5 Router</a></li>
+                <li>
+                    <a href="#how-it-works-routing-as-classification-problem" aria-label="How It Works: Routing as Classification Problem">How It Works: Routing as Classification Problem</a><ul>
+                        
+                <li>
+                    <a href="#the-classification-matrix" aria-label="The Classification Matrix">The Classification Matrix</a></li>
+                <li>
+                    <a href="#error-analysis-both-mistakes-cost-money" aria-label="Error Analysis: Both Mistakes Cost Money">Error Analysis: Both Mistakes Cost Money</a></li></ul>
+                </li>
+                <li>
+                    <a href="#economic-motivation-the-subscription-squeeze" aria-label="Economic Motivation: The Subscription Squeeze">Economic Motivation: The Subscription Squeeze</a><ul>
+                        
+                <li>
+                    <a href="#math-behind-the-subscription-pricing" aria-label="Math Behind the Subscription Pricing">Math Behind the Subscription Pricing</a></li>
+                <li>
+                    <a href="#routers-are-going-to-get-better" aria-label="Routers are going to get better">Routers are going to get better</a></li></ul>
+                </li>
+                <li>
+                    <a href="#the-gpt-5-launch-backlash" aria-label="The GPT-5 Launch Backlash">The GPT-5 Launch Backlash</a></li>
+                <li>
+                    <a href="#conclusion--prediction" aria-label="Conclusion / Prediction">Conclusion / Prediction</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote class="twitter-tweet"><p lang="en" dir="ltr">OpenAI GPT-5 Router is like Apple removing headphone jack.<br>It sucks but everyone will follow it.</p>&mdash; immortal (@immortal_0698) <a href="https://twitter.com/immortal_0698/status/1956062348688388210?ref_src=twsrc%5Etfw">August 14, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h2 id="what-is-gpt-5-router">What is GPT-5 Router<a hidden class="anchor" aria-hidden="true" href="#what-is-gpt-5-router">#</a></h2>
+<p>The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.</p>
+<h2 id="how-it-works-routing-as-classification-problem">How It Works: Routing as Classification Problem<a hidden class="anchor" aria-hidden="true" href="#how-it-works-routing-as-classification-problem">#</a></h2>
+<p>Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:</p>
+<ul>
+<li>Smaller model: when the query is simple</li>
+<li>Larger model: when the query is complex</li>
+</ul>
+<p>In reality, we have more models, but for simplicity, we will stick to two models.</p>
+<h3 id="the-classification-matrix">The Classification Matrix<a hidden class="anchor" aria-hidden="true" href="#the-classification-matrix">#</a></h3>
+<p>A compact way to reason about this: a confusion matrix. To keep score, call the positive class &ldquo;complex&rdquo; and the negative class &ldquo;simple&rdquo;. Rows are the router&rsquo;s decision; columns are the true difficulty of user query.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Actual Difficulty: Simple</th>
+<th>Actual Difficulty: Complex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route: Smaller</td>
+<td>True Negative (TN)</td>
+<td>False Negative (FN)</td>
+</tr>
+<tr>
+<td>Route: Larger</td>
+<td>False Positive (FP)</td>
+<td>True Positive (TP)</td>
+</tr>
+</tbody>
+</table>
+<p>We don&rsquo;t have to worry about the diagonal elements, as they are the cases where the router is correct. But we need to worry about the off-diagonal elements : False Positive and False Negative.</p>
+<h3 id="error-analysis-both-mistakes-cost-money">Error Analysis: Both Mistakes Cost Money<a hidden class="anchor" aria-hidden="true" href="#error-analysis-both-mistakes-cost-money">#</a></h3>
+<p><strong>False Negative (Complex → Smaller)</strong>: The worst outcome</p>
+<ul>
+<li>Breaks user experience - they get a shallow answer to a deep question</li>
+<li>Damages trust and perceived quality</li>
+<li>Users complain, cancel subscriptions, bad reviews</li>
+<li>Cost: Customer churn and reputation damage</li>
+</ul>
+<p><strong>False Positive (Simple → Larger)</strong>: The expensive mistake</p>
+<ul>
+<li>User gets a great answer but you burn unnecessary compute</li>
+<li>$0.05 query becomes a $0.60 query (12x cost)</li>
+<li>At scale, this adds up fast - 10,000 false positives = $5,500 in wasted compute</li>
+<li>Cost: Direct margin erosion</li>
+</ul>
+<p>So the strategy becomes: bias toward false positives (overspend on compute) rather than false negatives (lose customers). You can optimize compute costs later, but you can&rsquo;t win back a user who thinks your AI is &ldquo;dumber than your previous model.&rdquo;</p>
+<p>This is why OpenAI initially erred on the side of caution with the router, then faced backlash when the pendulum swung too far toward false negatives. The sweet spot is narrow and expensive to find.</p>
+<h2 id="economic-motivation-the-subscription-squeeze">Economic Motivation: The Subscription Squeeze<a hidden class="anchor" aria-hidden="true" href="#economic-motivation-the-subscription-squeeze">#</a></h2>
+<p>This technical complexity of router exists because OpenAI faces a challenging economic reality: <strong>flat subscription pricing becomes difficult when usage explodes exponentially</strong>. As per Sam Altman, even $200/month struggles to maintain profitability.</p>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">insane thing: we are currently losing money on openai pro subscriptions!<br><br>people use it much more than we expected.</p>&mdash; Sam Altman (@sama) <a href="https://twitter.com/sama/status/1876104315296968813?ref_src=twsrc%5Etfw">January 6, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h3 id="math-behind-the-subscription-pricing">Math Behind the Subscription Pricing<a hidden class="anchor" aria-hidden="true" href="#math-behind-the-subscription-pricing">#</a></h3>
+<p>Here&rsquo;s the math behind the subscription pricing:</p>
+<ul>
+<li>Users pay $20/month for supposedly &ldquo;unlimited&rdquo; access (Nothing is unlimited)</li>
+<li>But Big models can burn upto $0.5+ per query in compute costs (Reasoning models)</li>
+<li>Deep research runs cost ~$1+ each and take 20+ minutes</li>
+<li>Other features such as memory, tools, etc. are not free.</li>
+</ul>
+<p>It&rsquo;s not just OpenAI - other companies are facing similar challenges:</p>
+<ul>
+<li>Anthropic - Their $20/month subscription includes significant rate limiting.</li>
+<li>Cursor - They recently announced that after 250 Sonnet requests, they&rsquo;ll meter usage and charge based on consumption</li>
+</ul>
+<h3 id="routers-are-going-to-get-better">Routers are going to get better<a hidden class="anchor" aria-hidden="true" href="#routers-are-going-to-get-better">#</a></h3>
+<p>Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:</p>
+<p><strong>Data Collection at Scale:</strong></p>
+<ul>
+<li>Millions of daily interactions across different complexity levels</li>
+<li>User feedback signals (thumbs up/down, follow-up questions)</li>
+<li>Engagement metrics (time spent reading, follow-up queries)</li>
+<li>Cost-per-query data for model optimization</li>
+</ul>
+<p><strong>Iterative Improvement Loop:</strong></p>
+<ul>
+<li>Router misroutes a complex query → user complains or asks follow-up</li>
+<li>OpenAI labels this as &ldquo;should have gone to reasoning model&rdquo;</li>
+<li>Router learns: similar queries get routed to larger model next time</li>
+<li>Over time, accuracy improves from 80% → 90% → 95%+</li>
+</ul>
+<h2 id="the-gpt-5-launch-backlash">The GPT-5 Launch Backlash<a hidden class="anchor" aria-hidden="true" href="#the-gpt-5-launch-backlash">#</a></h2>
+<p>When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem &ldquo;dumber&rdquo; than GPT-4o.</p>
+<p><strong>User Backlash:</strong></p>
+<ul>
+<li>Users reported <a href="https://www.techradar.com/ai-platforms-assistants/chatgpt/chatgpt-users-are-not-happy-with-gpt-5-launch-as-thousands-take-to-reddit-claiming-the-new-upgrade-is-horrible">shallow answers to complex prompts</a></li>
+<li>Reddit filled with complaints about the <a href="https://www.macrumors.com/2025/08/08/openai-gpt-5-complaints/">perceived downgrade</a></li>
+<li>Loss of manual model selection frustrated <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">paid subscribers</a></li>
+</ul>
+<p><strong>OpenAI&rsquo;s Response:</strong></p>
+<ul>
+<li><a href="https://www.tomsguide.com/ai/chatgpt-4o-is-coming-back-after-massive-gpt-5-backlash-heres-what-happened">Brought back GPT-4o access</a> for Plus users</li>
+<li>Acknowledged router problems and began <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">tuning improvements</a></li>
+<li>Added more transparency about which model responds</li>
+</ul>
+<h2 id="conclusion--prediction">Conclusion / Prediction<a hidden class="anchor" aria-hidden="true" href="#conclusion--prediction">#</a></h2>
+<p>The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:</p>
+<ul>
+<li><strong>Higher-tier customers</strong>: Will likely get manual model selection options</li>
+<li><strong>Free/basic tiers</strong>: Will live with the router, but a much-improved version</li>
+<li><strong>Industry trend</strong>: Other AI companies will adopt similar routing strategies as costs mount</li>
+</ul>
+<p>The economics make routers inevitable, but OpenAI&rsquo;s rough launch showed that execution quality determines success or failure.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://dipkumar.dev/">Dip&#39;Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
