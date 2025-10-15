@@ -11,8 +11,16 @@
     </image>
     <generator>Hugo -- 0.129.0</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 17 Aug 2025 20:43:08 +0530</lastBuildDate>
+    <lastBuildDate>Wed, 15 Oct 2025 22:59:08 +0530</lastBuildDate>
     <atom:link href="https://dipkumar.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs</title>
+      <link>https://dipkumar.dev/posts/llm/bits-per-byte/</link>
+      <pubDate>Wed, 15 Oct 2025 22:59:08 +0530</pubDate>
+      <guid>https://dipkumar.dev/posts/llm/bits-per-byte/</guid>
+      <description>Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.
+TL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.</description>
+    </item>
     <item>
       <title>Creativity Is a Luxury</title>
       <link>https://dipkumar.dev/posts/life/creativity-is-a-luxury/</link>

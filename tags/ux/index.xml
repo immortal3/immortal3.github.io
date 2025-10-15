@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Ux on Dip&#39;Blog</title>
+    <link>https://dipkumar.dev/tags/ux/</link>
+    <description>Recent content in Ux on Dip&#39;Blog</description>
+    <image>
+      <title>Dip&#39;Blog</title>
+      <url>https://dipkumar.dev/images/papermod-cover.png</url>
+      <link>https://dipkumar.dev/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.129.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 13 Aug 2025 20:48:22 +0530</lastBuildDate>
+    <atom:link href="https://dipkumar.dev/tags/ux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GPT-5 Router - Inevitable Future of Chat Interfaces</title>
+      <link>https://dipkumar.dev/posts/llm/gpt5-router/</link>
+      <pubDate>Wed, 13 Aug 2025 20:48:22 +0530</pubDate>
+      <guid>https://dipkumar.dev/posts/llm/gpt5-router/</guid>
+      <description>Why OpenAI&amp;#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.</description>
+    </item>
+  </channel>
+</rss>

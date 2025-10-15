@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs | Dip&#39;Blog</title>
+<meta name="keywords" content="llm, tokenizer">
+<meta name="description" content="Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.
+TL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.">
+<meta name="author" content="
+Author:
+Dipkumar Patel">
+<link rel="canonical" href="https://dipkumar.dev/posts/llm/bits-per-byte/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.9a3a9b6cc85cc3f62d3346fcc6d5b9344945ceca05719846bfd9d1f7a39acc84.css" integrity="sha256-mjqbbMhcw/YtM0b8xtW5NElFzsoFcZhGv9nR96OazIQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://dipkumar.dev/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dipkumar.dev/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://dipkumar.dev/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://dipkumar.dev/apple-touch-icon.png">
+<link rel="mask-icon" href="https://dipkumar.dev/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://dipkumar.dev/posts/llm/bits-per-byte/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+  
+
+<meta property="og:title" content="Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs" />
+<meta property="og:description" content="Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.
+TL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://dipkumar.dev/posts/llm/bits-per-byte/" />
+<meta property="og:image" content="https://dipkumar.dev/images/papermod-cover.png" />
+<meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-10-15T22:59:08+05:30" />
+<meta property="article:modified_time" content="2025-10-15T22:59:08+05:30" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://dipkumar.dev/images/papermod-cover.png" />
+<meta name="twitter:title" content="Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs"/>
+<meta name="twitter:description" content="Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.
+TL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://dipkumar.dev/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs",
+      "item": "https://dipkumar.dev/posts/llm/bits-per-byte/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs",
+  "name": "Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs",
+  "description": "Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.\nTL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.",
+  "keywords": [
+    "llm", "tokenizer"
+  ],
+  "articleBody": " Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.\nTL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules. Perplexity and token-level loss change when you change the tokenizer; BPB largely doesn’t. LLM doesn’t predict the text, it predicts the (next) token. But token definitions depend on the tokenizer (BPE, Unigram, merges, special tokens, etc.). Swap tokenizers and the same sentence can become more or fewer tokens. So per-token metrics (avg CE, perplexity) change even if the underlying modeling quality didn’t.\nSome popular tokenizer choices are:\nModel Tokenizer Vocab Size GPT-4 cl100k_base (BPE) 100,256 LLaMA 3 TikToken (BPE) 128,000 Gemini 2.5 SentencePiece (Unigram) 256,000 Claude closed-source undisclosed Different tokenizers ≠ comparable “tokens”. So a model that uses a coarser tokenizer (fewer, longer tokens) can appear to have a lower per-token loss or perplexity, simply because the denominator changed.\nInstead of normalizing loss per token, normalize per byte of UTF-8 text that those tokens represent. Then, no matter how you split words into tokens, you’re still asking: how many bits, on average, does the model need to encode each byte of text?\nBelow is the simplified and more readable version of the original code.\nimport math import torch import torch.distributed as dist @torch.no_grad() def evaluate_bpb(model, batches, steps: int, token_bytes: torch.Tensor) -\u003e float: \"\"\" Compute Bits-Per-Byte (BPB) over `steps` batches. Shapes (your mental model): B = batch size Seq = sequence length V = vocab size Inputs: - model: callable like model(x, y, loss_reduction='none') -\u003e loss per token. Expects: x: (B, Seq) token ids (int64) y: (B, Seq) target token ids (int64), may contain ignore_index (\u003c0) Returns: loss2d: (B, Seq) per-token loss in NATs (float32/float16) - batches: iterable yielding (x, y) as above. - steps: number of batches to evaluate. - token_bytes: (V,) int64 — byte length of each token id; 0 for special tokens (those should not count toward BPB). Notes: - BPB = (sum of losses in NATs over *counted* tokens) / (ln(2) * total_counted_bytes) - Tokens contribute to the denominator by their byte length; tokens with 0 bytes (specials) and ignored targets (\u003c0) are excluded from both numerator \u0026 denominator. \"\"\" device = model.get_device() if hasattr(model, \"get_device\") else next(model.parameters()).device # Accumulators across steps (and later across ranks) sum_nats = torch.tensor(0.0, dtype=torch.float32, device=device) # scalar sum_bytes = torch.tensor(0, dtype=torch.int64, device=device) # scalar token_bytes = token_bytes.to(device=device, dtype=torch.int64) # (V,) batch_iter = iter(batches) for _ in range(steps): x, y = next(batch_iter) # x: (B, Seq), y: (B, Seq) x = x.to(device) y = y.to(device) loss2d = model(x, y, loss_reduction='none') # (B, Seq) NATs loss1d = loss2d.reshape(-1) # (B*Seq,) y1d = y.reshape(-1) # (B*Seq,) if (y1d \u003c 0).any(): # Mask out ignore_index (\u003c0) before indexing into token_bytes valid = (y1d \u003e= 0) # (B*Seq,) ysafe = torch.where(valid, y1d, torch.zeros_like(y1d)) # (B*Seq,) nb = torch.where(valid, token_bytes[ysafe], torch.zeros_like(y1d)) # (B*Seq,) int64 else: nb = token_bytes[y1d] # (B*Seq,) int64 # Count only tokens with positive byte length counted = (nb \u003e 0) # (B*Seq,) bool sum_nats += (loss1d[counted]).sum() # scalar sum_bytes += nb[counted].sum() # scalar int64 # Distributed sum over all ranks, if initialized if dist.is_initialized() and dist.get_world_size() \u003e 1: dist.all_reduce(sum_nats, op=dist.ReduceOp.SUM) dist.all_reduce(sum_bytes, op=dist.ReduceOp.SUM) total_nats = float(sum_nats.item()) total_bytes = int(sum_bytes.item()) # Guard against division by zero (e.g., all tokens were special/ignored) if total_bytes == 0: return float(\"nan\") bpb = total_nats / (math.log(2.0) * total_bytes) return bpb ",
+  "wordCount" : "617",
+  "inLanguage": "en",
+  "image": "https://dipkumar.dev/images/papermod-cover.png","datePublished": "2025-10-15T22:59:08+05:30",
+  "dateModified": "2025-10-15T22:59:08+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Dipkumar Patel"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dipkumar.dev/posts/llm/bits-per-byte/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Dip'Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dipkumar.dev/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://dipkumar.dev/" accesskey="h" title="Dip&#39;Blog (Alt + H)">Dip&#39;Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://dipkumar.dev/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://dipkumar.dev/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://dipkumar.dev/tags/" title="tags">
+                    <span>tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs
+    </h1>
+    <div class="post-meta"><span title='2025-10-15 22:59:08 +0530 IST'> October 15, 2025</span>&nbsp;|&nbsp;Estimated Reading Time: 3 min&nbsp;|&nbsp;
+Author:
+Dipkumar Patel&nbsp;|&nbsp;<a href="https://github.com/adityatelange/hugo-PaperMod/tree/exampleSite/content/posts/llm/bits-per-byte.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#tldr" aria-label="TL;DR">TL;DR</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>Karpthay recently released nanochat repo [1] which cotains code for <strong>training the best ChatGPT under $100</strong>. While skimminng the high level code, I noticed across <code>bits per bytes</code> loss instead of typical <code>cross entropy</code> loss. And, i found it interesting, so i decided to dig in.</p>
+</blockquote>
+<h3 id="tldr">TL;DR<a hidden class="anchor" aria-hidden="true" href="#tldr">#</a></h3>
+<ul>
+<li>Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits.</li>
+<li>Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.</li>
+<li>Perplexity and token-level loss change when you change the tokenizer; BPB largely doesn’t.</li>
+</ul>
+<p>LLM doesn&rsquo;t predict the text, it predicts the (next) token. But token definitions depend on the tokenizer (BPE, Unigram, merges, special tokens, etc.). Swap tokenizers and the same sentence can become more or fewer tokens. So <code>per-token</code> metrics (avg CE, perplexity) change even if the underlying modeling quality didn’t.</p>
+<p>Some popular tokenizer choices are:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Tokenizer</th>
+<th>Vocab Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-4</td>
+<td>cl100k_base (BPE)</td>
+<td>100,256</td>
+</tr>
+<tr>
+<td>LLaMA 3</td>
+<td>TikToken (BPE)</td>
+<td>128,000</td>
+</tr>
+<tr>
+<td>Gemini 2.5</td>
+<td>SentencePiece (Unigram)</td>
+<td>256,000</td>
+</tr>
+<tr>
+<td>Claude</td>
+<td>closed-source</td>
+<td>undisclosed</td>
+</tr>
+</tbody>
+</table>
+<p>Different tokenizers ≠ comparable “tokens”. So a model that uses a coarser tokenizer (fewer, longer tokens) can appear to have a lower per-token loss or perplexity, simply because the denominator changed.</p>
+<p>Instead of normalizing loss per token, normalize per byte of UTF-8 text that those tokens represent. Then, no matter how you split words into tokens, you’re still asking: how many bits, on average, does the model need to encode each byte of text?</p>
+<p>Below is the simplified and more readable version of the <a href="https://github.com/karpathy/nanochat/blob/master/nanochat/loss_eval.py">original code</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@torch.no_grad</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">evaluate_bpb</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batches</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">token_bytes</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Compute Bits-Per-Byte (BPB) over `steps` batches.
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Shapes (your mental model):
+</span></span></span><span class="line"><span class="cl"><span class="s2">      B  = batch size
+</span></span></span><span class="line"><span class="cl"><span class="s2">      Seq = sequence length
+</span></span></span><span class="line"><span class="cl"><span class="s2">      V  = vocab size
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Inputs:
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - model: callable like model(x, y, loss_reduction=&#39;none&#39;) -&gt; loss per token.
+</span></span></span><span class="line"><span class="cl"><span class="s2">               Expects:
+</span></span></span><span class="line"><span class="cl"><span class="s2">                 x: (B, Seq) token ids (int64)
+</span></span></span><span class="line"><span class="cl"><span class="s2">                 y: (B, Seq) target token ids (int64), may contain ignore_index (&lt;0)
+</span></span></span><span class="line"><span class="cl"><span class="s2">               Returns:
+</span></span></span><span class="line"><span class="cl"><span class="s2">                 loss2d: (B, Seq) per-token loss in NATs (float32/float16)
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - batches: iterable yielding (x, y) as above.
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - steps: number of batches to evaluate.
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - token_bytes: (V,) int64 — byte length of each token id; 0 for special tokens
+</span></span></span><span class="line"><span class="cl"><span class="s2">                     (those should not count toward BPB).
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Notes:
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - BPB = (sum of losses in NATs over *counted* tokens) / (ln(2) * total_counted_bytes)
+</span></span></span><span class="line"><span class="cl"><span class="s2">      - Tokens contribute to the denominator by their byte length; tokens with 0 bytes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        (specials) and ignored targets (&lt;0) are excluded from both numerator &amp; denominator.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">device</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_device</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&#34;get_device&#34;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Accumulators across steps (and later across ranks)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sum_nats</span>  <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># scalar</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sum_bytes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>   <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>   <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># scalar</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">token_bytes</span> <span class="o">=</span> <span class="n">token_bytes</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>     <span class="c1"># (V,)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">batch_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">batch_iter</span><span class="p">)</span>                  <span class="c1"># x: (B, Seq), y: (B, Seq)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">loss2d</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">loss_reduction</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>  <span class="c1"># (B, Seq) NATs</span>
+</span></span><span class="line"><span class="cl">        <span class="n">loss1d</span> <span class="o">=</span> <span class="n">loss2d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>                  <span class="c1"># (B*Seq,)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y1d</span>    <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>                       <span class="c1"># (B*Seq,)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">y1d</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Mask out ignore_index (&lt;0) before indexing into token_bytes</span>
+</span></span><span class="line"><span class="cl">            <span class="n">valid</span>  <span class="o">=</span> <span class="p">(</span><span class="n">y1d</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>                                      <span class="c1"># (B*Seq,)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ysafe</span>  <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">y1d</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">y1d</span><span class="p">))</span>  <span class="c1"># (B*Seq,)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nb</span>     <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">token_bytes</span><span class="p">[</span><span class="n">ysafe</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">y1d</span><span class="p">))</span>  <span class="c1"># (B*Seq,) int64</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nb</span> <span class="o">=</span> <span class="n">token_bytes</span><span class="p">[</span><span class="n">y1d</span><span class="p">]</span>  <span class="c1"># (B*Seq,) int64</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Count only tokens with positive byte length</span>
+</span></span><span class="line"><span class="cl">        <span class="n">counted</span> <span class="o">=</span> <span class="p">(</span><span class="n">nb</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>                             <span class="c1"># (B*Seq,) bool</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sum_nats</span>  <span class="o">+=</span> <span class="p">(</span><span class="n">loss1d</span><span class="p">[</span><span class="n">counted</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>           <span class="c1"># scalar</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sum_bytes</span> <span class="o">+=</span> <span class="n">nb</span><span class="p">[</span><span class="n">counted</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>                 <span class="c1"># scalar int64</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Distributed sum over all ranks, if initialized</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">sum_nats</span><span class="p">,</span>  <span class="n">op</span><span class="o">=</span><span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">sum_bytes</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">total_nats</span>  <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sum_nats</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_bytes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sum_bytes</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Guard against division by zero (e.g., all tokens were special/ignored)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">total_bytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&#34;nan&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">bpb</span> <span class="o">=</span> <span class="n">total_nats</span> <span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">bpb</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://dipkumar.dev/tags/llm/">Llm</a></li>
+      <li><a href="https://dipkumar.dev/tags/tokenizer/">Tokenizer</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://dipkumar.dev/">Dip&#39;Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

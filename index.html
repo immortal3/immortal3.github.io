@@ -193,6 +193,21 @@ Dipkumar Patel">
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Karpthay recently released nanochat repo [1] which cotains code for training the best ChatGPT under $100. While skimminng the high level code, I noticed across bits per bytes loss instead of typical cross entropy loss. And, i found it interesting, so i decided to dig in.
+TL;DR Bit is just cross-entropy measured per byte (in bits). We do divide by log(2) to convert to bits. Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules....</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-10-15 22:59:08 +0530 IST'> October 15, 2025</span>&nbsp;|&nbsp;Estimated Reading Time: 3 min&nbsp;|&nbsp;
+Author:
+Dipkumar Patel</footer>
+  <a class="entry-link" aria-label="post link to Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs" href="https://dipkumar.dev/posts/llm/bits-per-byte/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Creativity Is a Luxury
     </h2>
   </header>
@@ -251,20 +266,6 @@ This guide cuts through the noise. You’ll learn how to turbocharge your RAG re
 Author:
 Dipkumar Patel</footer>
   <a class="entry-link" aria-label="post link to Improving Retrieval in RAG (via Recall, Precision, and NDCG)" href="https://dipkumar.dev/posts/rag/retrieval-imprv/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">AWS BedRock - Converse API - A single endpoint for all models ?
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources....</p>
-  </div>
-  <footer class="entry-footer"><span title='2024-06-13 23:15:53 +0530 IST'> June 13, 2024</span>&nbsp;|&nbsp;Estimated Reading Time: 4 min&nbsp;|&nbsp;
-Author:
-Dipkumar Patel</footer>
-  <a class="entry-link" aria-label="post link to AWS BedRock - Converse API - A single endpoint for all models ?" href="https://dipkumar.dev/posts/aws-bedrock/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">
