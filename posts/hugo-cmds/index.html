@@ -1,377 +1,108 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
+<html lang="en">
 
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>Hugo commands | Dip&#39;Blog</title>
-<meta name="keywords" content="hugo">
-<meta name="description" content="run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\icons\favicon.png relative imports: icons\favicon.png
-fix for label image icon: small_icon.jpg instead of icon: small_icon.png
-github issue: https://github.com/adityatelange/hugo-PaperMod/issues/622">
-<meta name="author" content="
-Author:
-Dipkumar Patel">
-<link rel="canonical" href="https://dipkumar.dev/posts/hugo-cmds/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.9a3a9b6cc85cc3f62d3346fcc6d5b9344945ceca05719846bfd9d1f7a39acc84.css" integrity="sha256-mjqbbMhcw/YtM0b8xtW5NElFzsoFcZhGv9nR96OazIQ=" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://dipkumar.dev/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://dipkumar.dev/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://dipkumar.dev/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://dipkumar.dev/apple-touch-icon.png">
-<link rel="mask-icon" href="https://dipkumar.dev/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://dipkumar.dev/posts/hugo-cmds/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Hugo commands | Dip&#39;s Blog
+    </title>
+    <meta name="description"
+        content="Thoughts on Machine Learning, AI, and Software Engineering by Dipkumar Patel">
+    <meta property="og:title" content="Hugo commands" />
+    <meta property="og:description"
+        content="Thoughts on Machine Learning, AI, and Software Engineering by Dipkumar Patel" />
+    <meta property="og:type" content="article" />
+    <meta property="og:image" content="https://dipkumar.dev/static/social-share.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://dipkumar.dev/static/social-share.jpg" />
 
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
+    <link rel="icon" type="image/jpeg" href="/static/icon.jpeg">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/fish.css">
 
-            .list {
-                background: var(--theme);
-            }
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
 
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript>
-  
-
-<meta property="og:title" content="Hugo commands" />
-<meta property="og:description" content="run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\icons\favicon.png relative imports: icons\favicon.png
-fix for label image icon: small_icon.jpg instead of icon: small_icon.png
-github issue: https://github.com/adityatelange/hugo-PaperMod/issues/622" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://dipkumar.dev/posts/hugo-cmds/" />
-<meta property="og:image" content="https://dipkumar.dev/images/papermod-cover.png" />
-<meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-28T17:08:55+05:30" />
-<meta property="article:modified_time" content="2021-11-28T17:08:55+05:30" />
-
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://dipkumar.dev/images/papermod-cover.png" />
-<meta name="twitter:title" content="Hugo commands"/>
-<meta name="twitter:description" content="run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\icons\favicon.png relative imports: icons\favicon.png
-fix for label image icon: small_icon.jpg instead of icon: small_icon.png
-github issue: https://github.com/adityatelange/hugo-PaperMod/issues/622"/>
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://dipkumar.dev/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "Hugo commands",
-      "item": "https://dipkumar.dev/posts/hugo-cmds/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Hugo commands",
-  "name": "Hugo commands",
-  "description": "run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\\icons\\favicon.png relative imports: icons\\favicon.png\nfix for label image icon: small_icon.jpg instead of icon: small_icon.png\ngithub issue: https://github.com/adityatelange/hugo-PaperMod/issues/622",
-  "keywords": [
-    "hugo"
-  ],
-  "articleBody": "run local server hugo server -D Create New Post hugo new content/posts/{post-name}.md Hugo build/export the site hugo -d ../becoming-the-unbeatable relative imports example: static\\icons\\favicon.png relative imports: icons\\favicon.png\nfix for label image icon: small_icon.jpg instead of icon: small_icon.png\ngithub issue: https://github.com/adityatelange/hugo-PaperMod/issues/622\n",
-  "wordCount" : "39",
-  "inLanguage": "en",
-  "image": "https://dipkumar.dev/images/papermod-cover.png","datePublished": "2021-11-28T17:08:55+05:30",
-  "dateModified": "2021-11-28T17:08:55+05:30",
-  "author":{
-    "@type": "Person",
-    "name": "Dipkumar Patel"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://dipkumar.dev/posts/hugo-cmds/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Dip'Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://dipkumar.dev/favicon.ico"
-    }
-  }
-}
-</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://dipkumar.dev/" accesskey="h" title="Dip&#39;Blog (Alt + H)">Dip&#39;Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://dipkumar.dev/" title="Posts">
-                    <span>Posts</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://dipkumar.dev/search/" title="Search (Alt &#43; /)" accesskey=/>
-                    <span>Search</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://dipkumar.dev/tags/" title="tags">
-                    <span>tags</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      Hugo commands
-    </h1>
-    <div class="post-meta"><span title='2021-11-28 17:08:55 +0530 IST'> November 28, 2021</span>&nbsp;|&nbsp;
-Author:
-Dipkumar Patel&nbsp;|&nbsp;<a href="https://github.com/adityatelange/hugo-PaperMod/tree/exampleSite/content/posts/hugo-cmds.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
-
-</div>
-  </header> <div class="toc">
-    <details >
-        <summary accesskey="c" title="(Alt + C)">
-            <span class="details">Table of Contents</span>
-        </summary>
-
-        <div class="inner"><ul>
-                <li>
-                    <a href="#run-local-server" aria-label="run local server">run local server</a></li>
-                <li>
-                    <a href="#create-new-post" aria-label="Create New Post">Create New Post</a></li>
-                <li>
-                    <a href="#hugo-buildexport-the-site" aria-label="Hugo build/export the site">Hugo build/export the site</a></li>
-                <li>
-                    <a href="#relative-imports" aria-label="relative imports">relative imports</a></li>
-                <li>
-                    <a href="#fix-for-label-image" aria-label="fix for label image">fix for label image</a>
-                </li>
-            </ul>
-        </div>
-    </details>
-</div>
-
-  <div class="post-content"><h3 id="run-local-server">run local server<a hidden class="anchor" aria-hidden="true" href="#run-local-server">#</a></h3>
-<pre tabindex="0"><code>hugo server -D
-</code></pre><h3 id="create-new-post">Create New Post<a hidden class="anchor" aria-hidden="true" href="#create-new-post">#</a></h3>
-<pre tabindex="0"><code>hugo new content/posts/{post-name}.md
-</code></pre><h3 id="hugo-buildexport-the-site">Hugo build/export the site<a hidden class="anchor" aria-hidden="true" href="#hugo-buildexport-the-site">#</a></h3>
-<pre tabindex="0"><code>hugo -d ../becoming-the-unbeatable
-</code></pre><h3 id="relative-imports">relative imports<a hidden class="anchor" aria-hidden="true" href="#relative-imports">#</a></h3>
-<p>example: static\icons\favicon.png <br>
-relative imports: icons\favicon.png</p>
-<h3 id="fix-for-label-image">fix for label image<a hidden class="anchor" aria-hidden="true" href="#fix-for-label-image">#</a></h3>
+<body>
+    <div class="container">
+        
+                        <nav class="post-nav">
+                            <a href="/">← Home</a>
+                            <a href="/blogs" class="all-posts-link">All Posts</a>
+                        </nav>
+                        <article class="post-content">
+                            <header>
+                                <h1>
+                                    Hugo commands
+                                </h1>
+                                <div class="meta-row">
+                                    <div class="author-meta">
+                                        <span class="social-mini">
+                                            <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
+                                            <a href="https://github.com/immortal3" target="_blank">github</a>
+                                            <a href="mailto:patel@dipkumar.dev">email</a>
+                                        </span>
+                                        By <a href="/" class="author-link">Dipkumar Patel</a>
+                                    </div>
+                                    <div class="date-meta">
+                                        November 28, 2021
+                                    </div>
+                                </div>
+                            </header>
+                            <div class="markdown-body">
+                                <h3>run local server</h3>
+<pre><code>hugo server -D
+</code></pre>
+<h3>Create New Post</h3>
+<pre><code>hugo new content/posts/{post-name}.md
+</code></pre>
+<h3>Hugo build/export the site</h3>
+<pre><code>hugo -d ../becoming-the-unbeatable
+</code></pre>
+<h3>relative imports</h3>
+<p>example: static\icons\favicon.png <br>relative imports: icons\favicon.png</p>
+<h3>fix for label image</h3>
 <p>icon: small_icon.jpg
-instead of
+instead of 
 icon: small_icon.png</p>
 <p>github issue: <a href="https://github.com/adityatelange/hugo-PaperMod/issues/622">https://github.com/adityatelange/hugo-PaperMod/issues/622</a></p>
 
+                            </div>
 
-  </div>
+                            
+                                <div class="post-footer-tags">
+                                    
+                                        <a href="/tags/hugo">#hugo</a>
+                                        
+                                </div>
+                                
+                        </article>
+                        
+    </div>
 
-  <footer class="post-footer">
-    <ul class="post-tags">
-      <li><a href="https://dipkumar.dev/tags/hugo/">Hugo</a></li>
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://dipkumar.dev/">Dip&#39;Blog</a></span> · 
+    <!-- Prism JS for Syntax Highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Configure autoloader path
+        Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/';
 
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-<script>
-    document.querySelectorAll('pre > code').forEach((codeblock) => {
-        const container = codeblock.parentNode.parentNode;
-
-        const copybutton = document.createElement('button');
-        copybutton.classList.add('copy-code');
-        copybutton.innerHTML = 'copy';
-
-        function copyingDone() {
-            copybutton.innerHTML = 'copied!';
-            setTimeout(() => {
-                copybutton.innerHTML = 'copy';
-            }, 2000);
-        }
-
-        copybutton.addEventListener('click', (cb) => {
-            if ('clipboard' in navigator) {
-                navigator.clipboard.writeText(codeblock.textContent);
-                copyingDone();
-                return;
-            }
-
-            const range = document.createRange();
-            range.selectNodeContents(codeblock);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            try {
-                document.execCommand('copy');
-                copyingDone();
-            } catch (e) { };
-            selection.removeRange(range);
+        // Highlight on load
+        document.addEventListener('DOMContentLoaded', function () {
+            Prism.highlightAll();
         });
 
-        if (container.classList.contains("highlight")) {
-            container.appendChild(copybutton);
-        } else if (container.parentNode.firstChild == container) {
-            
-        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
-            
-            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
-        } else {
-            
-            codeblock.parentNode.appendChild(copybutton);
-        }
-    });
-</script>
+        
+    </script>
 </body>
 
 </html>

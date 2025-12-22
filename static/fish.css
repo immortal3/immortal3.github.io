@@ -1,0 +1,191 @@
+/* Fish Animation Styles */
+
+#fish-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Allow fish-wrapper children to receive pointer events */
+    z-index: 100;
+    /* Place above content so hover works */
+    overflow: hidden;
+}
+
+/* Wrapper to hold both SVG and Tooltip */
+.fish-wrapper {
+    position: absolute;
+    width: 150px;
+    /* Increased to 150px base for better visibility */
+    height: auto;
+    left: -300px;
+    pointer-events: auto;
+    /* Enable interaction */
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* Modifiers for Direction */
+.fish-wrapper.swim-right {
+    animation: swimRight linear 1 forwards;
+}
+
+.fish-wrapper.swim-left {
+    animation: swimLeft linear 1 forwards;
+}
+
+/* Pause on Hover */
+.fish-wrapper:hover {
+    animation-play-state: paused;
+    z-index: 10;
+}
+
+/* Force pause state when paused class is present */
+.fish-wrapper.paused {
+    animation-play-state: paused !important;
+}
+
+/* SVG Styling */
+.angler-fish-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    opacity: 0.5;
+    /* Only fish is transparent, not tooltip */
+    animation: fishShapeGlow 1.5s ease-in-out infinite;
+}
+
+/* Tooltip Styles */
+.fish-tooltip {
+    position: absolute;
+    bottom: 100%;
+    /* Above the fish by default */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000000;
+    /* Solid black background */
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    width: 200px;
+    font-size: 0.85rem;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    pointer-events: auto;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Tooltip below fish (when fish is near top of screen) */
+.fish-tooltip.below {
+    bottom: auto;
+    top: 100%;
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+/* Counter-flip tooltip when fish swims left */
+.fish-wrapper.swim-left .fish-tooltip {
+    transform: translateX(-50%) scaleX(-1);
+}
+
+.fish-tooltip strong {
+    color: #adff2f;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.fish-tooltip a {
+    color: #adff2f;
+    text-decoration: underline;
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Show tooltip on hover */
+.fish-wrapper:hover .fish-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Internal SVG Lure Glow Animation */
+.lure-glow-svg {
+    animation: svgPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes swimRight {
+    0% {
+        left: -150px;
+        transform: translateY(0) rotate(0deg);
+    }
+
+    20% {
+        transform: translateY(-20px) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    75% {
+        transform: translateY(20px) rotate(5deg);
+    }
+
+    100% {
+        left: 100vw;
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+@keyframes swimLeft {
+    0% {
+        left: 100vw;
+        transform: translateY(0) rotate(0deg) scaleX(-1);
+    }
+
+    20% {
+        transform: translateY(-20px) rotate(-5deg) scaleX(-1);
+    }
+
+    50% {
+        transform: translateY(0) rotate(0deg) scaleX(-1);
+    }
+
+    75% {
+        transform: translateY(20px) rotate(5deg) scaleX(-1);
+    }
+
+    100% {
+        left: -150px;
+        transform: translateY(0) rotate(0deg) scaleX(-1);
+    }
+}
+
+@keyframes svgPulse {
+    0% {
+        fill: #adff2f;
+        filter: drop-shadow(0 0 2px #adff2f);
+    }
+
+    100% {
+        fill: #ceff8f;
+        filter: drop-shadow(0 0 15px #adff2f);
+    }
+}
+
+/* Yellow pulsing glow around the fish */
+@keyframes fishShapeGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(255, 255, 0, 0.5))
+                drop-shadow(0 0 15px rgba(255, 255, 0, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(255, 255, 0, 0.9))
+                drop-shadow(0 0 50px rgba(255, 255, 0, 0.7))
+                drop-shadow(0 0 70px rgba(255, 255, 0, 0.5));
+    }
+}
