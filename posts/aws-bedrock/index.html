@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,11 +73,60 @@
                                         </div>
                                         <div class="date-meta">
                                             June 13, 2024
+                                            
+                                            <span class="reading-time">4 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <p>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources. [1]</p>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-2">
+                                                    <a href="#hidden-gotcha-of-converse-api">
+                                                        Hidden Gotcha of Converse API
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#not-every-model-is-available">
+                                                        Not every model is available
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#not-every-model-has-system-prompt-or-multi-modality-support">
+                                                        Not every model has system prompt, or multi-modality support
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#not-every-model-has-same-context-window">
+                                                        Not every model has same context window
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#advance-prompt-technique-like-prefilling-assistant-message">
+                                                        Advance Prompt technique like Prefilling Assistant Message
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#references">
+                                                        References
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <p>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources. [1]</p>
 <p>AWS BedRock&#39;s Converse API is a single endpoint that allows you to chat with any model. Indeed, <strong>the single endpoint</strong> is, I believe, the best feature of AWS BedRock. Let&#39;s visit this endpoint and see how it works.</p>
 <pre><code class="language-python">
 model_id = &quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;
@@ -95,18 +148,13 @@ response = bedrock_client.converse(
 But, hey, it&#39;s still a single endpoint. right ?... 
 I should be just able to switch models by changing model_id. right ?....</p>
 <p><img src="https://i.imgflip.com/5bgun8.jpg?a477264=400x400" alt="AWS BedRock Endpoint"></p>
-<h2>Hidden Gotcha of Converse API</h2>
-<h3>Not every model is available</h3>
-<p>AWS BedRock has LLama3, Anthropic Claude, Mistral and their own Titan. But, It doesn&#39;t have OpenAI models like GPT-4/GPT-4o. This might not be a deal breaker, depending on what you are trying to achieve.
+<h2 id="hidden-gotcha-of-converse-api">Hidden Gotcha of Converse API</h2><h3 id="not-every-model-is-available">Not every model is available</h3><p>AWS BedRock has LLama3, Anthropic Claude, Mistral and their own Titan. But, It doesn&#39;t have OpenAI models like GPT-4/GPT-4o. This might not be a deal breaker, depending on what you are trying to achieve.
 You can check the availability of models in <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html">AWS Bedrock Models</a></p>
-<h3>Not every model has system prompt, or multi-modality support</h3>
-<p>If you check converse API parameters, you will see that there is a parameter called <code>system</code>. This parameter is used to provide system prompt to the model. However, not every model supports system prompts. (Because they were not trained with system prompts). If you&#39;re switching between models via code using ENV/Flags/Config, you might need to handle edge cases where a system prompt is unavailable for the given <code>modelId</code>. Otherwise, It will throw an Exception. (Ideally, i think it should just give a warning) 
+<h3 id="not-every-model-has-system-prompt-or-multi-modality-support">Not every model has system prompt, or multi-modality support</h3><p>If you check converse API parameters, you will see that there is a parameter called <code>system</code>. This parameter is used to provide system prompt to the model. However, not every model supports system prompts. (Because they were not trained with system prompts). If you&#39;re switching between models via code using ENV/Flags/Config, you might need to handle edge cases where a system prompt is unavailable for the given <code>modelId</code>. Otherwise, It will throw an Exception. (Ideally, i think it should just give a warning) 
 AWS has a <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features">nice table</a> to check if given model has system prompt.</p>
 <p>The same goes for multi-modality. If your messages include images, switching between models might not be straightforward.</p>
-<h3>Not every model has same context window</h3>
-<p>I mean this is on you, but again good reminder.</p>
-<h3>Advance Prompt technique like Prefilling Assistant Message</h3>
-<pre><code class="language-python"># code copied from https://eugeneyan.com//writing/prompting/#prefill-claudes-responses
+<h3 id="not-every-model-has-same-context-window">Not every model has same context window</h3><p>I mean this is on you, but again good reminder.</p>
+<h3 id="advance-prompt-technique-like-prefilling-assistant-message">Advance Prompt technique like Prefilling Assistant Message</h3><pre><code class="language-python"># code copied from https://eugeneyan.com//writing/prompting/#prefill-claudes-responses
 input = &quot;&quot;&quot;
 &lt;description&gt;
 The SmartHome Mini is a compact smart home assistant available in black or white for 
@@ -137,22 +185,21 @@ messages=[
 </code></pre>
 <p>If you&#39;re using advanced prompting techniques, such as Prefilling Assistant Messages [3], where you pre-populate the message with text designated as &#39;assistant&#39;, you need to be cautious when switching between models. Not all models are compatible with this technique and their is validation check which will raise exception.</p>
 <p>So, Overall, We are still far away from having a unified API for all models. I will update this article if i find anything new. </p>
-<h2>References</h2>
-<p>[1] <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html">https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html</a></p>
+<h2 id="references">References</h2><p>[1] <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html">https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html</a></p>
 <p>[2] <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features">https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features</a></p>
 <p>[3] <a href="https://eugeneyan.com//writing/prompting/#prefill-claudes-responses">https://eugeneyan.com//writing/prompting/#prefill-claudes-responses</a></p>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/llm">#llm</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/llm">#llm</a>
+                                                    
+                                                    <a href="/tags/ai">#ai</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/ai">#ai</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -168,6 +215,53 @@ messages=[
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

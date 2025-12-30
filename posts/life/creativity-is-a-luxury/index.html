@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,11 +73,17 @@
                                         </div>
                                         <div class="date-meta">
                                             August 17, 2025
+                                            
+                                            <span class="reading-time">2 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <p>Creativity is a luxury.</p>
+
+                                
+
+                                        <div class="markdown-body">
+                                            <p>Creativity is a luxury.</p>
 <p>It demands time, energy and space: things that feel scarce when rent, groceries, and the next shift loom larger than any poem or prototype. Most of us are caught in a slow-spinning loop of laundry, commutes, and alarms that reset before the dream has even ended.</p>
 <p>It is also a luxury that needs literal room: a quiet corner, a desk that isn’t the dinner table, a door that closes. I have watched friends whose bedrooms double as storage closets carry old laptops to 24-hour cafés or office lobbies after hours, hunting for any pocket of stillness where code can compile without a toddler tugging at the charger.</p>
 <p>Much of the talk about “why they don’t innovate” is aimed at developing nations, as if ingenuity were a switch we forgot to flip. The question forgets that for many, the next level of the game called life is simply surviving this week.  </p>
@@ -86,9 +96,9 @@
 </details>
 
 
-                                </div>
+                                        </div>
 
-                                
+                                        
                             </article>
                             
     </div>
@@ -104,6 +114,53 @@
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,12 +73,84 @@
                                         </div>
                                         <div class="date-meta">
                                             April 17, 2024
+                                            
+                                            <span class="reading-time">4 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <h1>Essential Fields</h1>
-<p>Be it relational or not, every table <strong>should</strong> have these 5 fields:</p>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-1">
+                                                    <a href="#essential-fields">
+                                                        Essential Fields
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#why-should-you-include-this-fields-">
+                                                        Why should you include this fields ?
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#auditability">
+                                                        Auditability
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#soft-delete-capability">
+                                                        Soft Delete Capability
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#row-level-securitypermissions-rls">
+                                                        Row Level Security/Permissions (RLS)
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#avoiding-nightmares-a-cautionary-tale">
+                                                        Avoiding Nightmares: A Cautionary Tale
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#orm-django">
+                                                        ORM: Django
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#1-create-mixin-class">
+                                                        1. Create mixin class
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#2-querysets-that-ignore-deleted-stuff">
+                                                        2. QuerySets That Ignore Deleted Stuff
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#conclusion">
+                                                        Conclusion
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <h1 id="essential-fields">Essential Fields</h1><p>Be it relational or not, every table <strong>should</strong> have these 5 fields:</p>
 <ol>
 <li>created_at (default now())</li>
 <li>updated_at (default now())</li>
@@ -85,22 +161,15 @@
 <blockquote>
 <p>Just to be clear, every table should have these 5 fields and not must. Adding these fields have other side-effects such as bloat, performance and disk size. But, if you&#39;re having these problems, i hope you&#39;re profitable. </p>
 </blockquote>
-<h2>Why should you include this fields ?</h2>
-<h3>Auditability</h3>
-<p>Incorporating these fields into every table significantly simplifies the auditing process. They enable you to track who created or modified an entry and when these actions occurred. It&#39;s important to note that while this doesn&#39;t provide a complete audit trail, not all tables require exhaustive audit trails. These fields deliver sufficient oversight for many applications.</p>
-<h3>Soft Delete Capability</h3>
-<p>Utilizing the <code>deleted_at</code> field for soft deletions boosts data recovery and error correction capabilities, enabling businesses to effortlessly restore mistakenly deleted data or perform historical data analysis without relying on intricate backup systems. Additionally, you can set up a cron job to transfer data to an archive table periodically. For instance, you might move all data marked as deleted over three months ago to cold storage. This strategy helps maintain manageable table sizes by systematically archiving older records.</p>
-<h3>Row Level Security/Permissions (RLS)</h3>
-<p>These fields might seem superfluous at first, but they are incredibly useful for controlling user access to specific rows within a table. For instance, you may want to prevent a user from updating a row that was created by someone else. By using these fields, you can define such permissions clearly and effectively. Furthermore, they enable more nuanced scenarios—for example, allowing a user to restore a deleted row only if they were the original creator, while still permitting any user to delete a row. This level of detailed control ensures both data integrity and adherence to specified access protocols.</p>
-<h3>Avoiding Nightmares: A Cautionary Tale</h3>
-<p>Imagine you&#39;ve deployed a cron job in the background designed to update certain attributes in your table based on specific business logic. It ran flawlessly during the staging tests, so you pushed it to production without further validation. But then, disaster strikes: the script modifies incorrect data. Fortunately, the updated_at and updated_by fields can come to your rescue (though not always). To identify the affected data, you can execute a query like:</p>
+<h2 id="why-should-you-include-this-fields-">Why should you include this fields ?</h2><h3 id="auditability">Auditability</h3><p>Incorporating these fields into every table significantly simplifies the auditing process. They enable you to track who created or modified an entry and when these actions occurred. It&#39;s important to note that while this doesn&#39;t provide a complete audit trail, not all tables require exhaustive audit trails. These fields deliver sufficient oversight for many applications.</p>
+<h3 id="soft-delete-capability">Soft Delete Capability</h3><p>Utilizing the <code>deleted_at</code> field for soft deletions boosts data recovery and error correction capabilities, enabling businesses to effortlessly restore mistakenly deleted data or perform historical data analysis without relying on intricate backup systems. Additionally, you can set up a cron job to transfer data to an archive table periodically. For instance, you might move all data marked as deleted over three months ago to cold storage. This strategy helps maintain manageable table sizes by systematically archiving older records.</p>
+<h3 id="row-level-securitypermissions-rls">Row Level Security/Permissions (RLS)</h3><p>These fields might seem superfluous at first, but they are incredibly useful for controlling user access to specific rows within a table. For instance, you may want to prevent a user from updating a row that was created by someone else. By using these fields, you can define such permissions clearly and effectively. Furthermore, they enable more nuanced scenarios—for example, allowing a user to restore a deleted row only if they were the original creator, while still permitting any user to delete a row. This level of detailed control ensures both data integrity and adherence to specified access protocols.</p>
+<h3 id="avoiding-nightmares-a-cautionary-tale">Avoiding Nightmares: A Cautionary Tale</h3><p>Imagine you&#39;ve deployed a cron job in the background designed to update certain attributes in your table based on specific business logic. It ran flawlessly during the staging tests, so you pushed it to production without further validation. But then, disaster strikes: the script modifies incorrect data. Fortunately, the updated_at and updated_by fields can come to your rescue (though not always). To identify the affected data, you can execute a query like:</p>
 <pre><code class="language-sql">SELECT * FROM items WHERE updated_at BETWEEN {script_begin} AND {script_end} AND updated_by = {script_user};
 </code></pre>
 <p>This allows you to pinpoint the exact entries altered during the time the script ran, providing a straightforward way to assess and rectify the unintended changes. This is a prime example of how such fields can help mitigate potential disasters, helping you manage crises more effectively.</p>
-<h2>ORM: Django</h2>
-<p>if you&#39;re using some framework for accessing db like ORM in your codebase, it becomes easier to add these fields to your tables and helper queries. For example, I am showcasing you how to add these fields in django (python).</p>
-<h3>1. Create mixin class</h3>
-<pre><code class="language-python">from django.db import models
+<h2 id="orm-django">ORM: Django</h2><p>if you&#39;re using some framework for accessing db like ORM in your codebase, it becomes easier to add these fields to your tables and helper queries. For example, I am showcasing you how to add these fields in django (python).</p>
+<h3 id="1-create-mixin-class">1. Create mixin class</h3><pre><code class="language-python">from django.db import models
 from django.utils import timezone
 from django.conf import settings
 
@@ -119,16 +188,14 @@ class AuditFieldsMixin(models.Model):
         self.save()
 </code></pre>
 <p>What’s going on here? We’re defining fields that automatically capture when and by whom a record was created or updated. Plus, we threw in a soft_delete method for good measure, so you can &quot;delete&quot; records without actually losing them.</p>
-<h4>Slap the Mixin on a Model</h4>
-<p>Using this mixin is as easy as pie. Just inherit from AuditFieldsMixin in your model:</p>
+<h4 id="slap-the-mixin-on-a-model">Slap the Mixin on a Model</h4><p>Using this mixin is as easy as pie. Just inherit from AuditFieldsMixin in your model:</p>
 <pre><code class="language-python">class Item(AuditFieldsMixin):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
     # Imagine there are other fields here too!
 </code></pre>
-<h3>2. QuerySets That Ignore Deleted Stuff</h3>
-<p>You don&#39;t want your default queries pulling up deleted records, right? Let’s fix that by tweaking the model’s manager to ignore anything that’s been soft-deleted:</p>
+<h3 id="2-querysets-that-ignore-deleted-stuff">2. QuerySets That Ignore Deleted Stuff</h3><p>You don&#39;t want your default queries pulling up deleted records, right? Let’s fix that by tweaking the model’s manager to ignore anything that’s been soft-deleted:</p>
 <pre><code class="language-python">class AuditQuerySet(models.QuerySet):
     def active(self):
         return self.filter(deleted_at__isnull=True)
@@ -148,24 +215,23 @@ class Item(AuditFieldsMixin):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     # More fields, potentially
 </code></pre>
-<h2>Conclusion</h2>
-<p>Why do you need conclusion ? This is ain&#39;t generated by GPT. I am just a human being trying to help you.</p>
+<h2 id="conclusion">Conclusion</h2><p>Why do you need conclusion ? This is ain&#39;t generated by GPT. I am just a human being trying to help you.</p>
 <p>If you have any past expirences of getting saved by some random fields, please let me know. I would be happy to learn. </p>
 <p>Send me an email at <code>pate@</code> + <code>dipkumar.dev</code></p>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/database">#database</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/database">#database</a>
+                                                    
+                                                    <a href="/tags/db">#db</a>
+                                                    
+                                                    <a href="/tags/design">#design</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/db">#db</a>
-                                            
-                                            <a href="/tags/design">#design</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -181,6 +247,53 @@ class Item(AuditFieldsMixin):
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

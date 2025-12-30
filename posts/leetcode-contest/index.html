@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,12 +73,36 @@
                                         </div>
                                         <div class="date-meta">
                                             November 28, 2021
+                                            
+                                            <span class="reading-time">2 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <h3><a href="https://leetcode.com/contest/biweekly-contest-66/">Biweekly-66 (27th Nov, 2021)</a></h3>
-<ol>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-3">
+                                                    <a href="#biweekly-66-27th-nov-2021httpsleetcodecomcontestbiweekly-contest-66">
+                                                        [Biweekly-66 (27th Nov, 2021)](https://leetcode.com/contest/biweekly-contest-66/)
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#weekly-269-28th-nov-2021httpsleetcodecomcontestweekly-contest-269">
+                                                        [Weekly-269 (28th Nov, 2021)](https://leetcode.com/contest/weekly-contest-269)
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <h3 id="biweekly-66-27th-nov-2021httpsleetcodecomcontestbiweekly-contest-66">[Biweekly-66 (27th Nov, 2021)](https://leetcode.com/contest/biweekly-contest-66/)</h3><ol>
 <li><a href="https://leetcode.com/contest/biweekly-contest-66/problems/count-common-words-with-one-occurrence/">2085. Count Common Words With One Occurrence</a></li>
 </ol>
 <p>Use hashmap (Counter)</p>
@@ -96,8 +124,7 @@
  calculate for normal and flipped version of grid</p>
 </li>
 </ol>
-<h3><a href="https://leetcode.com/contest/weekly-contest-269">Weekly-269 (28th Nov, 2021)</a></h3>
-<ol>
+<h3 id="weekly-269-28th-nov-2021httpsleetcodecomcontestweekly-contest-269">[Weekly-269 (28th Nov, 2021)](https://leetcode.com/contest/weekly-contest-269)</h3><ol>
 <li><a href="https://leetcode.com/contest/weekly-contest-269/problems/find-target-indices-after-sorting-array/">2089. Find Target Indices After Sorting Array</a>
  Implementation </li>
 <li><a href="https://leetcode.com/contest/weekly-contest-269/problems/k-radius-subarray-averages/">2090. K Radius Subarray Averages</a>
@@ -120,17 +147,17 @@
  
  -->
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/algorithms">#algorithms</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/algorithms">#algorithms</a>
+                                                    
+                                                    <a href="/tags/LC">#LC</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/LC">#LC</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -146,6 +173,53 @@
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

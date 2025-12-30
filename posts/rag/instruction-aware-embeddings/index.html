@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,15 +73,80 @@
                                         </div>
                                         <div class="date-meta">
                                             July 8, 2025
+                                            
+                                            <span class="reading-time">6 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <h1>Why Your Retriever is Failing and How Context Can Save It</h1>
-<p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-1">
+                                                    <a href="#why-your-retriever-is-failing-and-how-context-can-save-it">
+                                                        Why Your Retriever is Failing and How Context Can Save It
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#1-what-is-the-problem-in-your-retriever-embedding">
+                                                        1. What Is the Problem in Your Retriever &amp; Embedding?
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#2-missing-context-in-embedding">
+                                                        2. Missing Context in Embedding
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#3-how-does-it-work-without-context">
+                                                        3. How Does It Work Without Context?
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#4-introducing-qwen-replicating-the-same-thing-in-openai">
+                                                        4. Introducing Qwen &amp; Replicating the Same Thing in OpenAI
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#focused-scenario-performance-gains">
+                                                        Focused Scenario Performance Gains
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#5-alternative-query-rewriting">
+                                                        5. Alternative: Query Rewriting
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#6-what-you-can-do-about-it">
+                                                        6. What You Can Do About It
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#7-closing-thoughts">
+                                                        7. Closing Thoughts
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <h1 id="why-your-retriever-is-failing-and-how-context-can-save-it">Why Your Retriever is Failing and How Context Can Save It</h1><p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
 <hr>
-<h2>1. What Is the Problem in Your Retriever &amp; Embedding?</h2>
-<p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
+<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever & Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
 <ul>
 <li>They collapse multiple meanings of &quot;apple&quot; into one vector.  </li>
 <li>The top results can mix stock guides, product pages, and nutrition articles.</li>
@@ -92,15 +161,13 @@ Let&#39;s write a concise presentation for this.&quot;
 <p><img src="/blog_photos/context-gemini.png" alt="image"></p>
 <p>It returned information about &quot;Unisys ClearPath MCP&quot; rather than the intended &quot;Model Control Protocol (MCP)&quot; proposed by Anthropic. This real-world misalignment underscores how context-less embeddings can derail retrieval.  </p>
 <hr>
-<h2>2. Missing Context in Embedding</h2>
-<p>Embeddings encode <strong>semantic similarity</strong> but lack task or intent signals. Out of the box, they answer the question:  </p>
+<h2 id="2-missing-context-in-embedding">2. Missing Context in Embedding</h2><p>Embeddings encode <strong>semantic similarity</strong> but lack task or intent signals. Out of the box, they answer the question:  </p>
 <blockquote>
 <p>&quot;Which documents <em>sound</em> most like this query?&quot;  </p>
 </blockquote>
 <p>They don&#39;t know if &quot;apple&quot; refers to finance, technology, or groceries—so they return a blend of all.</p>
 <hr>
-<h2>3. How Does It Work Without Context?</h2>
-<p>Using script&#39;s results (see <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">gist</a>), here&#39;s the <strong>plain embedding</strong> behavior for &quot;I want to buy apple&quot; with OpenAI and Qwen models:</p>
+<h2 id="3-how-does-it-work-without-context">3. How Does It Work Without Context?</h2><p>Using script&#39;s results (see <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">gist</a>), here&#39;s the <strong>plain embedding</strong> behavior for &quot;I want to buy apple&quot; with OpenAI and Qwen models:</p>
 <pre><code class="language-text">📝 Query: &#39;I want to buy apple&#39;
 🔍 Using plain query (no instruction)
 
@@ -115,8 +182,7 @@ Let&#39;s write a concise presentation for this.&quot;
 3. Health Benefits of Apples (Score: 0.501)
 </code></pre>
 <p>Both embeddings mix stock, fruit, and product topics. The <strong>Qwen</strong> model edges out OpenAI by a small margin, but neither is decisively focused.</p>
-<h2>4. Introducing Qwen &amp; Replicating the Same Thing in OpenAI</h2>
-<p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
+<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen & Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
 <pre><code class="language-python"># Minimal instruction-aware query construction
 instruction = &quot;Given a grocery shopping question, retrieve fruit purchase information&quot;
 query = &quot;I want to buy apple&quot;
@@ -142,8 +208,7 @@ User Query + Instruction: &quot;Given a grocery shopping question, retrieve frui
 Results: [Fruit purchase guides, grocery info]  &lt;-- Focused, relevant
 </code></pre>
 <hr>
-<h3>Focused Scenario Performance Gains</h3>
-<p>Below is a comparison of similarity scores for the <strong>correct document</strong> in each use case, showing how instruction-aware embeddings shift the focus within the same model. 
+<h3 id="focused-scenario-performance-gains">Focused Scenario Performance Gains</h3><p>Below is a comparison of similarity scores for the <strong>correct document</strong> in each use case, showing how instruction-aware embeddings shift the focus within the same model. 
 Note, OpenAI does not support instruction-aware embeddings yet, but we tried to run the same instruction-aware query with OpenAI&#39;s embedding model. As you can see, it did not work very well and it&#39;s clear, instruction-aware embeddings need to be supported by the model and it&#39;s not just a matter of adding a prefix to the query.</p>
 <table>
 <thead>
@@ -201,8 +266,7 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
 <p><em>Note:</em> Qwen did not surface the iPhone doc in its top-3 plain results (score &lt;0.501), yet it rises to #2 (0.512) with instruction.</p>
 <p><strong>What does this mean?</strong><br>Notice how Qwen&#39;s instruction-aware mode dramatically increases the relevance score for the correct document, while OpenAI&#39;s model barely changes or even drops. This demonstrates that simply adding instructions to the query only works if the model is trained to use them.</p>
 <hr>
-<h2>5. Alternative: Query Rewriting</h2>
-<p>Embeddings also benefit when the query itself carries the necessary context. Instead of relying solely on instruction-aware models, you can rewrite the user&#39;s query using chat history or domain knowledge to inject focus. For example:</p>
+<h2 id="5-alternative-query-rewriting">5. Alternative: Query Rewriting</h2><p>Embeddings also benefit when the query itself carries the necessary context. Instead of relying solely on instruction-aware models, you can rewrite the user&#39;s query using chat history or domain knowledge to inject focus. For example:</p>
 <ul>
 <li><strong>Original Query:</strong> &quot;I want to buy apple&quot;</li>
 <li><strong>Rewritten Query:</strong> &quot;Where can I buy fresh apples at my local grocery store?&quot;</li>
@@ -214,8 +278,7 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
 </ul>
 <p>By combining query rewriting with embeddings, you get the best of both worlds: minimal model changes and focused retrieval.</p>
 <hr>
-<h2>6. What You Can Do About It</h2>
-<p>Facing ambiguous queries? You have four straightforward strategies:</p>
+<h2 id="6-what-you-can-do-about-it">6. What You Can Do About It</h2><p>Facing ambiguous queries? You have four straightforward strategies:</p>
 <ol>
 <li><p><strong>Instruction-aware embeddings</strong></p>
 <ul>
@@ -248,8 +311,7 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
 </ol>
 <p>Choose the strategy that fits your team&#39;s resources and goals, and start by tackling your most ambiguous queries first.</p>
 <hr>
-<h2>7. Closing Thoughts</h2>
-<ul>
+<h2 id="7-closing-thoughts">7. Closing Thoughts</h2><ul>
 <li><strong>Missing context</strong> in embeddings is the core challenge for ambiguous queries.  </li>
 <li><strong>Instruction-aware embeddings</strong> (like Qwen3-Embedding-8B) deliver <em>stronger</em> task focus, dramatically improving top-ranked results.  </li>
 <li>You can mimic this in OpenAI by manually adding instructions, but specialized models yield bigger gains.</li>
@@ -268,17 +330,17 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
 <li>Code example and full script: <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">compare.py on GitHub Gist</a></li>
 </ul>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/RAG">#RAG</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/RAG">#RAG</a>
+                                                    
+                                                    <a href="/tags/embedding">#embedding</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/embedding">#embedding</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -294,6 +356,53 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

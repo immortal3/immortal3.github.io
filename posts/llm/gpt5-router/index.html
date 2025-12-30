@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,23 +73,87 @@
                                         </div>
                                         <div class="date-meta">
                                             August 13, 2025
+                                            
+                                            <span class="reading-time">5 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <blockquote class="twitter-tweet"><p lang="en" dir="ltr">OpenAI GPT-5 Router is like Apple removing headphone jack.<br>It sucks but everyone will follow it.</p>&mdash; immortal (@immortal_0698) <a href="https://twitter.com/immortal_0698/status/1956062348688388210?ref_src=twsrc%5Etfw">August 14, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-<h2>What is GPT-5 Router</h2>
-<p>The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.</p>
-<h2>How It Works: Routing as Classification Problem</h2>
-<p>Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:</p>
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-2">
+                                                    <a href="#what-is-gpt-5-router">
+                                                        What is GPT-5 Router
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#how-it-works-routing-as-classification-problem">
+                                                        How It Works: Routing as Classification Problem
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#the-classification-matrix">
+                                                        The Classification Matrix
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#error-analysis-both-mistakes-cost-money">
+                                                        Error Analysis: Both Mistakes Cost Money
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#economic-motivation-the-subscription-squeeze">
+                                                        Economic Motivation: The Subscription Squeeze
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#math-behind-the-subscription-pricing">
+                                                        Math Behind the Subscription Pricing
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#routers-are-going-to-get-better">
+                                                        Routers are going to get better
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#the-gpt-5-launch-backlash">
+                                                        The GPT-5 Launch Backlash
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#conclusion-prediction">
+                                                        Conclusion / Prediction
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <blockquote class="twitter-tweet"><p lang="en" dir="ltr">OpenAI GPT-5 Router is like Apple removing headphone jack.<br>It sucks but everyone will follow it.</p>&mdash; immortal (@immortal_0698) <a href="https://twitter.com/immortal_0698/status/1956062348688388210?ref_src=twsrc%5Etfw">August 14, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<h2 id="what-is-gpt-5-router">What is GPT-5 Router</h2><p>The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.</p>
+<h2 id="how-it-works-routing-as-classification-problem">How It Works: Routing as Classification Problem</h2><p>Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:</p>
 <ul>
 <li>Smaller model: when the query is simple</li>
 <li>Larger model: when the query is complex</li>
 </ul>
 <p>In reality, we have more models, but for simplicity, we will stick to two models.</p>
-<h3>The Classification Matrix</h3>
-<p>A compact way to reason about this: a confusion matrix. To keep score, call the positive class &quot;complex&quot; and the negative class &quot;simple&quot;. Rows are the router&#39;s decision; columns are the true difficulty of user query.</p>
+<h3 id="the-classification-matrix">The Classification Matrix</h3><p>A compact way to reason about this: a confusion matrix. To keep score, call the positive class &quot;complex&quot; and the negative class &quot;simple&quot;. Rows are the router&#39;s decision; columns are the true difficulty of user query.</p>
 <table>
 <thead>
 <tr>
@@ -106,8 +174,7 @@
 </tr>
 </tbody></table>
 <p>We don&#39;t have to worry about the diagonal elements, as they are the cases where the router is correct. But we need to worry about the off-diagonal elements : False Positive and False Negative.</p>
-<h3>Error Analysis: Both Mistakes Cost Money</h3>
-<p><strong>False Negative (Complex → Smaller)</strong>: The worst outcome</p>
+<h3 id="error-analysis-both-mistakes-cost-money">Error Analysis: Both Mistakes Cost Money</h3><p><strong>False Negative (Complex → Smaller)</strong>: The worst outcome</p>
 <ul>
 <li>Breaks user experience - they get a shallow answer to a deep question</li>
 <li>Damages trust and perceived quality </li>
@@ -123,12 +190,10 @@
 </ul>
 <p>So the strategy becomes: bias toward false positives (overspend on compute) rather than false negatives (lose customers). You can optimize compute costs later, but you can&#39;t win back a user who thinks your AI is &quot;dumber than your previous model.&quot;</p>
 <p>This is why OpenAI initially erred on the side of caution with the router, then faced backlash when the pendulum swung too far toward false negatives. The sweet spot is narrow and expensive to find.</p>
-<h2>Economic Motivation: The Subscription Squeeze</h2>
-<p>This technical complexity of router exists because OpenAI faces a challenging economic reality: <strong>flat subscription pricing becomes difficult when usage explodes exponentially</strong>. As per Sam Altman, even $200/month struggles to maintain profitability.</p>
+<h2 id="economic-motivation-the-subscription-squeeze">Economic Motivation: The Subscription Squeeze</h2><p>This technical complexity of router exists because OpenAI faces a challenging economic reality: <strong>flat subscription pricing becomes difficult when usage explodes exponentially</strong>. As per Sam Altman, even $200/month struggles to maintain profitability.</p>
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">insane thing: we are currently losing money on openai pro subscriptions!<br><br>people use it much more than we expected.</p>&mdash; Sam Altman (@sama) <a href="https://twitter.com/sama/status/1876104315296968813?ref_src=twsrc%5Etfw">January 6, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-<h3>Math Behind the Subscription Pricing</h3>
-<p>Here&#39;s the math behind the subscription pricing:</p>
+<h3 id="math-behind-the-subscription-pricing">Math Behind the Subscription Pricing</h3><p>Here&#39;s the math behind the subscription pricing:</p>
 <ul>
 <li>Users pay $20/month for supposedly &quot;unlimited&quot; access (Nothing is unlimited)</li>
 <li>But Big models can burn upto $0.5+ per query in compute costs (Reasoning models)</li>
@@ -140,8 +205,7 @@
 <li>Anthropic - Their $20/month subscription includes significant rate limiting. </li>
 <li>Cursor - They recently announced that after 250 Sonnet requests, they&#39;ll meter usage and charge based on consumption</li>
 </ul>
-<h3>Routers are going to get better</h3>
-<p>Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:</p>
+<h3 id="routers-are-going-to-get-better">Routers are going to get better</h3><p>Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:</p>
 <p><strong>Data Collection at Scale:</strong></p>
 <ul>
 <li>Millions of daily interactions across different complexity levels</li>
@@ -156,8 +220,7 @@
 <li>Router learns: similar queries get routed to larger model next time</li>
 <li>Over time, accuracy improves from 80% → 90% → 95%+</li>
 </ul>
-<h2>The GPT-5 Launch Backlash</h2>
-<p>When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem &quot;dumber&quot; than GPT-4o.</p>
+<h2 id="the-gpt-5-launch-backlash">The GPT-5 Launch Backlash</h2><p>When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem &quot;dumber&quot; than GPT-4o.</p>
 <p><strong>User Backlash:</strong></p>
 <ul>
 <li>Users reported <a href="https://www.techradar.com/ai-platforms-assistants/chatgpt/chatgpt-users-are-not-happy-with-gpt-5-launch-as-thousands-take-to-reddit-claiming-the-new-upgrade-is-horrible">shallow answers to complex prompts</a></li>
@@ -170,8 +233,7 @@
 <li>Acknowledged router problems and began <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">tuning improvements</a></li>
 <li>Added more transparency about which model responds</li>
 </ul>
-<h2>Conclusion / Prediction</h2>
-<p>The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:</p>
+<h2 id="conclusion-prediction">Conclusion / Prediction</h2><p>The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:</p>
 <ul>
 <li><strong>Higher-tier customers</strong>: Will likely get manual model selection options</li>
 <li><strong>Free/basic tiers</strong>: Will live with the router, but a much-improved version</li>
@@ -179,17 +241,17 @@
 </ul>
 <p>The economics make routers inevitable, but OpenAI&#39;s rough launch showed that execution quality determines success or failure.</p>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/llm">#llm</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/llm">#llm</a>
+                                                    
+                                                    <a href="/tags/ux">#ux</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/ux">#ux</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -205,6 +267,53 @@
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

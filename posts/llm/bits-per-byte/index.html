@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,15 +73,45 @@
                                         </div>
                                         <div class="date-meta">
                                             October 15, 2025
+                                            
+                                            <span class="reading-time">5 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <blockquote>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-3">
+                                                    <a href="#tldr">
+                                                        TL;DR
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#example-why-per-token-metrics-mislead">
+                                                        Example: Why Per-Token Metrics Mislead
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#implementation">
+                                                        Implementation
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <blockquote>
 <p>Karpathy recently released <a href="https://github.com/karpathy/nanochat/">nanochat repo</a> which cotains code for <strong>training the best ChatGPT under $100</strong>. While skimming the high level code, I noticed across <code>bits per bytes</code> instead of typical <code>cross entropy</code> loss. And, i found it interesting, so i decided to dig in. </p>
 </blockquote>
-<h3>TL;DR</h3>
-<ul>
+<h3 id="tldr">TL;DR</h3><ul>
 <li>Bit per byte (BPB) is just cross-entropy measured per byte. We divide cross-entropy by bytes and log(2) to convert to bits.</li>
 <li>Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.</li>
 <li>Perplexity and token-level loss change when you change the tokenizer; BPB largely doesn’t.</li>
@@ -115,8 +149,7 @@
 </tbody></table>
 <p>Different tokenizers ≠ comparable &quot;tokens&quot;. So a model that uses a coarser tokenizer (fewer, longer tokens) can appear to have a lower per-token loss or perplexity, simply because the denominator changed.</p>
 <p>Instead of normalizing loss per token, normalize per byte of UTF-8 text that those tokens represent. Then, no matter how you split words into tokens, you&#39;re still asking: how many bits, on average, does the model need to encode each byte of text?</p>
-<h3>Example: Why Per-Token Metrics Mislead</h3>
-<p>Consider two models predicting &quot;The Capital of India&quot; -&gt; &quot; is Delhi&quot; (8 bytes in UTF-8, including the space):</p>
+<h3 id="example-why-per-token-metrics-mislead">Example: Why Per-Token Metrics Mislead</h3><p>Consider two models predicting &quot;The Capital of India&quot; -&gt; &quot; is Delhi&quot; (8 bytes in UTF-8, including the space):</p>
 <p><strong>Model A</strong> (coarse tokenizer):</p>
 <ul>
 <li>Tokens: <code>[&quot; is&quot;, &quot; Delhi&quot;]</code> (2 tokens)</li>
@@ -142,8 +175,7 @@ Model B perplexity:  exp(2.0) = 7.39        ← appears better!
 Model B BPB:  6.0 / (ln(2) × 8) = 1.08 bits/byte  ← identical!
 </code></pre>
 <p>BPB correctly shows both models have the same predictive quality. The apparent &quot;improvement&quot; in Model B&#39;s per-token metrics was purely an artifact of tokenization granularity.</p>
-<h3>Implementation</h3>
-<p>Below is the simplified and more readable version of the <a href="https://github.com/karpathy/nanochat/blob/master/nanochat/loss_eval.py">original code</a>.</p>
+<h3 id="implementation">Implementation</h3><p>Below is the simplified and more readable version of the <a href="https://github.com/karpathy/nanochat/blob/master/nanochat/loss_eval.py">original code</a>.</p>
 <pre><code class="language-python">import math
 import torch
 import torch.distributed as dist
@@ -222,17 +254,17 @@ def evaluate_bpb(model, batches, steps: int, token_bytes: torch.Tensor) -&gt; fl
     return bpb
 </code></pre>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/llm">#llm</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/llm">#llm</a>
+                                                    
+                                                    <a href="/tags/tokenizer">#tokenizer</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/tokenizer">#tokenizer</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -248,6 +280,53 @@ def evaluate_bpb(model, batches, steps: int, token_bytes: torch.Tensor) -&gt; fl
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

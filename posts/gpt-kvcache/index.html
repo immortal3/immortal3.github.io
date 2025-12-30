@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,11 +73,17 @@
                                         </div>
                                         <div class="date-meta">
                                             February 12, 2023
+                                            
+                                            <span class="reading-time">9 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <p>The common optimization trick for speeding up transformer inference is KV caching  <a href="https://kipp.ly/blog/transformer-inference-arithmetic/">1</a> <a href="https://lilianweng.github.io/posts/2023-01-10-inference-optimization/">2</a>. This technique is so prominent that huggingface library has <code>use_cache</code> flag is enabled by default <a href="https://huggingface.co/transformers/v3.0.2/model_doc/gpt2.html?highlight=use_cache#transformers.GPT2Model.forward">6</a>. A few days ago, I read an awesome blog post on <a href="https://jaykmody.com/blog/gpt-from-scratch/">GPT in 60 Lines of NumPy</a>. So, i thought, why not extend it to use the KV cache technique? So, let’s roll up our sleeves and start working on it. Before you read further, the blog assumes you have background on transformers; if you don&#39;t, then read <a href="https://jaykmody.com/blog/gpt-from-scratch/">this blog post</a>. It’s awesome, and you will learn a lot from it.</p>
+
+                                
+
+                                        <div class="markdown-body">
+                                            <p>The common optimization trick for speeding up transformer inference is KV caching  <a href="https://kipp.ly/blog/transformer-inference-arithmetic/">1</a> <a href="https://lilianweng.github.io/posts/2023-01-10-inference-optimization/">2</a>. This technique is so prominent that huggingface library has <code>use_cache</code> flag is enabled by default <a href="https://huggingface.co/transformers/v3.0.2/model_doc/gpt2.html?highlight=use_cache#transformers.GPT2Model.forward">6</a>. A few days ago, I read an awesome blog post on <a href="https://jaykmody.com/blog/gpt-from-scratch/">GPT in 60 Lines of NumPy</a>. So, i thought, why not extend it to use the KV cache technique? So, let’s roll up our sleeves and start working on it. Before you read further, the blog assumes you have background on transformers; if you don&#39;t, then read <a href="https://jaykmody.com/blog/gpt-from-scratch/">this blog post</a>. It’s awesome, and you will learn a lot from it.</p>
 <p>First, let’s understand a few things about GPT code.</p>
 <pre><code class="language-python">def gpt(inputs: list[int]) -&gt; list[list[float]]:
     # inputs has shape [n_seq]
@@ -97,7 +107,7 @@
 <pre><code class="language-python">def attention(q, k, v, mask):  # [n_q, d_k], [n_k, d_k], [n_k, d_v], [n_q, n_k] -&gt; [n_q, d_v]
     return softmax(q @ k.T / np.sqrt(q.shape[-1]) + mask) @ v
 </code></pre>
-<p><img src="/blog_photos/kvcache.jpg" alt="attention with kvcache"></p>
+<p><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache"></p>
 <p>So, we need to calculate new_k and new_v for current input token. Append it to the existing cache and pass it to attention block for further processing. </p>
 <pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
     # qkv projection
@@ -225,21 +235,21 @@ The computer is a machine that can perform complex calculations, and it can perf
 <li><a href="https://jaykmody.com/blog/gpt-from-scratch/">https://jaykmody.com/blog/gpt-from-scratch/</a></li>
 </ol>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/transformer">#transformer</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/transformer">#transformer</a>
+                                                    
+                                                    <a href="/tags/nlp">#nlp</a>
+                                                    
+                                                    <a href="/tags/gpt">#gpt</a>
+                                                    
+                                                    <a href="/tags/speedup">#speedup</a>
+                                                    
+                                            </div>
                                             
-                                            <a href="/tags/nlp">#nlp</a>
-                                            
-                                            <a href="/tags/gpt">#gpt</a>
-                                            
-                                            <a href="/tags/speedup">#speedup</a>
-                                            
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -255,6 +265,53 @@ The computer is a machine that can perform complex calculations, and it can perf
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>

@@ -35,7 +35,8 @@
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+                rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +48,13 @@
 </head>
 
 <body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
     <div class="container">
         
                             <nav class="post-nav">
-                                <a href="/">← Home</a>
+                                <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
                             <article class="post-content">
@@ -69,17 +73,134 @@
                                         </div>
                                         <div class="date-meta">
                                             March 8, 2025
+                                            
+                                            <span class="reading-time">9 min read</span>
+                                            
                                         </div>
                                     </div>
                                 </header>
-                                <div class="markdown-body">
-                                    <h1>Improving Retrieval in RAG (via Recall, Precision, and NDCG)</h1>
-<h2>Introduction</h2>
-<p>Retrieval-Augmented Generation (RAG) is the superhero sidekick that grounds your Large Language Model (LLM) in cold, hard facts. But here&#39;s the dirty secret: if your retrieval sucks, your RAG system is just a fancy chatbot with a broken brain. Weak retrieval = missed documents, irrelevant results, and rankings that make no sense.</p>
+
+                                
+                                    <nav class="toc-container">
+                                        <div class="toc-title">On this page</div>
+                                        <ul class="toc-list">
+                                            
+                                                <li class="toc-item level-1">
+                                                    <a href="#improving-retrieval-in-rag-via-recall-precision-and-ndcg">
+                                                        Improving Retrieval in RAG (via Recall, Precision, and NDCG)
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#introduction">
+                                                        Introduction
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#the-basics-of-retrieval">
+                                                        The Basics of Retrieval
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#vector-search-vs-full-text-search">
+                                                        Vector Search vs. Full-Text Search
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#metrics-101-what-to-optimize-for">
+                                                        Metrics 101 – What to Optimize For
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#the-hierarchy-of-needs">
+                                                        The Hierarchy of Needs
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#step-1-maximizing-recall">
+                                                        Step 1 – Maximizing Recall
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#why-recall-first">
+                                                        Why Recall First?
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#tactics-to-boost-recall">
+                                                        Tactics to Boost Recall
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#step-2-precision-tuning">
+                                                        Step 2 – Precision Tuning
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#why-precision-matters">
+                                                        Why Precision Matters
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#precision-boosting-strategies">
+                                                        Precision-Boosting Strategies
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#step-3-ndcg-optimization">
+                                                        Step 3 – NDCG Optimization
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#why-ranking-matters">
+                                                        Why Ranking Matters
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#ranking-improvement-strategies">
+                                                        Ranking Improvement Strategies
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-3">
+                                                    <a href="#measuring-ndcg-improvement">
+                                                        Measuring NDCG Improvement
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#conclusion-build-a-retrieval-flywheel">
+                                                        Conclusion: Build a Retrieval Flywheel
+                                                    </a>
+                                                </li>
+                                                
+                                                <li class="toc-item level-2">
+                                                    <a href="#retrieval-cheat-sheet">
+                                                        Retrieval Cheat Sheet
+                                                    </a>
+                                                </li>
+                                                
+                                        </ul>
+                                    </nav>
+                                    
+
+                                        <div class="markdown-body">
+                                            <h1 id="improving-retrieval-in-rag-via-recall-precision-and-ndcg">Improving Retrieval in RAG (via Recall, Precision, and NDCG)</h1><h2 id="introduction">Introduction</h2><p>Retrieval-Augmented Generation (RAG) is the superhero sidekick that grounds your Large Language Model (LLM) in cold, hard facts. But here&#39;s the dirty secret: if your retrieval sucks, your RAG system is just a fancy chatbot with a broken brain. Weak retrieval = missed documents, irrelevant results, and rankings that make no sense.</p>
 <p>This guide cuts through the noise. You&#39;ll learn how to turbocharge your RAG retrieval with a no-fluff, step-by-step approach to maximize recall, sharpen precision, and nail NDCG. Whether you&#39;re a data scientist, developer, or AI enthusiast, this is your playbook to stop screwing around and start getting results. Let&#39;s roll.</p>
-<h2>The Basics of Retrieval</h2>
-<h3>Vector Search vs. Full-Text Search</h3>
-<p>Retrieval is the backbone of RAG, and it&#39;s a tug-of-war between two heavyweights: vector search and full-text search. Here&#39;s the breakdown:</p>
+<h2 id="the-basics-of-retrieval">The Basics of Retrieval</h2><h3 id="vector-search-vs-full-text-search">Vector Search vs. Full-Text Search</h3><p>Retrieval is the backbone of RAG, and it&#39;s a tug-of-war between two heavyweights: vector search and full-text search. Here&#39;s the breakdown:</p>
 <p><strong>Vector Search</strong>: Turns words into numbers (embeddings) to capture meaning. Think of it as a genius librarian who gets that &quot;machine learning frameworks&quot; is related to &quot;neural network libraries&quot; even if the exact words don&#39;t match.</p>
 <p><em>Example</em>: Query = &quot;machine learning frameworks.&quot; Vector search grabs articles about &quot;PyTorch vs TensorFlow comparison&quot; because it understands semantic similarity.</p>
 <p><strong>Full-Text Search</strong>: The old-school keyword matcher. It&#39;s like a librarian who only cares about exact titles—if &quot;machine learning frameworks&quot; isn&#39;t in the text, you&#39;re out of luck.</p>
@@ -110,25 +231,20 @@
 </tr>
 </tbody></table>
 <p><strong>Why Both Matter</strong>: Hybrid search (vector + keywords) is the cheat code. Combine them, and you get the best of both worlds—broad coverage with pinpoint accuracy.</p>
-<h2>Metrics 101 – What to Optimize For</h2>
-<p>You can&#39;t fix what you don&#39;t measure. Here&#39;s your retrieval holy trinity:</p>
+<h2 id="metrics-101-what-to-optimize-for">Metrics 101 – What to Optimize For</h2><p>You can&#39;t fix what you don&#39;t measure. Here&#39;s your retrieval holy trinity:</p>
 <p><strong>Recall</strong>: Are you finding all the good stuff?</p>
 <p><em>Example</em>: Imagine 100 blog posts about &quot;transformer architecture&quot; exist. Your retriever grabs 85 of them. That&#39;s 85% recall. Miss too many, and your LLM is flying blind.</p>
 <p><strong>Precision</strong>: Are you dodging the junk?</p>
 <p><em>Example</em>: You retrieve 100 documents for &quot;transformer architecture,&quot; but only 70 are relevant (the rest are about &quot;electrical transformers&quot;). That&#39;s 70% precision. Too much noise, and your RAG drowns in garbage.</p>
 <p><strong>NDCG</strong> (Normalized Discounted Cumulative Gain): Are the best hits at the top?</p>
 <p><em>Example</em>: Picture the perfect ranking: top 5 results about transformer models are gold, next 5 are decent. If your retriever puts electrical engineering papers at #1 and buries the good ML content at #10, your NDCG tanks. High NDCG = happy users.</p>
-<h3>The Hierarchy of Needs</h3>
-<ol>
+<h3 id="the-hierarchy-of-needs">The Hierarchy of Needs</h3><ol>
 <li><strong>Recall First</strong>: Cast a wide net—don&#39;t miss the critical docs.</li>
 <li><strong>Precision Next</strong>: Trim the fat—keep only what&#39;s relevant.</li>
 <li><strong>NDCG Last</strong>: Polish the rankings—put the best up top.</li>
 </ol>
-<h2>Step 1 – Maximizing Recall</h2>
-<h3>Why Recall First?</h3>
-<p>If your retriever misses key documents, your generator&#39;s toast. It&#39;s like cooking a steak dinner with no steak. Recall is step one—get everything on the table.</p>
-<h3>Tactics to Boost Recall</h3>
-<ol>
+<h2 id="step-1-maximizing-recall">Step 1 – Maximizing Recall</h2><h3 id="why-recall-first">Why Recall First?</h3><p>If your retriever misses key documents, your generator&#39;s toast. It&#39;s like cooking a steak dinner with no steak. Recall is step one—get everything on the table.</p>
+<h3 id="tactics-to-boost-recall">Tactics to Boost Recall</h3><ol>
 <li><p><strong>Query Expansion</strong>: Make your query a beast by adding synonyms or related terms.</p>
 <p><em>Example</em>: Query = &quot;transformer models.&quot; Expand it to &quot;attention mechanisms,&quot; &quot;BERT architecture,&quot; &quot;language model design.&quot; </p>
 <p><em>What to do</em>: </p>
@@ -161,11 +277,8 @@
 </ul>
 </li>
 </ol>
-<h2>Step 2 – Precision Tuning</h2>
-<h3>Why Precision Matters</h3>
-<p>You&#39;ve got a pile of docs—now ditch the trash. Precision ensures your RAG isn&#39;t wading through irrelevant sludge.</p>
-<h3>Precision-Boosting Strategies</h3>
-<ol>
+<h2 id="step-2-precision-tuning">Step 2 – Precision Tuning</h2><h3 id="why-precision-matters">Why Precision Matters</h3><p>You&#39;ve got a pile of docs—now ditch the trash. Precision ensures your RAG isn&#39;t wading through irrelevant sludge.</p>
+<h3 id="precision-boosting-strategies">Precision-Boosting Strategies</h3><ol>
 <li><p><strong>Re-Rankers</strong>: Run a heavy-hitter model (e.g., BERT cross-encoder) on your top 50-100 results to rescore them.</p>
 <p><em>Example</em>: Query = &quot;transformer architecture.&quot; Initial retrieval grabs 100 docs, including some about &quot;electrical power transformers.&quot; A re-ranker kicks out the electrical engineering stuff, keeping ML architecture gold.</p>
 <p><em>What to do</em>: </p>
@@ -189,11 +302,8 @@
 </ul>
 </li>
 </ol>
-<h2>Step 3 – NDCG Optimization</h2>
-<h3>Why Ranking Matters</h3>
-<p>You&#39;ve maximized recall and precision—now make sure the gold is at the top. With LLMs having finite token limits, the order of retrieval can make or break your RAG system. If your best content is buried at position #30, your LLM might never see it.</p>
-<h3>Ranking Improvement Strategies</h3>
-<ol>
+<h2 id="step-3-ndcg-optimization">Step 3 – NDCG Optimization</h2><h3 id="why-ranking-matters">Why Ranking Matters</h3><p>You&#39;ve maximized recall and precision—now make sure the gold is at the top. With LLMs having finite token limits, the order of retrieval can make or break your RAG system. If your best content is buried at position #30, your LLM might never see it.</p>
+<h3 id="ranking-improvement-strategies">Ranking Improvement Strategies</h3><ol>
 <li><p><strong>Reranking</strong>: Use re-rankers to filter and re-rank your results. This helps to improve both precision and NDCG.</p>
 </li>
 <li><p><strong>User Feedback Integration</strong>: Capture what users actually find valuable and use it to improve your rankings.</p>
@@ -219,8 +329,7 @@
 <p><em>Pro Tip</em>: Don&#39;t just append history blindly—it creates noise. Instead, extract key entities and concepts from previous exchanges and use them to enrich your current query. For example, if discussing &quot;transformer models for NLP tasks,&quot; extract &quot;transformer&quot; + &quot;NLP&quot; as context boosters.</p>
 </li>
 </ol>
-<h3>Measuring NDCG Improvement</h3>
-<p>Don&#39;t fly blind—benchmark your changes:</p>
+<h3 id="measuring-ndcg-improvement">Measuring NDCG Improvement</h3><p>Don&#39;t fly blind—benchmark your changes:</p>
 <ol>
 <li>Create a test set with queries and human-judged relevance scores</li>
 <li>Calculate NDCG@k (typically k=5 or k=10) before and after changes</li>
@@ -237,8 +346,7 @@
 10,000 tokens × 10 documents = 100,000 tokens
 100,000 tokens + 3,000 tokens = 103,000 tokens</p>
 <p>103,000 &lt; 128,000... We&#39;re good! 🎉</p>
-<h2>Conclusion: Build a Retrieval Flywheel</h2>
-<p>Here&#39;s the game plan:</p>
+<h2 id="conclusion-build-a-retrieval-flywheel">Conclusion: Build a Retrieval Flywheel</h2><p>Here&#39;s the game plan:</p>
 <ol>
 <li><strong>Hybrid Search</strong>: Max out recall—grab everything.</li>
 <li><strong>Re-Rankers</strong>: Sharpen precision—ditch the junk.</li>
@@ -246,8 +354,7 @@
 </ol>
 <p>This isn&#39;t a one-and-done deal. It&#39;s a flywheel—every tweak spins it faster. Experiment with chunk sizes, thresholds, and models. Small wins stack up to massive gains.</p>
 <p><strong>Final Tip</strong>: Don&#39;t guess—test. Try a 0.7 threshold vs. 0.9. Swap 256-token chunks for 512. Data beats dogma.</p>
-<h2>Retrieval Cheat Sheet</h2>
-<table>
+<h2 id="retrieval-cheat-sheet">Retrieval Cheat Sheet</h2><table>
 <thead>
 <tr>
 <th>Step</th>
@@ -273,15 +380,15 @@
 </tbody></table>
 <p>That&#39;s it—your RAG retrieval is now a lean, mean, result-spitting machine. Go forth and dominate!</p>
 
-                                </div>
+                                        </div>
 
-                                
-                                    <div class="post-footer-tags">
                                         
-                                            <a href="/tags/RAG">#RAG</a>
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/RAG">#RAG</a>
+                                                    
+                                            </div>
                                             
-                                    </div>
-                                    
                             </article>
                             
     </div>
@@ -297,6 +404,53 @@
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
         });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
 
         
     </script>
