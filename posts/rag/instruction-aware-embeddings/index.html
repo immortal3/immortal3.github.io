@@ -2,64 +2,78 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        Instruction Aware Embeddings | Dip&#39;s Blog
-    </title>
-    <meta name="description"
-        content="Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings">
-    <meta property="og:title" content="Instruction Aware Embeddings" />
-    <meta property="og:description"
-        content="Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings" />
-    <meta property="og:type" content="article" />
-    <meta property="og:image" content="https://dipkumar.dev/static/social-share.jpg" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://dipkumar.dev/static/social-share.jpg" />
+    
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHT0HV5ELQ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
 
-    <link rel="icon" type="image/jpeg" href="/static/icon.jpeg">
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="/static/fish.css">
+            gtag('config', 'G-SHT0HV5ELQ');
+        </script>
+        
 
-    <!-- Prism.js for Syntax Highlighting -->
-    <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>
+                Instruction Aware Embeddings | Dip&#39;s Blog
+            </title>
+            <meta name="description"
+                content="Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings">
+            <meta property="og:title" content="Instruction Aware Embeddings" />
+            <meta property="og:description"
+                content="Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings" />
+            <meta property="og:type" content="article" />
+            <meta property="og:image" content="https://dipkumar.dev/static/social-share.jpg" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:image" content="https://dipkumar.dev/static/social-share.jpg" />
+
+            <link rel="icon" type="image/jpeg" href="/static/icon.jpeg">
+            <link rel="stylesheet" href="/static/style.css">
+            <link rel="stylesheet" href="/static/fish.css">
+
+            <!-- Prism.js for Syntax Highlighting -->
+            <link href="https://unpkg.com/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+                rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+                integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
     <div class="container">
         
-                        <nav class="post-nav">
-                            <a href="/">← Home</a>
-                            <a href="/blogs" class="all-posts-link">All Posts</a>
-                        </nav>
-                        <article class="post-content">
-                            <header>
-                                <h1>
-                                    Instruction Aware Embeddings
-                                </h1>
-                                <div class="meta-row">
-                                    <div class="author-meta">
-                                        <span class="social-mini">
-                                            <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
-                                            <a href="https://github.com/immortal3" target="_blank">github</a>
-                                            <a href="mailto:patel@dipkumar.dev">email</a>
-                                        </span>
-                                        By <a href="/" class="author-link">Dipkumar Patel</a>
+                            <nav class="post-nav">
+                                <a href="/">← Home</a>
+                                <a href="/blogs" class="all-posts-link">All Posts</a>
+                            </nav>
+                            <article class="post-content">
+                                <header>
+                                    <h1>
+                                        Instruction Aware Embeddings
+                                    </h1>
+                                    <div class="meta-row">
+                                        <div class="author-meta">
+                                            <span class="social-mini">
+                                                <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
+                                                <a href="https://github.com/immortal3" target="_blank">github</a>
+                                                <a href="mailto:patel@dipkumar.dev">email</a>
+                                            </span>
+                                            By <a href="/" class="author-link">Dipkumar Patel</a>
+                                        </div>
+                                        <div class="date-meta">
+                                            July 8, 2025
+                                        </div>
                                     </div>
-                                    <div class="date-meta">
-                                        July 8, 2025
-                                    </div>
-                                </div>
-                            </header>
-                            <div class="markdown-body">
-                                <h1>Why Your Retriever is Failing and How Context Can Save It</h1>
+                                </header>
+                                <div class="markdown-body">
+                                    <h1>Why Your Retriever is Failing and How Context Can Save It</h1>
 <p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
 <hr>
 <h2>1. What Is the Problem in Your Retriever &amp; Embedding?</h2>
@@ -254,19 +268,19 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
 <li>Code example and full script: <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">compare.py on GitHub Gist</a></li>
 </ul>
 
-                            </div>
-
-                            
-                                <div class="post-footer-tags">
-                                    
-                                        <a href="/tags/RAG">#RAG</a>
-                                        
-                                        <a href="/tags/embedding">#embedding</a>
-                                        
                                 </div>
+
                                 
-                        </article>
-                        
+                                    <div class="post-footer-tags">
+                                        
+                                            <a href="/tags/RAG">#RAG</a>
+                                            
+                                            <a href="/tags/embedding">#embedding</a>
+                                            
+                                    </div>
+                                    
+                            </article>
+                            
     </div>
 
     <!-- Prism JS for Syntax Highlighting -->
