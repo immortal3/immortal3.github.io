@@ -563,8 +563,9 @@ h1 {
 }
 
 .markdown-body {
-    font-size: 16px;
-    line-height: 1.7;
+    font-family: 'STIX Two Text', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.6;
     color: var(--text-color);
 }
 
@@ -646,10 +647,11 @@ pre[class*="language-"] {
 }
 
 .markdown-body pre {
-    padding: 24px !important;
+    padding: 20px !important;
     border-radius: 12px;
-    margin-bottom: 35px;
-    font-size: 0.88rem;
+    margin-bottom: 32px;
+    font-size: 17px;
+    font-family: 'STIX Two Text', Georgia, serif;
     overflow-x: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: var(--code-bg) !important;
@@ -679,9 +681,10 @@ pre[class*="language-"] {
 /* Inline Code */
 .markdown-body code:not([class*="language-"]) {
     background: var(--inline-code-bg);
-    padding: 0.2em 0.4em;
-    border-radius: 6px;
-    font-size: 0.9em;
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+    font-size: 1em;
+    font-family: 'STIX Two Text', Georgia, serif;
     color: var(--inline-code-text);
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-weight: 500;
@@ -692,7 +695,7 @@ pre[class*="language-"] {
     width: 100%;
     border-collapse: collapse;
     margin: 25px 0;
-    font-size: 0.9rem;
+    font-size: 17px;
 }
 
 .markdown-body th,
