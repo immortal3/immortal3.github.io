@@ -3,6 +3,7 @@
 
 <head>
     
+    
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHT0HV5ELQ"></script>
         <script>
@@ -18,29 +19,40 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>
-                Creativity Is a Luxury | Dip&#39;s Blog
+                Creativity Is a Luxury | Dip
             </title>
-            <meta name="description"
-                content="Creativity is a luxury. It requires time, energy and space.">
+            <meta name="description" content="Creativity is a luxury. It requires time, energy and space.">
+            <link rel="canonical" href="https://dipkumar.dev/posts/life/creativity-is-a-luxury">
             <meta property="og:title" content="Creativity Is a Luxury" />
-            <meta property="og:description"
-                content="Creativity is a luxury. It requires time, energy and space." />
+            <meta property="og:description" content="Creativity is a luxury. It requires time, energy and space." />
             <meta property="og:type" content="article" />
+            <meta property="og:url" content="https://dipkumar.dev/posts/life/creativity-is-a-luxury" />
+            <meta property="og:site_name" content="Dip" />
             <meta property="og:image" content="https://dipkumar.dev/static/social-share.jpg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content="Dip blog social card" />
             <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="Creativity Is a Luxury" />
+            <meta name="twitter:description" content="Creativity is a luxury. It requires time, energy and space." />
+            <meta name="twitter:site" content="@immortaldip" />
+            <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share.jpg" />
+            <meta name="twitter:image:alt" content="Dip blog social card" />
 
             <link rel="icon" type="image/jpeg" href="/static/icon.jpeg">
             <link rel="stylesheet" href="/static/style.css">
             <link rel="stylesheet" href="/static/fish.css">
 
             <!-- Prism.js for Syntax Highlighting -->
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
                 rel="stylesheet" />
 
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+                rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap"
                 rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                 integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
@@ -51,17 +63,23 @@
     
     <div class="reading-progress" id="reading-progress"></div>
     
-    <div class="container">
+    <div class="container post-page">
         
                             <nav class="post-nav">
                                 <a href="/" class="back-link">Home</a>
                                 <a href="/blogs" class="all-posts-link">All Posts</a>
                             </nav>
-                            <article class="post-content">
+                            
+                            <article class="post-content no-toc">
                                 <header>
                                     <h1>
                                         Creativity Is a Luxury
                                     </h1>
+                                    
+                                        <p class="post-subtitle">
+                                            Creativity is a luxury. It requires time, energy and space.
+                                        </p>
+                                    
                                     <div class="meta-row">
                                         <div class="author-meta">
                                             <span class="social-mini">
@@ -69,7 +87,7 @@
                                                 <a href="https://github.com/immortal3" target="_blank">github</a>
                                                 <a href="mailto:patel@dipkumar.dev">email</a>
                                             </span>
-                                            By <a href="/" class="author-link">Dipkumar Patel</a>
+                                            By <a href="/" class="author-link">Dip</a>
                                         </div>
                                         <div class="date-meta">
                                             August 17, 2025
@@ -81,9 +99,9 @@
                                 </header>
 
                                 
-
-                                        <div class="markdown-body">
-                                            <p>Creativity is a luxury.</p>
+                                <div class="post-main post-main-no-toc">
+                                    <div class="markdown-body">
+                                        <p>Creativity is a luxury.</p>
 <p>It demands time, energy and space: things that feel scarce when rent, groceries, and the next shift loom larger than any poem or prototype. Most of us are caught in a slow-spinning loop of laundry, commutes, and alarms that reset before the dream has even ended.</p>
 <p>It is also a luxury that needs literal room: a quiet corner, a desk that isn’t the dinner table, a door that closes. I have watched friends whose bedrooms double as storage closets carry old laptops to 24-hour cafés or office lobbies after hours, hunting for any pocket of stillness where code can compile without a toddler tugging at the charger.</p>
 <p>Much of the talk about “why they don’t innovate” is aimed at developing nations, as if ingenuity were a switch we forgot to flip. The question forgets that for many, the next level of the game called life is simply surviving this week.  </p>
@@ -96,9 +114,11 @@
 </details>
 
 
-                                        </div>
+                                    </div>
 
-                                        
+                                    
+                                </div>
+                                
                             </article>
                             
     </div>
@@ -113,6 +133,50 @@
         // Highlight on load
         document.addEventListener('DOMContentLoaded', function () {
             Prism.highlightAll();
+
+            document.querySelectorAll('pre code[class*="language-"]:not(.language-mermaid)').forEach(function (codeEl) {
+                const pre = codeEl.parentElement;
+                if (!pre) return;
+
+                if (pre.querySelector('.code-copy-button')) return;
+
+                const copyButton = document.createElement('button');
+                copyButton.type = 'button';
+                copyButton.className = 'code-copy-button';
+                copyButton.textContent = 'Copy';
+
+                copyButton.addEventListener('click', async function () {
+                    const codeText = codeEl.textContent || '';
+
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            await navigator.clipboard.writeText(codeText);
+                        } else {
+                            const textArea = document.createElement('textarea');
+                            textArea.value = codeText;
+                            textArea.setAttribute('readonly', '');
+                            textArea.style.position = 'absolute';
+                            textArea.style.left = '-9999px';
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                        }
+
+                        copyButton.textContent = 'Copied';
+                        window.setTimeout(function () {
+                            copyButton.textContent = 'Copy';
+                        }, 1500);
+                    } catch (error) {
+                        copyButton.textContent = 'Failed';
+                        window.setTimeout(function () {
+                            copyButton.textContent = 'Copy';
+                        }, 1500);
+                    }
+                });
+
+                pre.appendChild(copyButton);
+            });
         });
 
         // Mermaid initialization
@@ -137,6 +201,17 @@
                 mermaid.init(undefined, '.mermaid');
             };
             document.head.appendChild(script);
+        }
+
+        // Twitter/X embeds
+        if (document.querySelector('.twitter-tweet') && !window.twttr) {
+            const script = document.createElement('script');
+            script.src = 'https://platform.twitter.com/widgets.js';
+            script.async = true;
+            script.charset = 'utf-8';
+            document.head.appendChild(script);
+        } else if (window.twttr && window.twttr.widgets) {
+            window.twttr.widgets.load();
         }
 
         // Reading progress bar
