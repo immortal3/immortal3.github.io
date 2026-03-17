@@ -3,9 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://dipkumar.dev/</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
     <url>
+    <loc>https://dipkumar.dev/posts/agents/agent-search-problem</loc>
+    <lastmod>2026-03-16T18:30:00.000Z</lastmod>
+  </url>
+  <url>
     <loc>https://dipkumar.dev/posts/llm/bits-per-byte</loc>
     <lastmod>2025-10-15T17:29:08.000Z</lastmod>
   </url>
@@ -46,75 +50,91 @@
     <lastmod>2021-11-28T11:38:55.000Z</lastmod>
   </url>
     <url>
-    <loc>https://dipkumar.dev/tags/llm</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dipkumar.dev/tags/tokenizer</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dipkumar.dev/tags/ux</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <loc>https://dipkumar.dev/tags/agents</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/RAG</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/search</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/MCP</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/LLM</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/llm</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/tokenizer</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/ux</loc>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/embedding</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/ai</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/database</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/db</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/design</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/transformer</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/nlp</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/gpt</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/speedup</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/algorithms</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/LC</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/hugo</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/work</loc>
-    <lastmod>2026-03-14T13:34:51.886Z</lastmod>
+    <lastmod>2026-03-17T18:57:13.425Z</lastmod>
   </url>
 </urlset>
