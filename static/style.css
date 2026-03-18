@@ -903,14 +903,18 @@ pre[class*="language-"] {
 .markdown-body .twitter-tweet-rendered {
     margin: 32px auto !important;
     width: min(100%, 560px) !important;
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.05), rgba(99, 102, 241, 0.02));
+    box-shadow: 0 16px 32px -28px rgba(15, 23, 42, 0.28);
 }
 
 .markdown-body .twitter-tweet {
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 16px;
     padding: 18px 18px 10px;
-    background: #ffffff;
-    box-shadow: 0 12px 28px -24px rgba(15, 23, 42, 0.25);
+}
+
+.markdown-body .twitter-tweet iframe {
+    border-radius: 14px !important;
 }
 
 /* Mermaid Diagrams */
