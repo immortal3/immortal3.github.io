@@ -95,7 +95,7 @@
                                         <div class="date-meta">
                                             March 17, 2026
                                             
-                                            <span class="reading-time">23 min read</span>
+                                            <span class="reading-time">22 min read</span>
                                             
                                         </div>
                                     </div>
@@ -398,32 +398,9 @@ Excalidraw instructions:
 <p>But all of them are really answers to the same question: how does the agent keep the right parts of history available without drowning in the whole history?</p>
 <p>This is why <a href="https://github.com/aiwavecomputer/recursive-lm">Recursive Language Models</a> introduce explicit navigation operators such as peek, partition, grep, and zoom instead of just extending sequence length forever. Those are search operations over context. Related work like <a href="https://papers.voltropy.com/LCM">LCM</a> makes the same point from another angle: long context and local search need to work together. Once you look at it this way, recursive context methods start looking less like magic context scaling and more like retrieval policies over an internal search space.</p>
 <p>Context engineering is just search engineering with better marketing.</p>
-<h2 id="conclusion-search-keeps-coming-back">Conclusion: Search keeps coming back</h2><p>That is the real pattern behind this whole post.</p>
-<p>We keep giving the problem different names:</p>
-<ul>
-<li>web search</li>
-<li>RAG</li>
-<li>agentic retrieval</li>
-<li>tool routing</li>
-<li>dynamic tool attachment</li>
-<li>skills</li>
-<li>compaction</li>
-<li>memory</li>
-<li>long-context navigation</li>
-</ul>
-<p>But the failure mode underneath is often the same. The agent cannot find the right thing at the right moment with high enough confidence, low enough latency, and low enough cost.</p>
-<p>That is why the market keeps rebuilding the same idea in different forms. Frontier labs bill for search. Firecrawl, Exa, Tavily, Parallel, and Browserbase exist because fetching the right information is not the same as generating a nice answer. Enterprise search products exist because large organizations turn retrieval into a permissions, freshness, and systems problem. Tool routers exist because too many tools create the same overload that too many documents used to create. Skills and <code>SKILL.md</code> exist because you cannot keep every workflow in prompt context all the time. Compaction, caching, checkpointing, and recursive context methods exist because even the context window itself becomes a search space.</p>
-<p>So I do not think the main bottleneck for agents is &quot;reasoning&quot; in the abstract. The smarter framing is this: reasoning only starts after retrieval works well enough. If search fails, the rest of the stack barely matters.</p>
-<p>That also changes what a strong agent product looks like. It does not look like one giant model with a bigger window and more tools attached. It looks like a retrieval harness around a model:</p>
-<ul>
-<li>search the public web</li>
-<li>retrieve from private knowledge</li>
-<li>discover the right tool</li>
-<li>load the right workflow</li>
-<li>compact and navigate history</li>
-</ul>
-<p>The model is still central. But the harness decides whether the model is operating on the right evidence or on plausible-looking junk.</p>
-<p><em>Search did not go away when agents arrived. It expanded. In some sense, the entire agent stack is the industry rediscovering that before intelligence can act, it has to find.</em></p>
+<h2 id="conclusion-search-keeps-coming-back">Conclusion: Search keeps coming back</h2><p>Search keeps showing up everywhere: on the public web, inside RAG systems, across tool and MCP catalogs, inside skills and workflow loading, and even inside the context window itself.</p>
+<p>That is why so many people are attacking the problem from different angles. Some are building better web-search stacks. Some are building agentic RAG. Some are building tool routers and dynamic attachment. Some are building skills, memory files, compaction, caching, and context-navigation systems. They all look different, but they are all trying to solve the same thing.</p>
+<p><em>Can anyone turn web search, knowledge retrieval, tool discovery, workflow loading, and context navigation into one coherent search runtime for agents, or will these always remain separate systems stitched together by heuristics?</em></p>
 <hr>
 <p><em>References:</em></p>
 <ul>
