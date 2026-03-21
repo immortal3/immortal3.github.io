@@ -18,9 +18,7 @@
     /* Increased to 150px base for better visibility */
     height: auto;
     left: -300px;
-    pointer-events: auto;
-    /* Enable interaction */
-    cursor: pointer;
+    pointer-events: none;
     transition: transform 0.3s ease;
 }
 
@@ -36,7 +34,6 @@
 /* Pause on Hover */
 .fish-wrapper:hover {
     animation-play-state: paused;
-    z-index: 10;
 }
 
 /* Force pause state when paused class is present */
@@ -50,6 +47,8 @@
     height: auto;
     display: block;
     opacity: 0.5;
+    pointer-events: visiblePainted;
+    cursor: pointer;
     /* Only fish is transparent, not tooltip */
     animation: fishShapeGlow 1.5s ease-in-out infinite;
 }
@@ -73,6 +72,7 @@
     opacity: 0;
     transition: opacity 0.3s, visibility 0.3s;
     pointer-events: auto;
+    cursor: pointer;
     margin-bottom: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
@@ -105,6 +105,7 @@
 }
 
 /* Show tooltip on hover */
+.fish-wrapper.paused .fish-tooltip,
 .fish-wrapper:hover .fish-tooltip {
     visibility: visible;
     opacity: 1;

@@ -51,13 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
     startSwim();
 
     // Get tooltip element
+    const fishSvg = fish.querySelector('.angler-fish-svg');
     const tooltip = fish.querySelector('.fish-tooltip');
+    const hoverTargets = [fishSvg, tooltip].filter(Boolean);
 
-    // Fix hover pause functionality using CSS class
-    fish.addEventListener('mouseenter', () => {
-        fish.classList.add('paused');
-
-        // Auto-adjust tooltip position based on fish location
+    function updateTooltipPosition() {
         const rect = fish.getBoundingClientRect();
         const windowHeight = window.innerHeight;
 
@@ -67,9 +65,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             tooltip.classList.remove('below');
         }
-    });
+    }
 
-    fish.addEventListener('mouseleave', () => {
+    function pauseFish() {
+        fish.classList.add('paused');
+        updateTooltipPosition();
+    }
+
+    function resumeFish(event) {
+        if (event.relatedTarget && fish.contains(event.relatedTarget)) {
+            return;
+        }
         fish.classList.remove('paused');
+    }
+
+    hoverTargets.forEach((target) => {
+        target.addEventListener('mouseenter', pauseFish);
+        target.addEventListener('mouseleave', resumeFish);
     });
 });
