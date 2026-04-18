@@ -19,14 +19,14 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>
-                GPT-5 Router - Inevitable Future of Chat Interfaces | Dip
+                Positional Encoding and RoPE | Dip
             </title>
-            <meta name="description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.">
-            <link rel="canonical" href="https://dipkumar.dev/posts/llm/gpt5-router">
-            <meta property="og:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces" />
-            <meta property="og:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users." />
+            <meta name="description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.">
+            <link rel="canonical" href="https://dipkumar.dev/notes/llm/rope">
+            <meta property="og:title" content="Positional Encoding and RoPE" />
+            <meta property="og:description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE." />
             <meta property="og:type" content="article" />
-            <meta property="og:url" content="https://dipkumar.dev/posts/llm/gpt5-router" />
+            <meta property="og:url" content="https://dipkumar.dev/notes/llm/rope" />
             <meta property="og:site_name" content="Dip" />
             <meta property="og:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
             <meta property="og:image:secure_url" content="https://dipkumar.dev/static/social-share-v3.jpg" />
@@ -35,8 +35,8 @@
             <meta property="og:image:height" content="3040" />
             <meta property="og:image:alt" content="Dip blog social card" />
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces" />
-            <meta name="twitter:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users." />
+            <meta name="twitter:title" content="Positional Encoding and RoPE" />
+            <meta name="twitter:description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
@@ -70,37 +70,44 @@
         
                             <nav class="post-nav">
                                 <a href="/" class="back-link">Home</a>
-                                <a href="/blogs" class="all-posts-link">
-                                    All Posts
+                                <a href="/notes/llm" class="all-posts-link">
+                                    Back To Section
                                 </a>
                             </nav>
                             
                             <article class="post-content has-toc">
                                 <header>
                                     
+                                        <div class="content-breadcrumbs">
+                                            
+                                                <a href="/notes">Notes</a>
+                                                <span class="breadcrumb-separator">/</span>
+                                            
+                                                <a href="/notes/llm">LLM</a>
+                                                <span class="breadcrumb-separator">/</span>
+                                            
+                                            <span class="breadcrumb-current">Positional Encoding and RoPE</span>
+                                        </div>
+                                    
                                     <h1>
-                                        GPT-5 Router - Inevitable Future of Chat Interfaces
+                                        Positional Encoding and RoPE
                                     </h1>
                                     
                                         <p class="post-subtitle">
-                                            Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.
+                                            A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.
                                         </p>
                                     
                                     <div class="meta-row">
                                         
-                                            <div class="author-meta">
-                                                <span class="social-mini">
-                                                    <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
-                                                    <a href="https://github.com/immortal3" target="_blank">github</a>
-                                                    <a href="mailto:patel@dipkumar.dev">email</a>
-                                                </span>
-                                                By <a href="/" class="author-link">Dip</a>
+                                            <div class="author-meta note-meta">
+                                                <span class="content-type-pill">Notes</span>
+                                                <a href="/notes/llm" class="note-parent-link">LLM</a>
                                             </div>
                                         
                                         <div class="date-meta">
-                                            August 13, 2025
+                                            Updated April 18, 2026
                                             
-                                            <span class="reading-time">5 min read</span>
+                                            <span class="reading-time">4 min read</span>
                                             
                                         </div>
                                     </div>
@@ -115,56 +122,56 @@
                                                 <ul class="toc-list">
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#what-is-gpt-5-router">
-                                                                What is GPT-5 Router
+                                                            <a href="#sinusoidal-positional-encoding">
+                                                                Sinusoidal positional encoding
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#how-it-works-routing-as-classification-problem">
-                                                                How It Works: Routing as Classification Problem
+                                                            <a href="#two-components-of-sinusoidal-positional-encoding">
+                                                                Two components of sinusoidal positional encoding
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-3">
-                                                            <a href="#the-classification-matrix">
-                                                                The Classification Matrix
+                                                            <a href="#1-position-term">
+                                                                1. Position term
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-3">
-                                                            <a href="#error-analysis-both-mistakes-cost-money">
-                                                                Error Analysis: Both Mistakes Cost Money
+                                                            <a href="#2-frequency-term">
+                                                                2. Frequency term
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#economic-motivation-the-subscription-squeeze">
-                                                                Economic Motivation: The Subscription Squeeze
-                                                            </a>
-                                                        </li>
-                                                    
-                                                        <li class="toc-item level-3">
-                                                            <a href="#math-behind-the-subscription-pricing">
-                                                                Math Behind the Subscription Pricing
-                                                            </a>
-                                                        </li>
-                                                    
-                                                        <li class="toc-item level-3">
-                                                            <a href="#routers-are-going-to-get-better">
-                                                                Routers are going to get better
+                                                            <a href="#tiny-example">
+                                                                Tiny example
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#the-gpt-5-launch-backlash">
-                                                                The GPT-5 Launch Backlash
+                                                            <a href="#why-sine-and-cosine-appear-together">
+                                                                Why sine and cosine appear together
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#conclusion-prediction">
-                                                                Conclusion / Prediction
+                                                            <a href="#rope">
+                                                                RoPE
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#rope-code">
+                                                                RoPE code
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#references">
+                                                                References
                                                             </a>
                                                         </li>
                                                     
@@ -180,56 +187,56 @@
                                                 <ul class="toc-list">
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#what-is-gpt-5-router">
-                                                                What is GPT-5 Router
+                                                            <a href="#sinusoidal-positional-encoding">
+                                                                Sinusoidal positional encoding
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#how-it-works-routing-as-classification-problem">
-                                                                How It Works: Routing as Classification Problem
+                                                            <a href="#two-components-of-sinusoidal-positional-encoding">
+                                                                Two components of sinusoidal positional encoding
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-3">
-                                                            <a href="#the-classification-matrix">
-                                                                The Classification Matrix
+                                                            <a href="#1-position-term">
+                                                                1. Position term
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-3">
-                                                            <a href="#error-analysis-both-mistakes-cost-money">
-                                                                Error Analysis: Both Mistakes Cost Money
+                                                            <a href="#2-frequency-term">
+                                                                2. Frequency term
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#economic-motivation-the-subscription-squeeze">
-                                                                Economic Motivation: The Subscription Squeeze
-                                                            </a>
-                                                        </li>
-                                                    
-                                                        <li class="toc-item level-3">
-                                                            <a href="#math-behind-the-subscription-pricing">
-                                                                Math Behind the Subscription Pricing
-                                                            </a>
-                                                        </li>
-                                                    
-                                                        <li class="toc-item level-3">
-                                                            <a href="#routers-are-going-to-get-better">
-                                                                Routers are going to get better
+                                                            <a href="#tiny-example">
+                                                                Tiny example
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#the-gpt-5-launch-backlash">
-                                                                The GPT-5 Launch Backlash
+                                                            <a href="#why-sine-and-cosine-appear-together">
+                                                                Why sine and cosine appear together
                                                             </a>
                                                         </li>
                                                     
                                                         <li class="toc-item level-2">
-                                                            <a href="#conclusion-prediction">
-                                                                Conclusion / Prediction
+                                                            <a href="#rope">
+                                                                RoPE
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#rope-code">
+                                                                RoPE code
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#references">
+                                                                References
                                                             </a>
                                                         </li>
                                                     
@@ -238,113 +245,113 @@
                                         
 
                                         <div class="markdown-body">
-                                            <blockquote class="twitter-tweet"><p lang="en" dir="ltr">OpenAI GPT-5 Router is like Apple removing headphone jack.<br>It sucks but everyone will follow it.</p>&mdash; immortal (@immortal_0698) <a href="https://twitter.com/immortal_0698/status/1956062348688388210?ref_src=twsrc%5Etfw">August 14, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                                            <h2 id="sinusoidal-positional-encoding">Sinusoidal positional encoding</h2><p>Transformers do not have recurrence, so token order must be injected explicitly. The original paper does that with a fixed sinusoidal positional encoding:</p>
+<pre><code class="language-text">PE(pos, 2i)   = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
+</code></pre>
+<p>This looks strange at first, but the geometric intuition is simple: every pair of dimensions behaves like a tiny clock running at its own speed.</p>
+<p>Rewrite the denominator as a frequency term:</p>
+<pre><code class="language-text">omega_i = 10000^(-2i/d)
+</code></pre>
+<p>Then each pair is:</p>
+<pre><code class="language-text">(sin(pos * omega_i), cos(pos * omega_i))
+</code></pre>
+<ul>
+<li><code>pos</code> tells us how far to move around the circle.</li>
+<li><code>i</code> picks the frequency band.</li>
+<li>Small <code>i</code> means fast rotation.</li>
+<li>Large <code>i</code> means slow rotation.</li>
+</ul>
+<p>The full positional vector is just many such rotating pairs concatenated together.</p>
+<h2 id="two-components-of-sinusoidal-positional-encoding">Two components of sinusoidal positional encoding</h2><p>The formula is easier to understand if you separate its two moving parts.</p>
+<h3 id="1-position-term">1. Position term</h3><p><code>pos</code> is the token position. As <code>pos</code> increases, every sinusoidal pair advances.</p>
+<ul>
+<li>Position <code>0</code> gives a fixed starting point.</li>
+<li>Position <code>1</code>, <code>2</code>, <code>3</code>, ... rotates each pair further.</li>
+<li>So <code>pos</code> controls phase.</li>
+</ul>
+<h3 id="2-frequency-term">2. Frequency term</h3><p>The term <code>10000^(-2i/d)</code> decides how quickly each pair rotates.</p>
+<ul>
+<li>Lower-index pairs rotate quickly and capture short-range changes.</li>
+<li>Higher-index pairs rotate slowly and capture coarse, long-range structure.</li>
+<li>Using many frequencies makes positions easier to distinguish over long sequences.</li>
+</ul>
+<p>There is also a structural detail worth calling out: each frequency is represented by two coordinates, <code>sin</code> and <code>cos</code>, so that one logical frequency becomes a 2D point on the unit circle.</p>
+<h2 id="tiny-example">Tiny example</h2><p>If <code>d = 4</code>, there are two pairs:</p>
+<pre><code class="language-text">PE(pos) = [
+  sin(pos),
+  cos(pos),
+  sin(0.01 * pos),
+  cos(0.01 * pos)
+]
+</code></pre>
+<p>For positions <code>0</code>, <code>1</code>, and <code>2</code>:</p>
+<pre><code class="language-text">PE(0) = [0, 1, 0, 1]
 
-<h2 id="what-is-gpt-5-router">What is GPT-5 Router</h2><p>The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.</p>
-<h2 id="how-it-works-routing-as-classification-problem">How It Works: Routing as Classification Problem</h2><p>Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:</p>
-<ul>
-<li>Smaller model: when the query is simple</li>
-<li>Larger model: when the query is complex</li>
-</ul>
-<p>In reality, we have more models, but for simplicity, we will stick to two models.</p>
-<h3 id="the-classification-matrix">The Classification Matrix</h3><p>A compact way to reason about this: a confusion matrix. To keep score, call the positive class &quot;complex&quot; and the negative class &quot;simple&quot;. Rows are the router&#39;s decision; columns are the true difficulty of user query.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Actual Difficulty: Simple</th>
-<th>Actual Difficulty: Complex</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Route: Smaller</td>
-<td>True Negative (TN)</td>
-<td>False Negative (FN)</td>
-</tr>
-<tr>
-<td>Route: Larger</td>
-<td>False Positive (FP)</td>
-<td>True Positive (TP)</td>
-</tr>
-</tbody></table>
-<p>We don&#39;t have to worry about the diagonal elements, as they are the cases where the router is correct. But we need to worry about the off-diagonal elements : False Positive and False Negative.</p>
-<h3 id="error-analysis-both-mistakes-cost-money">Error Analysis: Both Mistakes Cost Money</h3><p><strong>False Negative (Complex → Smaller)</strong>: The worst outcome</p>
-<ul>
-<li>Breaks user experience - they get a shallow answer to a deep question</li>
-<li>Damages trust and perceived quality </li>
-<li>Users complain, cancel subscriptions, bad reviews</li>
-<li>Cost: Customer churn and reputation damage</li>
-</ul>
-<p><strong>False Positive (Simple → Larger)</strong>: The expensive mistake</p>
-<ul>
-<li>User gets a great answer but you burn unnecessary compute</li>
-<li>$0.05 query becomes a $0.60 query (12x cost)</li>
-<li>At scale, this adds up fast - 10,000 false positives = $5,500 in wasted compute</li>
-<li>Cost: Direct margin erosion</li>
-</ul>
-<p>So the strategy becomes: bias toward false positives (overspend on compute) rather than false negatives (lose customers). You can optimize compute costs later, but you can&#39;t win back a user who thinks your AI is &quot;dumber than your previous model.&quot;</p>
-<p>This is why OpenAI initially erred on the side of caution with the router, then faced backlash when the pendulum swung too far toward false negatives. The sweet spot is narrow and expensive to find.</p>
-<h2 id="economic-motivation-the-subscription-squeeze">Economic Motivation: The Subscription Squeeze</h2><p>This technical complexity of router exists because OpenAI faces a challenging economic reality: <strong>flat subscription pricing becomes difficult when usage explodes exponentially</strong>. As per Sam Altman, even $200/month struggles to maintain profitability.</p>
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">insane thing: we are currently losing money on openai pro subscriptions!<br><br>people use it much more than we expected.</p>&mdash; Sam Altman (@sama) <a href="https://twitter.com/sama/status/1876104315296968813?ref_src=twsrc%5Etfw">January 6, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+PE(1) ~= [0.84, 0.54, 0.01, 0.99995]
 
-<h3 id="math-behind-the-subscription-pricing">Math Behind the Subscription Pricing</h3><p>Here&#39;s the math behind the subscription pricing:</p>
+PE(2) ~= [0.91, -0.42, 0.02, 0.9998]
+</code></pre>
+<p>The first pair changes quickly. The second barely moves. That mix of fast and slow clocks is the core idea.</p>
+<h2 id="why-sine-and-cosine-appear-together">Why sine and cosine appear together</h2><p>The important property is not just that sine and cosine are smooth. The useful property is that a position shift becomes a linear rotation.</p>
+<p>For a single frequency <code>omega</code>:</p>
+<pre><code class="language-text">[ sin(omega * (p + k)) ]   [  cos(omega * k)   sin(omega * k) ] [ sin(omega * p) ]
+[ cos(omega * (p + k)) ] = [ -sin(omega * k)   cos(omega * k) ] [ cos(omega * p) ]
+</code></pre>
+<p>So moving from position <code>p</code> to position <code>p + k</code> is just a rotation in the 2D plane.</p>
+<p>This is the bridge to RoPE: relative position is already hiding inside sinusoidal encoding as rotation.</p>
+<h2 id="rope">RoPE</h2><p>Standard sinusoidal encoding adds position to the token embedding:</p>
+<pre><code class="language-text">x_pos = e_token + PE(pos)
+</code></pre>
+<p>RoPE instead applies position by rotating the query and key vectors:</p>
+<pre><code class="language-text">q&#39; = R(pos) q
+k&#39; = R(pos) k
+</code></pre>
+<p>This changes the role of positional information:</p>
 <ul>
-<li>Users pay $20/month for supposedly &quot;unlimited&quot; access (Nothing is unlimited)</li>
-<li>But Big models can burn upto $0.5+ per query in compute costs (Reasoning models)</li>
-<li>Deep research runs cost ~$1+ each and take 20+ minutes</li>
-<li>Other features such as memory, tools, etc. are not free.</li>
+<li>Standard sinusoidal encoding is additive.</li>
+<li>RoPE is multiplicative: it rotates <code>q</code> and <code>k</code>.</li>
+<li>Rotation preserves norm and changes direction.</li>
+<li>Since attention depends on query-key alignment, rotation is a natural way to encode relative offsets.</li>
 </ul>
-<p>It&#39;s not just OpenAI - other companies are facing similar challenges:</p>
-<ul>
-<li>Anthropic - Their $20/month subscription includes significant rate limiting. </li>
-<li>Cursor - They recently announced that after 250 Sonnet requests, they&#39;ll meter usage and charge based on consumption</li>
+<p>For one 2D pair <code>(x0, x1)</code> at position <code>p</code>:</p>
+<pre><code class="language-text">theta_i = base^(-2i/d)
+angle = p * theta_i
+
+x0_new = x0 * cos(angle) - x1 * sin(angle)
+x1_new = x0 * sin(angle) + x1 * cos(angle)
+</code></pre>
+<p>RoPE does not invent a new geometry. It makes the rotation structure explicit and applies it directly where attention uses it.</p>
+<h2 id="rope-code">RoPE code</h2><pre><code class="language-python">import numpy as np
+
+def rope_angles(seq_len: int, dim: int, base: float = 10000.0):
+    assert dim % 2 == 0
+    positions = np.arange(seq_len)[:, None]                      # [seq_len, 1]
+    freqs = base ** (-np.arange(0, dim, 2) / dim)               # [dim/2]
+    angles = positions * freqs[None, :]                         # [seq_len, dim/2]
+    return np.cos(angles), np.sin(angles)
+
+def rotate_half(x: np.ndarray) -&gt; np.ndarray:
+    x_even = x[..., ::2]
+    x_odd = x[..., 1::2]
+    x_rot = np.stack((-x_odd, x_even), axis=-1)
+    return x_rot.reshape(x.shape)
+
+def apply_rope(x: np.ndarray, cos: np.ndarray, sin: np.ndarray) -&gt; np.ndarray:
+    # x: [..., seq_len, dim]
+    cos = np.repeat(cos, 2, axis=-1)
+    sin = np.repeat(sin, 2, axis=-1)
+    return (x * cos) + (rotate_half(x) * sin)
+</code></pre>
+<p>Use RoPE on <code>q</code> and <code>k</code> after projection and before attention score computation.</p>
+<h2 id="references">References</h2><ul>
+<li>Vaswani et al., Attention Is All You Need: <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></li>
+<li>Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding: <a href="https://arxiv.org/abs/2104.09864">https://arxiv.org/abs/2104.09864</a></li>
+<li>Hugging Face Transformers internal RoPE utilities: <a href="https://huggingface.co/docs/transformers/en/internal/rope_utils">https://huggingface.co/docs/transformers/en/internal/rope_utils</a></li>
 </ul>
-<h3 id="routers-are-going-to-get-better">Routers are going to get better</h3><p>Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:</p>
-<p><strong>Data Collection at Scale:</strong></p>
-<ul>
-<li>Millions of daily interactions across different complexity levels</li>
-<li>User feedback signals (thumbs up/down, follow-up questions)</li>
-<li>Engagement metrics (time spent reading, follow-up queries)</li>
-<li>Cost-per-query data for model optimization</li>
-</ul>
-<p><strong>Iterative Improvement Loop:</strong></p>
-<ul>
-<li>Router misroutes a complex query → user complains or asks follow-up</li>
-<li>OpenAI labels this as &quot;should have gone to reasoning model&quot;</li>
-<li>Router learns: similar queries get routed to larger model next time</li>
-<li>Over time, accuracy improves from 80% → 90% → 95%+</li>
-</ul>
-<h2 id="the-gpt-5-launch-backlash">The GPT-5 Launch Backlash</h2><p>When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem &quot;dumber&quot; than GPT-4o.</p>
-<p><strong>User Backlash:</strong></p>
-<ul>
-<li>Users reported <a href="https://www.techradar.com/ai-platforms-assistants/chatgpt/chatgpt-users-are-not-happy-with-gpt-5-launch-as-thousands-take-to-reddit-claiming-the-new-upgrade-is-horrible">shallow answers to complex prompts</a></li>
-<li>Reddit filled with complaints about the <a href="https://www.macrumors.com/2025/08/08/openai-gpt-5-complaints/">perceived downgrade</a></li>
-<li>Loss of manual model selection frustrated <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">paid subscribers</a></li>
-</ul>
-<p><strong>OpenAI&#39;s Response:</strong></p>
-<ul>
-<li><a href="https://www.tomsguide.com/ai/chatgpt-4o-is-coming-back-after-massive-gpt-5-backlash-heres-what-happened">Brought back GPT-4o access</a> for Plus users</li>
-<li>Acknowledged router problems and began <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">tuning improvements</a></li>
-<li>Added more transparency about which model responds</li>
-</ul>
-<h2 id="conclusion-prediction">Conclusion / Prediction</h2><p>The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:</p>
-<ul>
-<li><strong>Higher-tier customers</strong>: Will likely get manual model selection options</li>
-<li><strong>Free/basic tiers</strong>: Will live with the router, but a much-improved version</li>
-<li><strong>Industry trend</strong>: Other AI companies will adopt similar routing strategies as costs mount</li>
-</ul>
-<p>The economics make routers inevitable, but OpenAI&#39;s rough launch showed that execution quality determines success or failure.</p>
 
                                         </div>
 
-                                        
-                                            <div class="post-footer-tags">
-                                                
-                                                    <a href="/tags/llm">#llm</a>
-                                                
-                                                    <a href="/tags/ux">#ux</a>
-                                                
-                                            </div>
                                         
                                     </div>
                                 </div>
