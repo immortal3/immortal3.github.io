@@ -3,17 +3,21 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://dipkumar.dev/</loc>
-    <lastmod>2026-04-22T14:54:07.825Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/blogs</loc>
-    <lastmod>2026-04-20T18:30:00.000Z</lastmod>
+    <lastmod>2026-04-22T18:30:00.000Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/notes</loc>
     <lastmod>2026-04-18T04:18:56.492Z</lastmod>
   </url>
     <url>
+    <loc>https://dipkumar.dev/posts/markets/indigo-investor-view</loc>
+    <lastmod>2026-04-22T18:30:00.000Z</lastmod>
+  </url>
+  <url>
     <loc>https://dipkumar.dev/posts/agents/agent-harness-cost-checklist</loc>
     <lastmod>2026-04-20T18:30:00.000Z</lastmod>
   </url>
@@ -70,103 +74,123 @@
     <lastmod>2026-04-18T04:18:56.492Z</lastmod>
   </url>
     <url>
+    <loc>https://dipkumar.dev/tags/markets</loc>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/india</loc>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/aviation</loc>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/indigo</loc>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/tags/investing</loc>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
+  </url>
+  <url>
     <loc>https://dipkumar.dev/tags/agents</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/harness</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/cost</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/engineering</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/RAG</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/search</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/MCP</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/LLM</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/llm</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/tokenizer</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/ux</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/embedding</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/ai</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/database</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/db</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/design</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/transformer</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/nlp</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/gpt</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/speedup</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/algorithms</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/LC</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags/hugo</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/tags</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/work</loc>
-    <lastmod>2026-04-22T14:54:07.826Z</lastmod>
+    <lastmod>2026-04-22T19:15:14.251Z</lastmod>
   </url>
 </urlset>
