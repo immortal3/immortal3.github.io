@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHT0HV5ELQ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-SHT0HV5ELQ');
+        </script>
+        
+
+
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>
+                A Practical Cost Checklist for Agent and Harness Engineering | Dip
+            </title>
+            <meta name="description" content="A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation.">
+            <link rel="canonical" href="https://dipkumar.dev/posts/agents/agent-harness-cost-checklist">
+            <meta property="og:title" content="A Practical Cost Checklist for Agent and Harness Engineering" />
+            <meta property="og:description" content="A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation." />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content="https://dipkumar.dev/posts/agents/agent-harness-cost-checklist" />
+            <meta property="og:site_name" content="Dip" />
+            <meta property="og:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
+            <meta property="og:image:secure_url" content="https://dipkumar.dev/static/social-share-v3.jpg" />
+            <meta property="og:image:type" content="image/jpeg" />
+            <meta property="og:image:width" content="3440" />
+            <meta property="og:image:height" content="3040" />
+            <meta property="og:image:alt" content="Dip blog social card" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="A Practical Cost Checklist for Agent and Harness Engineering" />
+            <meta name="twitter:description" content="A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation." />
+            <meta name="twitter:site" content="@immortaldip" />
+            <meta name="twitter:creator" content="@immortaldip" />
+            <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
+            <meta name="twitter:image:src" content="https://dipkumar.dev/static/social-share-v3.jpg" />
+            <meta name="twitter:image:alt" content="Dip blog social card" />
+
+            <link rel="icon" type="image/jpeg" href="/static/icon.jpeg">
+            <link rel="stylesheet" href="/static/fish.css">
+
+            <!-- Prism.js base theme (overridden by style.css) -->
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+                rel="stylesheet" />
+            <link rel="stylesheet" href="/static/style.css">
+
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+                rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap"
+                rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+                integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
+    <div class="container post-page">
+        
+                            <nav class="post-nav">
+                                <a href="/" class="back-link">Home</a>
+                                <a href="/blogs" class="all-posts-link">
+                                    All Posts
+                                </a>
+                            </nav>
+                            
+                            <article class="post-content has-toc">
+                                <header>
+                                    
+                                    <h1>
+                                        A Practical Cost Checklist for Agent and Harness Engineering
+                                    </h1>
+                                    
+                                        <p class="post-subtitle">
+                                            A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation.
+                                        </p>
+                                    
+                                    <div class="meta-row">
+                                        
+                                            <div class="author-meta">
+                                                <span class="social-mini">
+                                                    <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
+                                                    <a href="https://github.com/immortal3" target="_blank">github</a>
+                                                    <a href="mailto:patel@dipkumar.dev">email</a>
+                                                </span>
+                                                By <a href="/" class="author-link">Dip</a>
+                                            </div>
+                                        
+                                        <div class="date-meta">
+                                            April 21, 2026
+                                            
+                                            <span class="reading-time">18 min read</span>
+                                            
+                                        </div>
+                                    </div>
+                                </header>
+
+                                
+                                <div class="post-shell has-toc">
+                                    
+                                        <aside class="post-aside">
+                                            <nav class="toc-container toc-desktop">
+                                                <div class="toc-title">On this page</div>
+                                                <ul class="toc-list">
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#tldr-checklist">
+                                                                TLDR: Checklist
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#introduction">
+                                                                Introduction
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#1-make-prompt-caching-actually-work-stabilize-the-prefix-and-verify-hit-rates">
+                                                                1. Make prompt caching actually work: stabilize the prefix and verify hit rates
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#2-re-evaluate-your-default-model">
+                                                                2. Re-evaluate your default model
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#3-right-size-the-output-reasoning-budget-and-visible-tokens">
+                                                                3. Right-size the output: reasoning budget and visible tokens
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#4-move-offline-work-to-batch-or-flex-lanes">
+                                                                4. Move offline work to batch or flex lanes
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#5-compact-context-mid-run">
+                                                                5. Compact context mid-run
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#6-fix-your-tools-load-less-return-less-regenerate-less">
+                                                                6. Fix your tools: load less, return less, regenerate less
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#7-make-fewer-requests-and-parallelize-independent-work">
+                                                                7. Make fewer requests and parallelize independent work
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#8-collect-traces-and-read-them-like-a-cost-report">
+                                                                8. Collect traces and read them like a cost report
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#9-cap-the-blast-radius">
+                                                                9. Cap the blast radius
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#10-do-not-default-to-an-llm-when-deterministic-logic-is-enough">
+                                                                10. Do not default to an LLM when deterministic logic is enough
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#11-turn-good-traces-into-cheaper-task-specific-models">
+                                                                11. Turn good traces into cheaper task-specific models
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#closing-thought">
+                                                                Closing thought
+                                                            </a>
+                                                        </li>
+                                                    
+                                                </ul>
+                                            </nav>
+                                        </aside>
+                                    
+
+                                    <div class="post-main">
+                                        
+                                            <nav class="toc-container toc-inline">
+                                                <div class="toc-title">On this page</div>
+                                                <ul class="toc-list">
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#tldr-checklist">
+                                                                TLDR: Checklist
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#introduction">
+                                                                Introduction
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#1-make-prompt-caching-actually-work-stabilize-the-prefix-and-verify-hit-rates">
+                                                                1. Make prompt caching actually work: stabilize the prefix and verify hit rates
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#2-re-evaluate-your-default-model">
+                                                                2. Re-evaluate your default model
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#3-right-size-the-output-reasoning-budget-and-visible-tokens">
+                                                                3. Right-size the output: reasoning budget and visible tokens
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#4-move-offline-work-to-batch-or-flex-lanes">
+                                                                4. Move offline work to batch or flex lanes
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#5-compact-context-mid-run">
+                                                                5. Compact context mid-run
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#6-fix-your-tools-load-less-return-less-regenerate-less">
+                                                                6. Fix your tools: load less, return less, regenerate less
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#7-make-fewer-requests-and-parallelize-independent-work">
+                                                                7. Make fewer requests and parallelize independent work
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#8-collect-traces-and-read-them-like-a-cost-report">
+                                                                8. Collect traces and read them like a cost report
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#9-cap-the-blast-radius">
+                                                                9. Cap the blast radius
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#10-do-not-default-to-an-llm-when-deterministic-logic-is-enough">
+                                                                10. Do not default to an LLM when deterministic logic is enough
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#11-turn-good-traces-into-cheaper-task-specific-models">
+                                                                11. Turn good traces into cheaper task-specific models
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-3">
+                                                            <a href="#closing-thought">
+                                                                Closing thought
+                                                            </a>
+                                                        </li>
+                                                    
+                                                </ul>
+                                            </nav>
+                                        
+
+                                        <div class="markdown-body">
+                                            <p><img src="/static/blog_photos/agent-harness-cost-checklist/hero.webp" alt="Abstract hero image showing modular agent systems, token flows, and cost-control checkpoints in a minimal monochrome style with indigo accents"></p>
+<h2 id="tldr-checklist">TLDR: Checklist</h2><ul>
+<li><input disabled="" type="checkbox"> <strong>Make prompt caching actually work: stabilize the prefix and verify hit rates.</strong>
+Keep reusable system prompts and shared chat history stable so the cache has something to hit. Track hit rates, and use provider-specific cache controls when they actually improve savings.</li>
+<li><input disabled="" type="checkbox"> <strong>Re-evaluate your default model.</strong>
+The easiest cost win is often switching to a cheaper model that still clears your quality bar on your own eval set.</li>
+<li><input disabled="" type="checkbox"> <strong>Right-size the output: reasoning budget and visible tokens.</strong>
+Output tokens are the most expensive tokens you generate. Match both the reasoning budget and the visible response length to the task. Routing does not deserve deep thinking or a paragraph.</li>
+<li><input disabled="" type="checkbox"> <strong>Move offline work to batch or flex lanes.</strong>
+Evals, backfills, enrichment, and asynchronous jobs should not be priced like interactive traffic.</li>
+<li><input disabled="" type="checkbox"> <strong>Compact context mid-run.</strong>
+Long agent runs keep paying for the same tool outputs and failed turns on every subsequent call. Compaction collapses stale history into summaries so you stop re-paying for yesterday&#39;s context on today&#39;s call.</li>
+<li><input disabled="" type="checkbox"> <strong>Fix your tools: load less, return less, regenerate less.</strong>
+Attaching every tool inflates the prompt before the agent starts. Giant payloads inflate the next call after. And for edit-heavy workflows, regenerating the whole output when most of it is unchanged wastes tokens you never needed to produce.</li>
+<li><input disabled="" type="checkbox"> <strong>Make fewer requests and parallelize independent work.</strong>
+A lot of agent cost comes from orchestration shape: too many round trips, too many retries, and too much sequential work.</li>
+<li><input disabled="" type="checkbox"> <strong>Collect traces and read them like a cost report.</strong>
+Without traces, you do not know where the repeated waste actually is.</li>
+<li><input disabled="" type="checkbox"> <strong>Cap the blast radius.</strong>
+One runaway loop, retry storm, or misconfigured thinking budget can 100x a session&#39;s cost before anyone notices. Hard caps on tokens, tool calls, retries, and spend turn unbounded worst cases into bounded ones.</li>
+<li><input disabled="" type="checkbox"> <strong>Do not default to an LLM when deterministic logic is enough.</strong>
+The cheapest token is the one you never send.</li>
+<li><input disabled="" type="checkbox"> <strong>Turn good traces into cheaper task-specific models.</strong>
+Once the basics are clean, distillation or fine-tuning can move repeated workflows onto smaller models.</li>
+</ul>
+<h2 id="introduction">Introduction</h2><p>Once you hit a certain scale, LLM cost becomes a significant part of your overall cost. You cannot ignore it anymore.
+The customer acquisition phase is over, and now you are in the growth phase. You need to know your COGS (Cost of Goods Sold) and make sure the product can stay profitable. This is a simple checklist to help with that. I have ordered it so you can start with the easy wins and then move toward the more complex work.</p>
+<p>This is not a silver bullet, and any engineer who has worked on agent systems already knows some of these things. But it is still a good place to start.</p>
+<h3 id="1-make-prompt-caching-actually-work-stabilize-the-prefix-and-verify-hit-rates">1. Make prompt caching actually work: stabilize the prefix and verify hit rates</h3><p>This is the first thing I would check because it is one of the highest-leverage fixes and it is often half-done.
+There are really two parts here, and both matter.</p>
+<p><strong>First, keep the prefix stable.</strong> Prompt caching only works when the reusable prefix stays identical. If you keep changing the system prompt, tool order, or early context, there is nothing for the cache to hit.</p>
+<p>Teams often destroy cacheability by accident:</p>
+<ul>
+<li>injecting the exact timestamp into the system prompt on every request, even when the current date or a coarse time window would be enough</li>
+<li>adding volatile session metadata high in the prompt</li>
+<li>changing tool definitions or tool order between turns</li>
+<li>stuffing retrieval output ahead of stable instructions</li>
+</ul>
+<p>Caching is not magic. You also need to understand how your provider actually implements it. Some providers let you control TTL. Some need explicit cache breakpoints. Some distinguish between implicit and explicit caching. If you do not understand the mechanism, it becomes very easy to think caching is enabled while getting little value from it.</p>
+<p><strong>Second, verify it is working.</strong> A lot of teams clean up the prompt and then never look at the numbers. That means they feel better about caching without knowing whether they actually saved anything. If you already have observability in place, there is a good chance cache-hit data is available somewhere. You just have to look at it routinely.</p>
+<p>Questions to ask:</p>
+<ul>
+<li>what is the cache-hit ratio?</li>
+<li>which workflows, agents, or model calls have low cache-hit ratios?</li>
+<li>how much latency and cost benefit are we actually getting from caching?</li>
+</ul>
+<p>If you do not measure cache hits, you do not know whether this section is helping or just sounding smart.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI prompt caching</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching">Anthropic prompt caching</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/caching/">Google Gemini context caching</a></li>
+</ul>
+<h3 id="2-re-evaluate-your-default-model">2. Re-evaluate your default model</h3><p>This is often the cheapest win because one model switch can change every request that follows.
+Too many teams launch with the strongest model available, get the product working, and then never revisit the choice. That is fine in the early stage. It gets expensive later.</p>
+<p>Be empirical, not sentimental:</p>
+<ul>
+<li>test a smaller model against your real workload</li>
+<li>do not trust a handful of cherry-picked prompts</li>
+<li>do not assume the model you launched with is still the right price/performance call</li>
+</ul>
+<p>Public trackers can help you shortlist candidates, but the real answer has to come from your own eval set. A leaderboard is useful for a first pass. It should not make the final decision for you. Smaller open-source models are also getting better quickly, so they are worth considering if your workload and deployment constraints allow it.</p>
+<p>Before building a router, before rewriting the harness, before talking about fine-tuning: if you swapped this model tomorrow, would users notice enough quality loss to justify the bill?</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://docs.anthropic.com/en/docs/prompt-engineering">Anthropic prompt engineering</a></li>
+<li><a href="https://platform.openai.com/docs/guides/cost-optimization">OpenAI cost optimization</a></li>
+<li><a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis model leaderboard</a></li>
+</ul>
+<h3 id="3-right-size-the-output-reasoning-budget-and-visible-tokens">3. Right-size the output: reasoning budget and visible tokens</h3><p>Most teams focus on input context and forget that output is where a lot of the bill shows up. In practice, you usually have two dials here, and both need to be controlled.</p>
+<p><strong>First dial: the reasoning budget.</strong> Not every step deserves heavy thinking. Code synthesis, planning, and ambiguous research may need it. Routing, classification, extraction, and simple transforms usually do not.</p>
+<p>If you are using a reasoning-capable model for lightweight internal steps, there is a good chance you are overspending.</p>
+<ul>
+<li>hard planning, code synthesis, multi-hop reasoning, or ambiguous research may deserve more thinking</li>
+<li>routing, filtering, extraction, and straightforward transforms usually deserve less</li>
+</ul>
+<p>Check your thinking budgets explicitly. If everything is set to ultra thinking by default, there is a good chance you are burning money on tasks that do not need it. Newer models do offer adaptive thinking, and that is a good start, but if you know your domain well, you should still set deliberate limits instead of delegating the whole decision to the model.</p>
+<p><strong>Second dial: the visible response.</strong> A lot of harnesses ask for much more text than the next step or the user actually needs.</p>
+<ul>
+<li>tell the model to be brief when brevity is acceptable</li>
+<li>cap outputs with <code>max_tokens</code> or stop conditions where the task allows it</li>
+<li>shorten structured output field names</li>
+<li>collapse verbose schemas where you can</li>
+<li>avoid asking for prose when a compact label or JSON field is enough</li>
+</ul>
+<p>The rule is simple: match the budget to the task. If the internal step only needs a label, do not pay for hidden reasoning and a paragraph of visible prose.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking">Anthropic extended thinking</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/thinking">Google Gemini thinking</a></li>
+<li><a href="https://platform.openai.com/docs/guides/latency-optimization">OpenAI latency optimization</a></li>
+</ul>
+<h3 id="4-move-offline-work-to-batch-or-flex-lanes">4. Move offline work to batch or flex lanes</h3><p>A surprising amount of agent traffic is not interactive, but many teams still price it as if a user is waiting on every request.</p>
+<p>Nightly eval runs, enrichment pipelines, backfills, report generation, and large review jobs do not need low-latency serving. If a workflow can wait, move it to a slower and cheaper lane.</p>
+<p>This is a clean win because it does not require better prompts, better models, or smarter agents. It usually just requires queue separation and the discipline not to mix interactive and offline traffic.</p>
+<p>If a workflow can wait minutes or hours, it should not be priced like a user-facing request. It is also worth checking provider pricing carefully here, because discounts, batch modes, and slower compute lanes are not packaged the same way across vendors.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://openai.com/api/pricing/">OpenAI API pricing</a></li>
+<li><a href="https://platform.openai.com/docs/guides/cost-optimization">OpenAI cost optimization</a></li>
+<li><a href="https://platform.openai.com/docs/guides/flex-processing?api-mode=chat">OpenAI Flex processing</a></li>
+</ul>
+<h3 id="5-compact-context-mid-run">5. Compact context mid-run</h3><p>Section 1 was about the stable prefix. This section is about the growing middle that keeps getting bigger during a long run. There are many ways to implement compaction, and you should choose the one that best fits your system.</p>
+<p>Long agent runs quietly accumulate cost inside the context window itself. Every tool output, every failed attempt, and every old decision gets re-sent on later calls. That means the model keeps paying to reread things that are no longer useful.</p>
+<p>Compaction fixes this by replacing stale history with a shorter summary while keeping the recent turns verbatim. The goal is not to remove useful context. The goal is to stop paying rent on dead context.</p>
+<p>Practical moves:</p>
+<ul>
+<li>summarize older turns when the context crosses a token threshold</li>
+<li>drop stale tool outputs once their result has been consumed downstream</li>
+<li>keep the last few turns verbatim so the model still has recent grounding</li>
+<li>write durable facts to an external memory instead of re-sending them every turn</li>
+</ul>
+<p>The test: pick a long session and look at the input token count on the last call. If most of it is material the model no longer needs, you are paying rent on dead context.</p>
+<h3 id="6-fix-your-tools-load-less-return-less-regenerate-less">6. Fix your tools: load less, return less, regenerate less</h3><p>Tools create cost before the call, during the call, and after the call. Most harnesses let all three happen without much control. And when I say tools here, I also mean MCP servers and skills. The same cost patterns apply there too.</p>
+<p><strong>Load less.</strong> Attaching the full tool catalog to every request is a token tax before the model does anything. Start with a smaller default set and load specialized tools only when they are actually needed.</p>
+<ul>
+<li>do not attach every tool to every task</li>
+<li>keep a small default toolset</li>
+<li>defer specialized tools until they are needed</li>
+<li>keep tool descriptions tight enough that the model does not thrash</li>
+</ul>
+<p><strong>Return less.</strong> In many harnesses, the expensive part is not the model alone. It is the amount of junk you keep feeding back into it. Tool calls often return full HTML when only two fields matter, giant JSON blobs when only one status matters, or verbose repeated metadata across every step.</p>
+<p>Audit a few traces and ask:</p>
+<ul>
+<li>what is the minimum useful tool result?</li>
+<li>what can be summarized outside the model?</li>
+<li>do I need to send the full output, or only the parts that are actually useful to the model?</li>
+<li>can I send only the changes instead of the whole payload?</li>
+<li>what can be filtered, truncated, or schema-compressed safely?</li>
+</ul>
+<p>If your tools return more than the next step needs, you pay twice: once to fetch the data and again to force the model to read it. This topic is deep enough for its own post, but even a basic audit here can remove a surprising amount of waste.</p>
+<p><strong>Regenerate less.</strong> For edit-heavy workflows like code assistants and document pipelines, do not regenerate the whole answer when only a small delta changed. If most of the file or response is stable, optimize for the change, not the entire output.</p>
+<p>Also move loops, conditionals, and simple transforms into code where possible. Every repeated control-flow step you take out of prompt context is one less thing the model has to re-read.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/advanced-tool-use">Anthropic advanced tool use</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/token-efficient-tool-use">Anthropic token-efficient tool use</a></li>
+<li><a href="https://platform.openai.com/docs/guides/latency-optimization">OpenAI latency optimization</a></li>
+<li><a href="https://platform.openai.com/docs/guides/predicted-outputs">OpenAI Predicted Outputs</a></li>
+</ul>
+<h3 id="7-make-fewer-requests-and-parallelize-independent-work">7. Make fewer requests and parallelize independent work</h3><p>This is especially common in larger organizations, where many teams work on different parts of the same product and extra LLM steps get added over time. A lot of agent cost comes from orchestration shape, not single-call pricing.
+Too many systems keep making extra requests because the flow was designed step by step and never simplified later.</p>
+<p>Many harnesses quietly do too much:</p>
+<ul>
+<li>one call to contextualize</li>
+<li>one call to decide whether to retrieve</li>
+<li>one call to route</li>
+<li>one call to summarize</li>
+<li>one call to format the answer</li>
+</ul>
+<p>Sometimes that decomposition is necessary. Often it is just habit.</p>
+<p>Two checks to start:</p>
+<ul>
+<li>can multiple sequential LLM steps be merged into one structured response?</li>
+<li>can independent steps run in parallel instead of serially?</li>
+</ul>
+<p>Every extra round trip adds cost, latency, and another place to fail. So this section is less about clever orchestration and more about removing unnecessary choreography.</p>
+<p>Speculative execution can also help when one path dominates and you can afford to start likely work early. It is not always the right choice, but it is worth testing in high-volume systems.</p>
+<h3 id="8-collect-traces-and-read-them-like-a-cost-report">8. Collect traces and read them like a cost report</h3><p>If you are not storing traces, you are guessing.</p>
+<p>Cost problems in agent systems are usually repetitive. The same failed retrieval path, the same tool loop, the same oversized context, the same retry storm, the same reasoning-heavy router call. Trace review is how you find those patterns.</p>
+<p>At this stage, the goal is not abstract observability. The goal is operational clarity.
+You want to answer questions like these:</p>
+<ul>
+<li>where are the tokens going?</li>
+<li>where are the repeated failures?</li>
+<li>which steps are low-value but high-cost?</li>
+<li>which prompts or tools trigger long outputs again and again?</li>
+</ul>
+<p>Once you have traces, you can do something much more valuable than general optimization: targeted removal of repeated waste.</p>
+<p>Traces also expose the worst-case shapes that the next section is built to bound.</p>
+<p>This is also where traces become more than a debug tool. They become a decision tool. Good trace review tells you whether the real problem is retrieval quality, an oversized tool payload, an overthinking router, a retry storm, or a prompt that keeps pushing the model into unnecessary work. Once you can see that clearly, the next optimization step becomes much easier to choose.</p>
+<h3 id="9-cap-the-blast-radius">9. Cap the blast radius</h3><p>Every item so far is about reducing cost. This one is different: it is about bounding the <em>worst case</em>.</p>
+<p>This section is less about saving 10 percent and more about avoiding the day you wake up to a bill that is 10x higher than expected.</p>
+<p>Agents fail expensively when they fail. A misconfigured thinking budget, a tool that loops on itself, a retry policy with no ceiling, or a malformed structured output that keeps triggering retries can blow up the bill very quickly.</p>
+<p>Hard caps, enforced at the harness level, are the only reliable defense. They do not need to be clever. They need to exist.</p>
+<ul>
+<li>max tokens per user turn</li>
+<li>max tool calls per task</li>
+<li>max retries per tool, not just globally</li>
+<li>max reasoning budget per call</li>
+<li>max retrieval fan-out</li>
+<li>max cost per user per day, with a circuit breaker that degrades gracefully</li>
+</ul>
+<p>Structured outputs belong in this chapter too. Provider-native JSON mode, tool-call schemas, and grammar-constrained decoding reduce the malformed-output-to-retry loop. The main win is not shorter responses. The main win is avoiding repeated failure traffic.</p>
+<p>This is not optimization. It is blast-radius control. Treat it like a production safety requirement, not a cost-engineering side quest.</p>
+<p>A useful test: if a single malformed prompt triggered your agent to loop forever, how much would it cost before something stopped it? If you do not know, that is the number you are exposed to.</p>
+<h3 id="10-do-not-default-to-an-llm-when-deterministic-logic-is-enough">10. Do not default to an LLM when deterministic logic is enough</h3><p>This is not glamorous, but it is one of the cleanest long-term cost controls.</p>
+<p>If a step is deterministic, rule-based, or cheap to implement directly, every avoided model call is a permanent win.</p>
+<p>Common examples:</p>
+<ul>
+<li>checking whether an order value crosses a threshold before routing to a human</li>
+<li>validating whether a payload matches schema before asking the model to repair it</li>
+<li>routing straightforward requests like password reset, pricing, or account status without an LLM in the loop</li>
+<li>applying guardrails and policy checks before the model ever sees the request</li>
+<li>returning precomputed outputs for constrained inputs instead of regenerating them every time</li>
+<li>rendering structured UI states directly instead of asking the model to narrate what the UI already knows</li>
+</ul>
+<p>That last one matters more than it seems. Many harnesses ask the model to produce prose the user does not need. If the output is structured or predictable, render it. Do not narrate it just because a language model can.</p>
+<p>The cheapest token is the one you never send.</p>
+<h3 id="11-turn-good-traces-into-cheaper-task-specific-models">11. Turn good traces into cheaper task-specific models</h3><p>If you are still at seed stage and just trying to get the core product working, this is usually not where your time should go. This is probably the most expensive step in the checklist, and it is not for everyone.</p>
+<p>This step comes with a real caveat: it only makes sense at a certain scale and with actual funding behind it.</p>
+<p>The rough loop is simple:</p>
+<ol>
+<li>get a strong prompt working on a frontier model</li>
+<li>capture high-quality outputs on real tasks</li>
+<li>build a dataset from those outputs</li>
+<li>fine-tune or distill into a smaller model for that task</li>
+</ol>
+<p>On paper that is clean. In practice, provider fine-tuning costs money upfront and requires prepaid credits or committed spend. If you are not running thousands of calls per day on the same task shape, the savings rarely justify the engineering and compute bill.</p>
+<p>Going further and fine-tuning your own open-source 7B–20B model is a completely different game. You need GPU infrastructure, data pipelines, evaluation harnesses, and ML engineering bandwidth. Some teams get there and it pays off. Most teams are not there yet, and spending time here before the earlier steps are clean is a mistake.</p>
+<p>The gap between &quot;pay the provider for a closed fine-tune&quot; and &quot;run your own GPU cluster&quot; has narrowed a lot. Managed APIs like Thinking Machines&#39; Tinker, Together AI, and Fireworks now expose LoRA fine-tuning over open-weight models like Qwen, Llama, and DeepSeek while handling the distributed training infrastructure. You keep the weights, which means the resulting model is portable across inference providers. If you have GPU access and want to run it yourself, libraries like Unsloth and Hugging Face PEFT make LoRA and QLoRA tractable on modest hardware.</p>
+<p>None of this removes the need for a real eval set, a real dataset, and real ML judgment. It just lowers the activation energy. Pair these tools with techniques like on-policy distillation when a smaller student model needs to match a larger teacher on a specific task shape.</p>
+<p>The honest default: if you have a high-volume, stable, repeating task and enough budget to run the experiment properly, investigate it. If you do not, skip this and spend the effort on something earlier in the list.</p>
+<p><strong>Define success criteria before you start.</strong> Without a clear quality floor, distillation is just guesswork.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<p><em>Managed LoRA fine-tuning over open-weight models:</em></p>
+<ul>
+<li><a href="https://thinkingmachines.ai/tinker/">Thinking Machines Tinker</a></li>
+<li><a href="https://docs.together.ai/docs/fine-tuning-overview">Together AI fine-tuning</a></li>
+<li><a href="https://docs.fireworks.ai/fine-tuning/fine-tuning-models">Fireworks AI fine-tuning</a></li>
+</ul>
+<p><em>Self-hosted LoRA / QLoRA:</em></p>
+<ul>
+<li><a href="https://github.com/unslothai/unsloth">Unsloth</a></li>
+<li><a href="https://huggingface.co/docs/peft/index">Hugging Face PEFT</a></li>
+</ul>
+<p><em>Technique and closed-weight distillation:</em></p>
+<ul>
+<li><a href="https://thinkingmachines.ai/blog/lora/">Thinking Machines: LoRA Without Regret</a></li>
+<li><a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines: On-Policy Distillation</a></li>
+<li><a href="https://platform.openai.com/docs/guides/distillation">OpenAI distillation guide</a></li>
+</ul>
+<h3 id="closing-thought">Closing thought</h3><p>I kept this checklist deliberately abstract. Provider APIs, pricing pages, and reasoning parameters change every few months. The underlying failure modes (unstable prefixes, oversized tool payloads, unbounded loops, narrating instead of rendering) do not. A checklist that names a specific product would be out of date by the next quarter. One that names a pattern stays useful for longer.</p>
+<p>That abstraction also makes the checklist easy to use with agentic coding tools. You can paste one or two bullets from here into Claude Code, Cursor, or a similar assistant, point it at your harness code, and let it hunt. Prompts as simple as <em>&quot;check whether anything in our system prompt would invalidate prompt caching&quot;</em> or <em>&quot;find places where we attach the full tool catalog to every request&quot;</em> are usually enough to surface real issues. Agents are good at pattern-matching the structural problems this checklist describes. They are less good at judging whether a proposed fix actually saved money. That still needs traces and numbers from production.</p>
+<p>So treat this as a review rubric, not a recipe. Walk the list, delegate the mechanical parts to an agent, look at traces where the question is quantitative, and leave the deeper engineering work (routing layers, fine-tuning, distillation) until after the boring work is done. Most cost problems in agent systems are not glamorous. They begin with sloppy harness decisions, and the cheapest token is still the one you never send. </p>
+
+                                        </div>
+
+                                        
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/agents">#agents</a>
+                                                
+                                                    <a href="/tags/harness">#harness</a>
+                                                
+                                                    <a href="/tags/cost">#cost</a>
+                                                
+                                                    <a href="/tags/engineering">#engineering</a>
+                                                
+                                            </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </article>
+                            
+    </div>
+
+    <!-- Prism JS for Syntax Highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Configure autoloader path
+        Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            Prism.highlightAll();
+
+            document.querySelectorAll('.markdown-body pre').forEach(function (pre) {
+                var code_el = pre.querySelector('code');
+                if (code_el && code_el.classList.contains('language-mermaid')) return;
+                if (pre.querySelector('.code-copy-button')) return;
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'code-copy-button';
+                btn.textContent = 'Copy';
+
+                btn.addEventListener('click', function () {
+                    var text = code_el ? code_el.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function () {
+                        btn.textContent = 'Copied';
+                        btn.classList.add('copied');
+                        setTimeout(function () {
+                            btn.textContent = 'Copy';
+                            btn.classList.remove('copied');
+                        }, 1500);
+                    });
+                });
+
+                pre.style.position = 'relative';
+                pre.appendChild(btn);
+            });
+        });
+
+        // Mermaid initialization
+        if (document.querySelector('.language-mermaid')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+            script.onload = () => {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                    securityLevel: 'loose',
+                });
+                // Replace mermaid code blocks with div.mermaid
+                document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+                    const pre = el.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = el.textContent;
+                    pre.parentElement.replaceChild(div, pre);
+                });
+                mermaid.init(undefined, '.mermaid');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Twitter/X embeds
+        if (document.querySelector('.twitter-tweet') && !window.twttr) {
+            const script = document.createElement('script');
+            script.src = 'https://platform.twitter.com/widgets.js';
+            script.async = true;
+            script.charset = 'utf-8';
+            document.head.appendChild(script);
+        } else if (window.twttr && window.twttr.widgets) {
+            window.twttr.widgets.load();
+        }
+
+        // Reading progress bar
+        
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            const article = document.querySelector('.markdown-body');
+            if (progressBar && article) {
+                window.addEventListener('scroll', function() {
+                    const articleRect = article.getBoundingClientRect();
+                    const articleTop = articleRect.top + window.scrollY;
+                    const articleHeight = article.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+
+                    // Calculate progress based on how much of the article has been scrolled past
+                    const progress = Math.min(100, Math.max(0,
+                        ((scrollTop - articleTop + windowHeight * 0.3) / articleHeight) * 100
+                    ));
+                    progressBar.style.width = progress + '%';
+                });
+            }
+        })();
+        
+
+        
+    </script>
+</body>
+
+</html>

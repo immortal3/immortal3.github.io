@@ -29,6 +29,7 @@
     --post-column-width: 760px;
     --post-rail-width: 220px;
     --post-rail-gap: 72px;
+    --post-hero-max-width: 520px;
 }
 
 * {
@@ -780,9 +781,9 @@ h1 {
 
 .toc-item a {
     text-decoration: none;
-    color: var(--post-muted-color);
+    color: #374151;
     font-size: 0.84rem;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.5;
     transition: color 0.2s ease, transform 0.2s ease;
     display: flex;
@@ -815,7 +816,8 @@ h1 {
 
 .toc-item.level-3 a {
     font-size: 0.78rem;
-    color: var(--post-soft-color);
+    font-weight: 500;
+    color: #6b7280;
 }
 
 .markdown-body {
@@ -896,6 +898,41 @@ h1 {
 .markdown-body li {
     margin-bottom: 8px;
     color: #374151;
+}
+
+/* GFM task lists: readable checkboxes, no duplicate bullet */
+.markdown-body ul:has(li input[type="checkbox"]) {
+    list-style: none;
+    padding-left: 0;
+}
+
+.markdown-body li input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.125em;
+    height: 1.125em;
+    margin: 0 0.65em 0 0;
+    vertical-align: middle;
+    transform: translateY(-0.06em);
+    box-sizing: border-box;
+    border: 2px solid var(--accent-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    cursor: default;
+    flex-shrink: 0;
+}
+
+.markdown-body li input[type="checkbox"]:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 6l2.5 3 4.5-5.5'/%3E%3C/svg%3E");
+    background-size: 70% 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.markdown-body li input[type="checkbox"]:disabled {
+    opacity: 1;
 }
 
 .markdown-body strong {
@@ -1101,6 +1138,21 @@ pre[class*="language-"] {
     height: auto;
     border-radius: 12px;
     margin: 30px 0;
+}
+
+/* Lead hero: opening block is a paragraph with only an image (typical blog hero) */
+.markdown-body > p:first-child:has(> img:only-child) {
+    max-width: var(--post-hero-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 28px;
+}
+
+.markdown-body > p:first-child:has(> img:only-child) img {
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: block;
 }
 
 .markdown-body .twitter-tweet,
