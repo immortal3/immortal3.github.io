@@ -136,6 +136,8 @@ a:hover {
 
 .home-socials a {
     color: var(--muted-color);
+    display: inline-flex;
+    align-items: center;
 }
 
 .home-socials a:hover {
