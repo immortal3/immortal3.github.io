@@ -1567,3 +1567,30 @@ pre[class*="language-"] {
         filter: drop-shadow(0 0 15px #a898e9);
     }
 }
+
+/* 404 Page */
+.not-found-page {
+    text-align: center;
+    padding: 80px 0;
+}
+
+.not-found-page h1 {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    color: var(--heading-color);
+}
+
+.not-found-page p {
+    color: var(--muted-color);
+    margin-bottom: 30px;
+}
+
+.not-found-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.not-found-links a {
+    color: var(--accent-color);
+}

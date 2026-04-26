@@ -21,22 +21,23 @@
             <title>
                 Speeding up the GPT - KV cache | Dip
             </title>
-            <meta name="description" content="Thoughts on Machine Learning, AI, and Software Engineering by Dip">
-            <link rel="canonical" href="https://dipkumar.dev/posts/gpt-kvcache">
+            <meta name="description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.">
+            
+            <link rel="canonical" href="https://dipkumar.dev/posts/gpt-kvcache/">
             <meta property="og:title" content="Speeding up the GPT - KV cache" />
-            <meta property="og:description" content="Thoughts on Machine Learning, AI, and Software Engineering by Dip" />
+            <meta property="og:description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough." />
             <meta property="og:type" content="article" />
-            <meta property="og:url" content="https://dipkumar.dev/posts/gpt-kvcache" />
+            <meta property="og:url" content="https://dipkumar.dev/posts/gpt-kvcache/" />
             <meta property="og:site_name" content="Dip" />
             <meta property="og:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
             <meta property="og:image:secure_url" content="https://dipkumar.dev/static/social-share-v3.jpg" />
             <meta property="og:image:type" content="image/jpeg" />
-            <meta property="og:image:width" content="3440" />
-            <meta property="og:image:height" content="3040" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
             <meta property="og:image:alt" content="Dip blog social card" />
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content="Speeding up the GPT - KV cache" />
-            <meta name="twitter:description" content="Thoughts on Machine Learning, AI, and Software Engineering by Dip" />
+            <meta name="twitter:description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v3.jpg" />
@@ -60,6 +61,12 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                 integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
                 crossorigin="anonymous" referrerpolicy="no-referrer" />
+            
+            <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"Article","headline":"Speeding up the GPT - KV cache","description":"How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.","datePublished":"2023-02-12T06:32:55.000Z","dateModified":"2023-02-12T06:32:55.000Z","author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/gpt-kvcache/"},"image":"https://dipkumar.dev/static/social-share-v3.jpg"}
+            </script>
+            
+            
 </head>
 
 <body>
@@ -81,6 +88,10 @@
                                     <h1>
                                         Speeding up the GPT - KV cache
                                     </h1>
+                                    
+                                        <p class="post-subtitle">
+                                            How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.
+                                        </p>
                                     
                                     <div class="meta-row">
                                         
