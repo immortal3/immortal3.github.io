@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHT0HV5ELQ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-SHT0HV5ELQ');
+        </script>
+        
+
+
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>
+                Building with Claude Managed Agents - Sharp Edges | Dip
+            </title>
+            <meta name="description" content="A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard.">
+            
+            <link rel="canonical" href="https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/">
+            <meta property="og:title" content="Building with Claude Managed Agents - Sharp Edges" />
+            <meta property="og:description" content="A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard." />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content="https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/" />
+            <meta property="og:site_name" content="Dip" />
+            <meta property="og:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
+            <meta property="og:image:secure_url" content="https://dipkumar.dev/static/social-share-v4.jpg" />
+            <meta property="og:image:type" content="image/jpeg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content="Dip blog social card" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="Building with Claude Managed Agents - Sharp Edges" />
+            <meta name="twitter:description" content="A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard." />
+            <meta name="twitter:site" content="@immortaldip" />
+            <meta name="twitter:creator" content="@immortaldip" />
+            <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
+            <meta name="twitter:image:src" content="https://dipkumar.dev/static/social-share-v4.jpg" />
+            <meta name="twitter:image:alt" content="Dip blog social card" />
+
+            <link rel="icon" type="image/jpeg" href="/static/icon.jpeg?v=b6e4848e">
+
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Geist:wght@300;400;500;600;700&display=swap"
+                onload="this.onload=null;this.rel='stylesheet'">
+            <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Geist:wght@300;400;500;600;700&display=swap"></noscript>
+
+            <link rel="stylesheet" href="/static/style.css?v=96a8de3d">
+            
+            
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+                rel="stylesheet" />
+            
+            
+            <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"Article","headline":"Building with Claude Managed Agents - Sharp Edges","description":"A short look at Claude's newly released managed agents and the limited feature set that might catch you off guard.","datePublished":"2026-04-26T18:30:00.000Z","dateModified":"2026-04-26T18:30:00.000Z","author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/"},"image":"https://dipkumar.dev/static/social-share-v4.jpg"}
+            </script>
+            
+            
+</head>
+
+<body>
+    
+    <div class="reading-progress" id="reading-progress"></div>
+    
+    <main class="container post-page">
+        
+                            <nav class="post-nav">
+                                <a href="/" class="back-link">Home</a>
+                                <a href="/blogs" class="all-posts-link">
+                                    All Posts
+                                </a>
+                            </nav>
+                            
+                            <article class="post-content has-toc">
+                                <header>
+                                    
+                                    <h1>
+                                        Building with Claude Managed Agents - Sharp Edges
+                                    </h1>
+                                    
+                                        <p class="post-subtitle">
+                                            A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard.
+                                        </p>
+                                    
+                                    <div class="meta-row">
+                                        
+                                            <div class="author-meta">
+                                                <span class="social-mini">
+                                                    <a href="https://x.com/immortaldip" target="_blank">𝕏</a>
+                                                    <a href="https://github.com/immortal3" target="_blank">github</a>
+                                                    <a href="mailto:patel@dipkumar.dev">email</a>
+                                                </span>
+                                                By <a href="/" class="author-link">Dip</a>
+                                            </div>
+                                        
+                                        <div class="date-meta">
+                                            April 27, 2026
+                                            
+                                            <span class="reading-time">10 min read</span>
+                                            
+                                        </div>
+                                    </div>
+                                </header>
+
+                                
+                                <div class="post-shell has-toc">
+                                    
+                                        <aside class="post-aside">
+                                            <nav class="toc-container toc-desktop">
+                                                <div class="toc-title">On this page</div>
+                                                <ul class="toc-list">
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#what-are-managed-agents">
+                                                                What Are Managed Agents?
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#1-custom-tools-require-an-active-event-loop">
+                                                                1. Custom Tools Require an Active Event Loop
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#2-mcp-is-the-escape-hatch-but-it-has-its-own-friction">
+                                                                2. MCP Is the Escape Hatch, but It Has Its Own Friction
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#3-no-webhooks-sse-or-nothing">
+                                                                3. No Webhooks. SSE or Nothing.
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#4-file-mounting-current-limitations">
+                                                                4. File Mounting: Current Limitations
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#5-business-logic-is-your-problem">
+                                                                5. Business Logic Is Your Problem
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#6-session-history-store-your-own-copy">
+                                                                6. Session History: Store Your Own Copy
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#looking-forward">
+                                                                Looking Forward
+                                                            </a>
+                                                        </li>
+                                                    
+                                                </ul>
+                                            </nav>
+                                        </aside>
+                                    
+
+                                    <div class="post-main">
+                                        
+                                            <nav class="toc-container toc-inline">
+                                                <div class="toc-title">On this page</div>
+                                                <ul class="toc-list">
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#what-are-managed-agents">
+                                                                What Are Managed Agents?
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#1-custom-tools-require-an-active-event-loop">
+                                                                1. Custom Tools Require an Active Event Loop
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#2-mcp-is-the-escape-hatch-but-it-has-its-own-friction">
+                                                                2. MCP Is the Escape Hatch, but It Has Its Own Friction
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#3-no-webhooks-sse-or-nothing">
+                                                                3. No Webhooks. SSE or Nothing.
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#4-file-mounting-current-limitations">
+                                                                4. File Mounting: Current Limitations
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#5-business-logic-is-your-problem">
+                                                                5. Business Logic Is Your Problem
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#6-session-history-store-your-own-copy">
+                                                                6. Session History: Store Your Own Copy
+                                                            </a>
+                                                        </li>
+                                                    
+                                                        <li class="toc-item level-2">
+                                                            <a href="#looking-forward">
+                                                                Looking Forward
+                                                            </a>
+                                                        </li>
+                                                    
+                                                </ul>
+                                            </nav>
+                                        
+
+                                        <div class="markdown-body">
+                                            <h2 id="what-are-managed-agents">What Are Managed Agents?</h2><p>Anthropic released <a href="https://docs.anthropic.com/en/docs/agents/overview">Managed Agents</a> in April 2026. The idea is simple: instead of building your own agent loop, tool execution sandbox, and session persistence, Anthropic hosts all of it for you.</p>
+<p>You define an <strong>Agent</strong> (model + system prompt + tools), create an <strong>Environment</strong> (a sandboxed Ubuntu container), and spin up <strong>Sessions</strong> that run your agent against real tasks. The interaction is event-driven over SSE. You send user messages in, you get agent actions out. Anthropic runs the loop, manages the container, handles compaction, and persists the session history.</p>
+<p>The four core primitives:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agent</strong></td>
+<td>A reusable, versioned configuration: model, system prompt, tools, MCP servers, skills. Create once, reuse across sessions.</td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>Container template: networking rules, pre-installed packages. Ubuntu 22.04, up to 8 GB RAM, 10 GB disk.</td>
+</tr>
+<tr>
+<td><strong>Session</strong></td>
+<td>A running agent instance. Gets its own isolated container. Stateful, persistent event history.</td>
+</tr>
+<tr>
+<td><strong>Events</strong></td>
+<td>The interaction protocol. SSE streaming or polling. No webhooks.</td>
+</tr>
+</tbody></table>
+<p>It&#39;s a good product direction. But it&#39;s also a beta, and betas come with sharp edges. If you are evaluating this for production, here are the things that will bite you.</p>
+<h2 id="1-custom-tools-require-an-active-event-loop">1. Custom Tools Require an Active Event Loop</h2><p>This was the first thing that surprised me. Custom tools, the ones where <em>your</em> application executes the logic instead of the agent&#39;s sandbox, don&#39;t work like fire-and-forget callbacks.</p>
+<p>The flow looks like this:</p>
+<ol>
+<li>You define a custom tool on the agent with a name, description, and input schema.</li>
+<li>The agent decides to call it and emits an <code>agent.custom_tool_use</code> event.</li>
+<li>The entire session goes <strong>idle</strong> and waits.</li>
+<li>Your application reads the event, executes the tool, and sends back a <code>user.custom_tool_result</code> event.</li>
+<li>The session resumes.</li>
+</ol>
+<p>There is no webhook. There is no callback URL you register. Your application must hold an SSE connection open (or poll <code>events.list</code>) to detect when the agent wants something from you. If your SSE stream drops while a custom tool call is pending, the session deadlocks. You need to implement reconnect-with-consolidation: open a new stream, fetch full history via <code>events.list</code>, dedupe by event ID, then resume.</p>
+<p>So, you can&#39;t just define a tool and walk away. You need an always-on listener. For teams used to webhook-driven architectures, this is a meaningful shift in how you design your integration layer.</p>
+<p>The alternative? Move your tools to an MCP server. MCP tools execute server-side and don&#39;t require your application to stay connected. But that introduces its own complexity.</p>
+<h2 id="2-mcp-is-the-escape-hatch-but-it-has-its-own-friction">2. MCP Is the Escape Hatch, but It Has Its Own Friction</h2><p>If custom tools feel heavy because of the event loop requirement, Anthropic&#39;s answer is MCP (Model Context Protocol) servers. MCP tools run remotely and the agent calls them directly, no client-side listener needed.</p>
+<p>But MCP integration is not as plug-and-play as it sounds:</p>
+<ul>
+<li><strong>Only remote MCP servers with Streamable HTTP transport are supported.</strong> No local stdio-based servers. If you have been building MCP servers locally for Claude Desktop or Claude Code, they won&#39;t work here without a transport adapter.</li>
+<li><strong>Credential setup is not trivial.</strong> Vaults support two auth types: <code>mcp_oauth</code> (with refresh flows) and <code>static_bearer</code> (for fixed API keys or PATs). The <code>static_bearer</code> path is simpler, but not every MCP server accepts it. For OAuth-based servers, you need proper token endpoints, client IDs, and refresh logic configured in the <a href="https://platform.claude.com/docs/en/managed-agents/vaults">Vault credential</a>. Either way, you are managing credentials through Anthropic&#39;s Vault abstraction rather than passing them directly.</li>
+<li><strong>Vault credentials never enter the sandbox.</strong> They are injected by <a href="https://www.anthropic.com/engineering/managed-agents">Anthropic-side proxies</a> after requests leave the container. Claude calls MCP tools via a dedicated proxy that resolves credentials from the vault and makes the external call. The harness itself is never made aware of any credentials. This is good for security, but it means you can&#39;t reuse vaulted secrets for non-MCP purposes inside the container. If you need an API key for a shell command, you need a separate path.</li>
+<li><strong>Max 20 MCP servers per agent, 128 tools total across all types.</strong></li>
+</ul>
+<p>MCP is clearly the intended long-term path for external integrations. But the Vault-mediated credential model and the remote-only transport constraint mean you will spend time adapting existing tools.</p>
+<h2 id="3-no-webhooks-sse-or-nothing">3. No Webhooks. SSE or Nothing.</h2><p>This deserves its own section because it affects the architecture of every integration you build.</p>
+<p>There is no webhook support. Communication with a running session happens through two channels:</p>
+<ul>
+<li><strong>SSE streaming</strong> (<code>GET /v1/sessions/{id}/events/stream</code>): a long-lived connection that delivers events in real time. This is the primary interface.</li>
+<li><strong>Polling</strong> (<code>GET /v1/sessions/{id}/events</code>): paginated event list. Returns immediately. Useful for backfill, not for real-time.</li>
+</ul>
+<p>The SSE stream has no replay. If your connection drops, you miss events. You must implement reconnect-with-consolidation every time. You also need to open the stream <em>before</em> sending your first event, because the stream only delivers events emitted after it opens. This one is easy to miss.</p>
+<p>There are a few subtle timing issues too:</p>
+<ul>
+<li><strong>Don&#39;t break on bare <code>session.status_idle</code>.</strong> The session goes idle transiently for tool confirmations and custom tool calls. Only break when idle with <code>stop_reason.type === &quot;end_turn&quot;</code> or <code>&quot;retries_exhausted&quot;</code>, or on <code>session.status_terminated</code>.</li>
+<li><strong>Post-idle status-write race.</strong> The SSE stream emits <code>session.status_idle</code> slightly before the queryable status reflects it. If you immediately call <code>sessions.delete()</code>, it can 400.</li>
+<li><strong>HTTP library timeouts are per-chunk, not wall-clock.</strong> A standard <code>requests timeout=(5, 60)</code> can block indefinitely on a trickling SSE response. Use the SDK or track elapsed time yourself.</li>
+</ul>
+<p>For any serious production use, plan to build a robust event consumer with reconnection, deduplication, and state reconciliation. This is table stakes for SSE-based systems, but it&#39;s work that Anthropic could eventually eliminate with webhook support.</p>
+<h2 id="4-file-mounting-current-limitations">4. File Mounting: Current Limitations</h2><p>File mounting works today, and the basic mechanism is straightforward:</p>
+<ol>
+<li>Upload via Files API: <code>client.beta.files.upload({ file, purpose: &quot;agent&quot; })</code></li>
+<li>Mount at session creation: <code>{ type: &quot;file&quot;, file_id: &quot;file_abc123&quot;, mount_path: &quot;/workspace/data.csv&quot; }</code></li>
+</ol>
+<p>You can also mount GitHub repositories directly, which is useful for code-review and analysis workflows. Repos are cached, so repeated sessions against the same repo start faster.</p>
+<p>That said, the current beta has a number of constraints around files and environments. These are likely to improve as the product matures, but today they shape what you can and can&#39;t do:</p>
+<ul>
+<li><strong>Files are mounted read-only.</strong> The agent reads them but can&#39;t modify originals. Modified versions go to new paths.</li>
+<li><strong>Max 100 files per session.</strong></li>
+<li><strong>Mounted files get a different <code>file_id</code> than the uploaded original.</strong> Session creation makes a scoped copy. Don&#39;t assume IDs are stable across the boundary.</li>
+<li><strong>Brief indexing lag (~1-3 seconds)</strong> between <code>session.status_idle</code> and output files appearing in <code>files.list</code>. If you check immediately, you will get an empty list.</li>
+<li><strong>Memory stores (persistent cross-session storage) can only be attached at session creation time.</strong> You can&#39;t add them to a running session.</li>
+<li><strong>No custom container images.</strong> <code>config.type: &quot;cloud&quot;</code> is the only option. You can pre-install packages in the environment definition (<code>apt</code>, <code>pip</code>, <code>npm</code>, <code>cargo</code>, <code>gem</code>, <code>go</code>), but you can&#39;t mount arbitrary Docker images with your application code pre-baked. The container starts from Anthropic&#39;s base image every time.</li>
+<li><strong>No environment variables in containers.</strong> If your tools need config, you either bake it into the system prompt (which persists in event history) or use a custom tool pattern where your orchestrator holds the config.</li>
+</ul>
+<p>Most of these feel like beta-era constraints rather than deliberate design choices. Custom container support, writable mounts, and environment variable injection are all reasonable future additions. But if you are planning around them today, plan around what exists, not what might ship.</p>
+<h2 id="5-business-logic-is-your-problem">5. Business Logic Is Your Problem</h2><p>This is expected, but worth saying clearly: Managed Agents gives you a hosted agent runtime, not a hosted application platform.</p>
+<p>You still need to build:</p>
+<ul>
+<li><strong>Agent-per-tenant routing.</strong> The API gives you <code>agents.create()</code> and <code>sessions.create()</code>, but deciding which agent config maps to which customer, which tools a given user should have access to, and how to manage agent versions across your user base, that&#39;s entirely on you.</li>
+<li><strong>Multi-agent orchestration logic.</strong> There is a multi-agent feature in research preview, but it only supports one level of delegation and requires a separate access request. For anything more complex, you are building the coordinator yourself.</li>
+<li><strong>YAML-driven agent definitions.</strong> If you want to version-control agent configs (and you should), the recommended path is YAML files deployed via the <code>ant</code> CLI. But the lifecycle management, CI/CD pipeline, and rollback strategy are yours to design.</li>
+<li><strong>Cost controls and usage limits.</strong> Sessions bill at $0.08/session-hour plus standard token rates. There is no built-in per-user spend cap. If a runaway agent loops for hours, your bill reflects that. You need to implement your own circuit breakers.</li>
+</ul>
+<p>Anthropic provides Vaults for credential management and Memory Stores for cross-session persistence, which help. But the glue between &quot;i have an agent&quot; and &quot;i have a product&quot; is still a significant engineering surface.</p>
+<h2 id="6-session-history-store-your-own-copy">6. Session History: Store Your Own Copy</h2><p>Session event history is stored server-side and accessible via <code>events.list()</code>. You can retrieve the full history of any session, which is convenient.</p>
+<p>But i would recommend also storing it in your own infrastructure. Here&#39;s why:</p>
+<ul>
+<li><strong>Archive is permanent.</strong> Once you archive a session, there is no unarchive. Agents also have no delete, only archive. If you archive something by mistake, you lose write access to it forever.</li>
+<li><strong>You will want to query across sessions.</strong> The API gives you per-session history, but no cross-session search or analytics. If you want to answer &quot;which sessions hit a tool error last week?&quot; or &quot;what is the average token usage per agent type?&quot;, you need your own data store.</li>
+<li><strong>Compliance and auditing.</strong> If you operate in a regulated industry, you likely need session logs in your own infrastructure regardless of where the runtime lives.</li>
+<li><strong>Built-in context compaction summarizes older turns.</strong> This is great for token efficiency during a session, but it means the raw event history includes compaction events that replace earlier context. If you want the full uncompacted transcript, capture events as they stream in.</li>
+</ul>
+<h2 id="looking-forward">Looking Forward</h2><p>These are real limitations today, but it&#39;s worth acknowledging: this is a beta released weeks ago. Anthropic is iterating quickly, and several of these gaps have clear paths to resolution.</p>
+<p>Webhook support would eliminate the always-on listener requirement for custom tools. Bring-your-own-container would unlock richer environment setups. Environment variable support in containers would simplify credential management for non-MCP tools. These are not architectural impossibilities. They are features that haven&#39;t shipped yet.</p>
+<p>The core architecture is sound. Durable session logs decoupled from containers, versioned agent configs, sandboxed execution with MCP integration. The separation of &quot;brain&quot; (Claude + harness) from &quot;hands&quot; (sandbox + tools) is the right abstraction. The question is whether the edges get polished fast enough for production workloads that can&#39;t wait.</p>
+<p>If you are building something new and can tolerate beta constraints, Managed Agents removes a meaningful amount of infrastructure work. If you are migrating an existing agent system with webhook-driven tools, custom container images, or complex multi-agent hierarchies, the current feature set will require workarounds.</p>
+<p>Either way, know the gotchas before you commit.</p>
+
+                                        </div>
+
+                                        
+                                            <div class="post-footer-tags">
+                                                
+                                                    <a href="/tags/agents">#agents</a>
+                                                
+                                                    <a href="/tags/claude">#claude</a>
+                                                
+                                                    <a href="/tags/anthropic">#anthropic</a>
+                                                
+                                            </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </article>
+                            
+    </main>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/';
+            Prism.highlightAll();
+
+            document.querySelectorAll('.markdown-body pre').forEach(function (pre) {
+                var code_el = pre.querySelector('code');
+                if (code_el && code_el.classList.contains('language-mermaid')) return;
+                if (pre.querySelector('.code-copy-button')) return;
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'code-copy-button';
+                btn.textContent = 'Copy';
+
+                btn.addEventListener('click', function () {
+                    var text = code_el ? code_el.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function () {
+                        btn.textContent = 'Copied';
+                        btn.classList.add('copied');
+                        setTimeout(function () {
+                            btn.textContent = 'Copy';
+                            btn.classList.remove('copied');
+                        }, 1500);
+                    });
+                });
+
+                pre.style.position = 'relative';
+                pre.appendChild(btn);
+            });
+
+            if (document.querySelector('.language-mermaid')) {
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+                s.onload = function () {
+                    mermaid.initialize({
+                        startOnLoad: true,
+                        theme: 'default',
+                        flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+                        securityLevel: 'loose',
+                    });
+                    document.querySelectorAll('pre code.language-mermaid').forEach(function (el) {
+                        var pre = el.parentElement;
+                        var div = document.createElement('div');
+                        div.className = 'mermaid';
+                        div.textContent = el.textContent;
+                        pre.parentElement.replaceChild(div, pre);
+                    });
+                    mermaid.init(undefined, '.mermaid');
+                };
+                document.head.appendChild(s);
+            }
+
+            if (document.querySelector('.twitter-tweet') && !window.twttr) {
+                var s = document.createElement('script');
+                s.src = 'https://platform.twitter.com/widgets.js';
+                s.async = true;
+                s.charset = 'utf-8';
+                document.head.appendChild(s);
+            } else if (window.twttr && window.twttr.widgets) {
+                window.twttr.widgets.load();
+            }
+        });
+
+        (function() {
+            var bar = document.getElementById('reading-progress');
+            var body = document.querySelector('.markdown-body');
+            if (bar && body) {
+                window.addEventListener('scroll', function() {
+                    var top = body.getBoundingClientRect().top + window.scrollY;
+                    var p = Math.min(100, Math.max(0, ((window.scrollY - top + window.innerHeight * 0.3) / body.offsetHeight) * 100));
+                    bar.style.width = p + '%';
+                });
+            }
+        })();
+    </script>
+    
+
+    
+</body>
+
+</html>

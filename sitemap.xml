@@ -3,17 +3,21 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://dipkumar.dev/</loc>
-    <lastmod>2026-04-22T18:30:00.000Z</lastmod>
+    <lastmod>2026-04-26T18:30:00.000Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/blogs/</loc>
-    <lastmod>2026-04-22T18:30:00.000Z</lastmod>
+    <lastmod>2026-04-26T18:30:00.000Z</lastmod>
   </url>
   <url>
     <loc>https://dipkumar.dev/notes/</loc>
     <lastmod>2026-04-18T04:18:56.492Z</lastmod>
   </url>
     <url>
+    <loc>https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/</loc>
+    <lastmod>2026-04-26T18:30:00.000Z</lastmod>
+  </url>
+  <url>
     <loc>https://dipkumar.dev/posts/markets/indigo-investor-view/</loc>
     <lastmod>2026-04-22T18:30:00.000Z</lastmod>
   </url>
