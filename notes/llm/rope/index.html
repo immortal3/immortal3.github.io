@@ -18,23 +18,28 @@
 
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>
-                Positional Encoding and RoPE | Dip
-            </title>
+            <title>Positional Encoding and RoPE | Dip</title>
             <meta name="description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.">
+            <meta name="author" content="Dipkumar Patel">
+            <meta name="keywords" content="llm, transformer, attention, machine learning, ai agents, distributed systems, software engineering, dipkumar patel">
+            
+            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
             
             <link rel="canonical" href="https://dipkumar.dev/notes/llm/rope/">
+            <link rel="alternate" type="application/rss+xml" title="Dipkumar Patel — Blog" href="https://dipkumar.dev/feed.xml">
             <meta property="og:title" content="Positional Encoding and RoPE" />
             <meta property="og:description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE." />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="https://dipkumar.dev/notes/llm/rope/" />
             <meta property="og:site_name" content="Dip" />
+            <meta property="og:locale" content="en_US" />
             <meta property="og:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
             <meta property="og:image:secure_url" content="https://dipkumar.dev/static/social-share-v4.jpg" />
             <meta property="og:image:type" content="image/jpeg" />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
             <meta property="og:image:alt" content="Dip blog social card" />
+            
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content="Positional Encoding and RoPE" />
             <meta name="twitter:description" content="A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE." />
@@ -52,7 +57,7 @@
                 onload="this.onload=null;this.rel='stylesheet'">
             <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Geist:wght@300;400;500;600;700&display=swap"></noscript>
 
-            <link rel="stylesheet" href="/static/style.css?v=96a8de3d">
+            <link rel="stylesheet" href="/static/style.css?v=61738a65">
             
             
             <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
@@ -60,7 +65,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"Article","headline":"Positional Encoding and RoPE","description":"A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.","datePublished":"2026-04-18T04:18:56.492Z","dateModified":"2026-04-18T04:18:56.492Z","author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/notes/llm/rope/"},"image":"https://dipkumar.dev/static/social-share-v4.jpg"}
+            {"@context":"https://schema.org","@type":"TechArticle","headline":"Positional Encoding and RoPE","description":"A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.","datePublished":"2026-04-18T04:18:56.492Z","dateModified":"2026-04-20T05:36:19.234Z","inLanguage":"en","keywords":"llm, transformer, attention","wordCount":483,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/notes/llm/rope/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -97,9 +102,7 @@
                                             <span class="breadcrumb-current">Positional Encoding and RoPE</span>
                                         </div>
                                     
-                                    <h1>
-                                        Positional Encoding and RoPE
-                                    </h1>
+                                    <h1>Positional Encoding and RoPE</h1>
                                     
                                         <p class="post-subtitle">
                                             A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.
@@ -115,7 +118,7 @@
                                         <div class="date-meta">
                                             Updated April 18, 2026
                                             
-                                            <span class="reading-time">4 min read</span>
+                                            <span class="reading-time">3 min read</span>
                                             
                                         </div>
                                     </div>
@@ -360,6 +363,7 @@ def apply_rope(x: np.ndarray, cos: np.ndarray, sin: np.ndarray) -&gt; np.ndarray
 
                                         </div>
 
+                                        
                                         
                                     </div>
                                 </div>

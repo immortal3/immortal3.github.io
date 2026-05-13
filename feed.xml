@@ -1,0 +1,2026 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Dipkumar Patel — Blog</title>
+    <link>https://dipkumar.dev/</link>
+    <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 13 May 2026 15:41:00 GMT</lastBuildDate>
+    <generator>dipkumar.dev custom static generator</generator>
+    <item>
+      <title>Building with Claude Managed Agents - Sharp Edges</title>
+      <link>https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/</guid>
+      <pubDate>Sun, 26 Apr 2026 18:30:00 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>A short look at Claude&apos;s newly released managed agents and the limited feature set that might catch you off guard.</description>
+      <category>agents</category>
+      <category>claude</category>
+      <category>anthropic</category>
+      <content:encoded><![CDATA[<h2 id="what-are-managed-agents">What Are Managed Agents?</h2><p>Anthropic released <a href="https://docs.anthropic.com/en/docs/agents/overview">Managed Agents</a> in April 2026. The idea is simple: instead of building your own agent loop, tool execution sandbox, and session persistence, Anthropic hosts all of it for you.</p>
+<p>You define an <strong>Agent</strong> (model + system prompt + tools), create an <strong>Environment</strong> (a sandboxed Ubuntu container), and spin up <strong>Sessions</strong> that run your agent against real tasks. The interaction is event-driven over SSE. You send user messages in, you get agent actions out. Anthropic runs the loop, manages the container, handles compaction, and persists the session history.</p>
+<p>The four core primitives:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agent</strong></td>
+<td>A reusable, versioned configuration: model, system prompt, tools, MCP servers, skills. Create once, reuse across sessions.</td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>Container template: networking rules, pre-installed packages. Ubuntu 22.04, up to 8 GB RAM, 10 GB disk.</td>
+</tr>
+<tr>
+<td><strong>Session</strong></td>
+<td>A running agent instance. Gets its own isolated container. Stateful, persistent event history.</td>
+</tr>
+<tr>
+<td><strong>Events</strong></td>
+<td>The interaction protocol. SSE streaming or polling. No webhooks.</td>
+</tr>
+</tbody></table>
+<p>It&#39;s a good product direction. But it&#39;s also a beta, and betas come with sharp edges. If you are evaluating this for production, here are the things that will bite you.</p>
+<h2 id="1-custom-tools-require-an-active-event-loop">1. Custom Tools Require an Active Event Loop</h2><p>This was the first thing that surprised me. Custom tools, the ones where <em>your</em> application executes the logic instead of the agent&#39;s sandbox, don&#39;t work like fire-and-forget callbacks.</p>
+<p>The flow looks like this:</p>
+<ol>
+<li>You define a custom tool on the agent with a name, description, and input schema.</li>
+<li>The agent decides to call it and emits an <code>agent.custom_tool_use</code> event.</li>
+<li>The entire session goes <strong>idle</strong> and waits.</li>
+<li>Your application reads the event, executes the tool, and sends back a <code>user.custom_tool_result</code> event.</li>
+<li>The session resumes.</li>
+</ol>
+<p>There is no webhook. There is no callback URL you register. Your application must hold an SSE connection open (or poll <code>events.list</code>) to detect when the agent wants something from you. If your SSE stream drops while a custom tool call is pending, the session deadlocks. You need to implement reconnect-with-consolidation: open a new stream, fetch full history via <code>events.list</code>, dedupe by event ID, then resume.</p>
+<p>So, you can&#39;t just define a tool and walk away. You need an always-on listener. For teams used to webhook-driven architectures, this is a meaningful shift in how you design your integration layer.</p>
+<p>The alternative? Move your tools to an MCP server. MCP tools execute server-side and don&#39;t require your application to stay connected. But that introduces its own complexity.</p>
+<h2 id="2-mcp-is-the-escape-hatch-but-it-has-its-own-friction">2. MCP Is the Escape Hatch, but It Has Its Own Friction</h2><p>If custom tools feel heavy because of the event loop requirement, Anthropic&#39;s answer is MCP (Model Context Protocol) servers. MCP tools run remotely and the agent calls them directly, no client-side listener needed.</p>
+<p>But MCP integration is not as plug-and-play as it sounds:</p>
+<ul>
+<li><strong>Only remote MCP servers with Streamable HTTP transport are supported.</strong> No local stdio-based servers. If you have been building MCP servers locally for Claude Desktop or Claude Code, they won&#39;t work here without a transport adapter.</li>
+<li><strong>Credential setup is not trivial.</strong> Vaults support two auth types: <code>mcp_oauth</code> (with refresh flows) and <code>static_bearer</code> (for fixed API keys or PATs). The <code>static_bearer</code> path is simpler, but not every MCP server accepts it. For OAuth-based servers, you need proper token endpoints, client IDs, and refresh logic configured in the <a href="https://platform.claude.com/docs/en/managed-agents/vaults">Vault credential</a>. Either way, you are managing credentials through Anthropic&#39;s Vault abstraction rather than passing them directly.</li>
+<li><strong>Vault credentials never enter the sandbox.</strong> They are injected by <a href="https://www.anthropic.com/engineering/managed-agents">Anthropic-side proxies</a> after requests leave the container. Claude calls MCP tools via a dedicated proxy that resolves credentials from the vault and makes the external call. The harness itself is never made aware of any credentials. This is good for security, but it means you can&#39;t reuse vaulted secrets for non-MCP purposes inside the container. If you need an API key for a shell command, you need a separate path.</li>
+<li><strong>Max 20 MCP servers per agent, 128 tools total across all types.</strong></li>
+</ul>
+<p>MCP is clearly the intended long-term path for external integrations. But the Vault-mediated credential model and the remote-only transport constraint mean you will spend time adapting existing tools.</p>
+<h2 id="3-no-webhooks-sse-or-nothing">3. No Webhooks. SSE or Nothing.</h2><p>This deserves its own section because it affects the architecture of every integration you build.</p>
+<p>There is no webhook support. Communication with a running session happens through two channels:</p>
+<ul>
+<li><strong>SSE streaming</strong> (<code>GET /v1/sessions/{id}/events/stream</code>): a long-lived connection that delivers events in real time. This is the primary interface.</li>
+<li><strong>Polling</strong> (<code>GET /v1/sessions/{id}/events</code>): paginated event list. Returns immediately. Useful for backfill, not for real-time.</li>
+</ul>
+<p>The SSE stream has no replay. If your connection drops, you miss events. You must implement reconnect-with-consolidation every time. You also need to open the stream <em>before</em> sending your first event, because the stream only delivers events emitted after it opens. This one is easy to miss.</p>
+<p>There are a few subtle timing issues too:</p>
+<ul>
+<li><strong>Don&#39;t break on bare <code>session.status_idle</code>.</strong> The session goes idle transiently for tool confirmations and custom tool calls. Only break when idle with <code>stop_reason.type === &quot;end_turn&quot;</code> or <code>&quot;retries_exhausted&quot;</code>, or on <code>session.status_terminated</code>.</li>
+<li><strong>Post-idle status-write race.</strong> The SSE stream emits <code>session.status_idle</code> slightly before the queryable status reflects it. If you immediately call <code>sessions.delete()</code>, it can 400.</li>
+<li><strong>HTTP library timeouts are per-chunk, not wall-clock.</strong> A standard <code>requests timeout=(5, 60)</code> can block indefinitely on a trickling SSE response. Use the SDK or track elapsed time yourself.</li>
+</ul>
+<p>For any serious production use, plan to build a robust event consumer with reconnection, deduplication, and state reconciliation. This is table stakes for SSE-based systems, but it&#39;s work that Anthropic could eventually eliminate with webhook support.</p>
+<h2 id="4-file-mounting-current-limitations">4. File Mounting: Current Limitations</h2><p>File mounting works today, and the basic mechanism is straightforward:</p>
+<ol>
+<li>Upload via Files API: <code>client.beta.files.upload({ file, purpose: &quot;agent&quot; })</code></li>
+<li>Mount at session creation: <code>{ type: &quot;file&quot;, file_id: &quot;file_abc123&quot;, mount_path: &quot;/workspace/data.csv&quot; }</code></li>
+</ol>
+<p>You can also mount GitHub repositories directly, which is useful for code-review and analysis workflows. Repos are cached, so repeated sessions against the same repo start faster.</p>
+<p>That said, the current beta has a number of constraints around files and environments. These are likely to improve as the product matures, but today they shape what you can and can&#39;t do:</p>
+<ul>
+<li><strong>Files are mounted read-only.</strong> The agent reads them but can&#39;t modify originals. Modified versions go to new paths.</li>
+<li><strong>Max 100 files per session.</strong></li>
+<li><strong>Mounted files get a different <code>file_id</code> than the uploaded original.</strong> Session creation makes a scoped copy. Don&#39;t assume IDs are stable across the boundary.</li>
+<li><strong>Brief indexing lag (~1-3 seconds)</strong> between <code>session.status_idle</code> and output files appearing in <code>files.list</code>. If you check immediately, you will get an empty list.</li>
+<li><strong>Memory stores (persistent cross-session storage) can only be attached at session creation time.</strong> You can&#39;t add them to a running session.</li>
+<li><strong>No custom container images.</strong> <code>config.type: &quot;cloud&quot;</code> is the only option. You can pre-install packages in the environment definition (<code>apt</code>, <code>pip</code>, <code>npm</code>, <code>cargo</code>, <code>gem</code>, <code>go</code>), but you can&#39;t mount arbitrary Docker images with your application code pre-baked. The container starts from Anthropic&#39;s base image every time.</li>
+<li><strong>No environment variables in containers.</strong> If your tools need config, you either bake it into the system prompt (which persists in event history) or use a custom tool pattern where your orchestrator holds the config.</li>
+</ul>
+<p>Most of these feel like beta-era constraints rather than deliberate design choices. Custom container support, writable mounts, and environment variable injection are all reasonable future additions. But if you are planning around them today, plan around what exists, not what might ship.</p>
+<h2 id="5-business-logic-is-your-problem">5. Business Logic Is Your Problem</h2><p>This is expected, but worth saying clearly: Managed Agents gives you a hosted agent runtime, not a hosted application platform.</p>
+<p>You still need to build:</p>
+<ul>
+<li><strong>Agent-per-tenant routing.</strong> The API gives you <code>agents.create()</code> and <code>sessions.create()</code>, but deciding which agent config maps to which customer, which tools a given user should have access to, and how to manage agent versions across your user base, that&#39;s entirely on you.</li>
+<li><strong>Multi-agent orchestration logic.</strong> There is a multi-agent feature in research preview, but it only supports one level of delegation and requires a separate access request. For anything more complex, you are building the coordinator yourself.</li>
+<li><strong>YAML-driven agent definitions.</strong> If you want to version-control agent configs (and you should), the recommended path is YAML files deployed via the <code>ant</code> CLI. But the lifecycle management, CI/CD pipeline, and rollback strategy are yours to design.</li>
+<li><strong>Cost controls and usage limits.</strong> Sessions bill at $0.08/session-hour plus standard token rates. There is no built-in per-user spend cap. If a runaway agent loops for hours, your bill reflects that. You need to implement your own circuit breakers.</li>
+</ul>
+<p>Anthropic provides Vaults for credential management and Memory Stores for cross-session persistence, which help. But the glue between &quot;i have an agent&quot; and &quot;i have a product&quot; is still a significant engineering surface.</p>
+<h2 id="6-session-history-store-your-own-copy">6. Session History: Store Your Own Copy</h2><p>Session event history is stored server-side and accessible via <code>events.list()</code>. You can retrieve the full history of any session, which is convenient.</p>
+<p>But i would recommend also storing it in your own infrastructure. Here&#39;s why:</p>
+<ul>
+<li><strong>Archive is permanent.</strong> Once you archive a session, there is no unarchive. Agents also have no delete, only archive. If you archive something by mistake, you lose write access to it forever.</li>
+<li><strong>You will want to query across sessions.</strong> The API gives you per-session history, but no cross-session search or analytics. If you want to answer &quot;which sessions hit a tool error last week?&quot; or &quot;what is the average token usage per agent type?&quot;, you need your own data store.</li>
+<li><strong>Compliance and auditing.</strong> If you operate in a regulated industry, you likely need session logs in your own infrastructure regardless of where the runtime lives.</li>
+<li><strong>Built-in context compaction summarizes older turns.</strong> This is great for token efficiency during a session, but it means the raw event history includes compaction events that replace earlier context. If you want the full uncompacted transcript, capture events as they stream in.</li>
+</ul>
+<h2 id="looking-forward">Looking Forward</h2><p>These are real limitations today, but it&#39;s worth acknowledging: this is a beta released weeks ago. Anthropic is iterating quickly, and several of these gaps have clear paths to resolution.</p>
+<p>Webhook support would eliminate the always-on listener requirement for custom tools. Bring-your-own-container would unlock richer environment setups. Environment variable support in containers would simplify credential management for non-MCP tools. These are not architectural impossibilities. They are features that haven&#39;t shipped yet.</p>
+<p>The core architecture is sound. Durable session logs decoupled from containers, versioned agent configs, sandboxed execution with MCP integration. The separation of &quot;brain&quot; (Claude + harness) from &quot;hands&quot; (sandbox + tools) is the right abstraction. The question is whether the edges get polished fast enough for production workloads that can&#39;t wait.</p>
+<p>If you are building something new and can tolerate beta constraints, Managed Agents removes a meaningful amount of infrastructure work. If you are migrating an existing agent system with webhook-driven tools, custom container images, or complex multi-agent hierarchies, the current feature set will require workarounds.</p>
+<p>Either way, know the gotchas before you commit.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>IndiGo: India&apos;s Affordable Growth Carrier, by the Numbers</title>
+      <link>https://dipkumar.dev/posts/markets/indigo-investor-view/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/markets/indigo-investor-view/</guid>
+      <pubDate>Wed, 22 Apr 2026 18:30:00 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>A beginner-friendly look at IndiGo. A live widget lets you tune three assumptions about how India flies and see what that means for IndiGo&apos;s size and market value in 5 to 10 years.</description>
+      <category>markets</category>
+      <category>india</category>
+      <category>aviation</category>
+      <category>indigo</category>
+      <category>investing</category>
+      <content:encoded><![CDATA[<p>IndiGo is the budget airline six of every ten Indian flyers already use. India itself flies very little: roughly <strong>one flight per person every nine years</strong> on average, compared to one every two years in China and 2.5 flights per person every year in the US. That gap is the whole story. This post gives you a widget to play with the math first, then walks through what the numbers mean.</p>
+<h2 id="the-widget">The widget</h2><p>Drag the sliders. The top three set how India&#39;s aviation market grows. The fourth sets how much the stock market values the resulting earnings. Hover the <strong>?</strong> icons for a plain-language explanation of each lever.</p>
+<div class="igw" id="indigo-growth-widget">
+  <div class="igw-sub">Defaults = a cautious base case. Use the preset buttons below to jump between cautious, middle, and aggressive views.</div>
+
+  <div class="igw-presets">
+    <span class="igw-preset-label">Presets:</span>
+    <button type="button" class="igw-preset" data-tpc="0.22" data-years="10" data-share="0.60" data-pe="39">Cautious (half of China)</button>
+    <button type="button" class="igw-preset" data-tpc="0.44" data-years="10" data-share="0.60" data-pe="39">Middle (matches China today)</button>
+    <button type="button" class="igw-preset" data-tpc="0.63" data-years="10" data-share="0.65" data-pe="45">Aggressive</button>
+  </div>
+
+  <div class="igw-controls">
+    <label class="igw-row">
+      <span class="igw-label">Flights per person per year <span class="igw-tip" tabindex="0" aria-label="Explanation">?<span class="igw-tip-body">How often the average Indian flies in a year. India today is 0.11 (one flight every 9 years). China is 0.44. The US is 2.5. Slide up to model India catching up.</span></span></span>
+      <input type="range" id="igw-tpc" min="0.12" max="1.0" step="0.01" value="0.22" aria-label="Target trips per capita">
+      <span class="igw-value" id="igw-tpc-v">0.22</span>
+    </label>
+    <div class="igw-row">
+      <span class="igw-label">How many years ahead <span class="igw-tip" tabindex="0" aria-label="Explanation">?<span class="igw-tip-body">The time horizon. 5 years = halfway to 2031. 10 years = 2035.</span></span></span>
+      <div class="igw-seg" role="radiogroup" aria-label="Horizon in years">
+        <button type="button" class="igw-seg-btn" data-years="5">5y</button>
+        <button type="button" class="igw-seg-btn igw-seg-active" data-years="10">10y</button>
+      </div>
+      <span class="igw-value" id="igw-yrs-v">10y</span>
+    </div>
+    <label class="igw-row">
+      <span class="igw-label">IndiGo's share of domestic flights <span class="igw-tip" tabindex="0" aria-label="Explanation">?<span class="igw-tip-body">IndiGo carries ~60 of every 100 domestic flyers today. Move this up if you think it dominates further, down if you think Air India takes share back.</span></span></span>
+      <input type="range" id="igw-share" min="0.40" max="0.70" step="0.01" value="0.60" aria-label="IndiGo domestic share">
+      <span class="igw-value" id="igw-share-v">60%</span>
+    </label>
+    <label class="igw-row">
+      <span class="igw-label">How much to pay per ₹1 of profit (P/E) <span class="igw-tip" tabindex="0" aria-label="Explanation">?<span class="igw-tip-body">The stock currently trades at about 39x its yearly profit. A higher P/E means the market pays more for future growth. A lower P/E means confidence has faded.</span></span></span>
+      <input type="range" id="igw-pe" min="15" max="50" step="1" value="39" aria-label="Exit P/E multiple">
+      <span class="igw-value" id="igw-pe-v">39x</span>
+    </label>
+  </div>
+
+  <div class="igw-out">
+    <div class="igw-line"><span class="igw-k">India's total domestic flyers</span><span class="igw-v" id="igw-pax"></span><span class="igw-bar"><span class="igw-fill" id="igw-pax-bar"></span></span><span class="igw-mult" id="igw-pax-mult"></span></div>
+    <div class="igw-line"><span class="igw-k">Market growth per year (CAGR)</span><span class="igw-v" id="igw-cagr"></span><span class="igw-bar"><span class="igw-fill" id="igw-cagr-bar"></span></span><span class="igw-mult" id="igw-cagr-ref"></span></div>
+    <div class="igw-line"><span class="igw-k">IndiGo's flyers</span><span class="igw-v" id="igw-ipax"></span><span class="igw-bar"><span class="igw-fill" id="igw-ipax-bar"></span></span><span class="igw-mult" id="igw-ipax-mult"></span></div>
+    <div class="igw-line"><span class="igw-k">IndiGo growth per year (CAGR)</span><span class="igw-v" id="igw-icagr"></span><span class="igw-bar"><span class="igw-fill" id="igw-icagr-bar"></span></span><span class="igw-mult" id="igw-icagr-ref"></span></div>
+    <div class="igw-line"><span class="igw-k">IndiGo revenue</span><span class="igw-v" id="igw-rev"></span><span class="igw-bar"><span class="igw-fill" id="igw-rev-bar"></span></span><span class="igw-mult" id="igw-rev-mult"></span></div>
+    <div class="igw-line igw-hero"><span class="igw-k">IndiGo market cap (implied)</span><span class="igw-v" id="igw-mcap"></span><span class="igw-bar"><span class="igw-fill" id="igw-mcap-bar"></span></span><span class="igw-mult" id="igw-mcap-mult"></span></div>
+  </div>
+
+  <div class="igw-note">Starting values: India 184M domestic flyers in 2025, IndiGo 118M of them, IndiGo revenue ₹80,803 cr, profit margin 9%, market cap ₹1.79 lakh cr. Revenue per flyer held flat. Population grows linearly to 1.55B by 2035. Bars compare against Airbus's 8.9% forecast. Not investment advice.</div>
+</div>
+
+<style>
+.igw { border: 1px solid #e5e5e5; border-radius: 6px; padding: 20px; margin: 25px 0; background: #fafafa; font-size: 0.95em; }
+.igw-sub { color: #666; font-size: 0.9em; margin-bottom: 12px; }
+.igw-presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px solid #e5e5e5; }
+.igw-preset-label { color: #666; font-size: 0.85em; margin-right: 4px; }
+.igw-preset { font-family: inherit; font-size: 0.85em; border: 1px solid #d0d0d0; background: #fff; color: #000; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.igw-preset:hover { border-color: #6366f1; color: #6366f1; }
+.igw-controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+.igw-row { display: grid; grid-template-columns: 220px 1fr 70px; align-items: center; gap: 10px; }
+.igw-label { color: #000; font-size: 0.9em; display: inline-flex; align-items: center; gap: 6px; }
+.igw-tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #e5e5e5; color: #666; font-size: 0.75em; font-weight: 700; cursor: help; user-select: none; }
+.igw-tip:hover, .igw-tip:focus { background: #6366f1; color: #fff; outline: none; }
+.igw-tip-body { visibility: hidden; opacity: 0; position: absolute; left: 20px; top: -4px; width: 240px; padding: 8px 10px; background: #000; color: #fff; font-size: 0.8em; font-weight: 400; line-height: 1.4; border-radius: 4px; z-index: 20; transition: opacity 0.15s; pointer-events: none; }
+.igw-tip:hover .igw-tip-body, .igw-tip:focus .igw-tip-body { visibility: visible; opacity: 1; }
+.igw-value { color: #6366f1; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.igw input[type="range"] { width: 100%; accent-color: #6366f1; }
+.igw-seg { display: inline-flex; gap: 6px; }
+.igw-seg-btn { font-family: inherit; font-size: 0.9em; border: 1px solid #d0d0d0; background: #fff; color: #000; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+.igw-seg-btn:hover { border-color: #6366f1; }
+.igw-seg-active { background: #6366f1; color: #fff; border-color: #6366f1; }
+.igw-out { border-top: 1px solid #e5e5e5; padding-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+.igw-line { display: grid; grid-template-columns: 240px 100px 1fr 80px; align-items: center; gap: 10px; }
+.igw-hero { border-top: 1px dashed #d5d5d5; padding-top: 10px; margin-top: 4px; }
+.igw-hero .igw-v { color: #6366f1; font-size: 1.05em; }
+.igw-k { color: #000; font-size: 0.9em; }
+.igw-v { color: #000; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.igw-bar { display: block; height: 8px; background: #eee; border-radius: 3px; overflow: hidden; }
+.igw-fill { display: block; height: 100%; width: 0%; background: #6366f1; transition: width 0.25s; }
+.igw-mult { color: #666; font-size: 0.85em; text-align: right; font-variant-numeric: tabular-nums; }
+.igw-note { color: #666; font-size: 0.8em; margin-top: 15px; line-height: 1.5; }
+@media (max-width: 600px) {
+  .igw-row { grid-template-columns: 1fr; gap: 6px; }
+  .igw-value { text-align: left; }
+  .igw-line { grid-template-columns: 1fr auto; }
+  .igw-bar, .igw-mult { grid-column: 1 / -1; }
+  .igw-tip-body { left: auto; right: 0; top: 20px; }
+}
+</style>
+
+<script>
+(function () {
+  var POP_2025 = 1451, POP_2035 = 1545, PAX_2025 = 184, INDIGO_2025 = 118;
+  var REV_2025 = 80803, REV_PER_PAX = 6847;
+  var PAT_MARGIN = 0.09;
+  var MCAP_2025 = 179464;
+  var CAGR_REF = 0.089;
+  var state = { tpc: 0.22, years: 10, share: 0.60, pe: 39 };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function fmtM(n) { return Math.round(n) + "M"; }
+  function fmtPct(n) { return (n * 100).toFixed(1) + "%"; }
+  function fmtMult(n) { return n.toFixed(2) + "x"; }
+  function fmtCr(n) {
+    if (n >= 100000) return "₹" + (n / 100000).toFixed(2) + " lakh cr";
+    return "₹" + Math.round(n).toLocaleString("en-IN") + " cr";
+  }
+
+  function setYearsButton(years) {
+    document.querySelectorAll("#indigo-growth-widget .igw-seg-btn").forEach(function (b) {
+      b.classList.toggle("igw-seg-active", parseInt(b.getAttribute("data-years"), 10) === years);
+    });
+  }
+
+  function compute() {
+    var pop = POP_2025 + (POP_2035 - POP_2025) * (state.years / 10);
+    var pax = pop * state.tpc;
+    var ipax = pax * state.share;
+    var cagr = Math.pow(pax / PAX_2025, 1 / state.years) - 1;
+    var icagr = Math.pow(ipax / INDIGO_2025, 1 / state.years) - 1;
+    var rev = ipax * REV_PER_PAX;
+    var pat = rev * PAT_MARGIN;
+    var mcap = pat * state.pe;
+
+    var airbusEndpoint = PAX_2025 * Math.pow(1 + CAGR_REF, state.years);
+    var airbusIndigo = airbusEndpoint * 0.60;
+    var airbusMcap = airbusIndigo * REV_PER_PAX * PAT_MARGIN * 39;
+
+    $("igw-pax").textContent = fmtM(pax);
+    $("igw-ipax").textContent = fmtM(ipax);
+    $("igw-cagr").textContent = fmtPct(cagr);
+    $("igw-icagr").textContent = fmtPct(icagr);
+    $("igw-rev").textContent = fmtCr(rev);
+    $("igw-mcap").textContent = fmtCr(mcap);
+    $("igw-pax-mult").textContent = fmtMult(pax / PAX_2025);
+    $("igw-ipax-mult").textContent = fmtMult(ipax / INDIGO_2025);
+    $("igw-rev-mult").textContent = fmtMult(rev / REV_2025);
+    $("igw-mcap-mult").textContent = fmtMult(mcap / MCAP_2025);
+    $("igw-cagr-ref").textContent = "vs 8.9%";
+    $("igw-icagr-ref").textContent = "";
+
+    $("igw-pax-bar").style.width = Math.min(100, (pax / (airbusEndpoint * 2)) * 100) + "%";
+    $("igw-ipax-bar").style.width = Math.min(100, (ipax / (airbusIndigo * 2)) * 100) + "%";
+    $("igw-cagr-bar").style.width = Math.min(100, (cagr / 0.20) * 100) + "%";
+    $("igw-cagr-bar").style.background = cagr >= CAGR_REF ? "#6366f1" : "#a5a6f6";
+    $("igw-icagr-bar").style.width = Math.min(100, (icagr / 0.20) * 100) + "%";
+    $("igw-icagr-bar").style.background = icagr >= CAGR_REF ? "#6366f1" : "#a5a6f6";
+    $("igw-rev-bar").style.width = Math.min(100, (rev / (airbusIndigo * REV_PER_PAX * 2)) * 100) + "%";
+    $("igw-mcap-bar").style.width = Math.min(100, (mcap / (airbusMcap * 2)) * 100) + "%";
+
+    $("igw-tpc-v").textContent = state.tpc.toFixed(2);
+    $("igw-share-v").textContent = Math.round(state.share * 100) + "%";
+    $("igw-yrs-v").textContent = state.years + "y";
+    $("igw-pe-v").textContent = state.pe + "x";
+    $("igw-tpc").value = state.tpc;
+    $("igw-share").value = state.share;
+    $("igw-pe").value = state.pe;
+  }
+
+  $("igw-tpc").addEventListener("input", function (e) { state.tpc = parseFloat(e.target.value); compute(); });
+  $("igw-share").addEventListener("input", function (e) { state.share = parseFloat(e.target.value); compute(); });
+  $("igw-pe").addEventListener("input", function (e) { state.pe = parseFloat(e.target.value); compute(); });
+  document.querySelectorAll("#indigo-growth-widget .igw-seg-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.years = parseInt(btn.getAttribute("data-years"), 10);
+      setYearsButton(state.years);
+      compute();
+    });
+  });
+  document.querySelectorAll("#indigo-growth-widget .igw-preset").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.tpc = parseFloat(btn.getAttribute("data-tpc"));
+      state.years = parseInt(btn.getAttribute("data-years"), 10);
+      state.share = parseFloat(btn.getAttribute("data-share"));
+      state.pe = parseFloat(btn.getAttribute("data-pe"));
+      setYearsButton(state.years);
+      compute();
+    });
+  });
+
+  compute();
+})();
+</script>
+
+<h2 id="why-india-flies-so-little-and-why-that-matters">Why India flies so little (and why that matters)</h2><p>India is a country of roughly 1.45 billion people where fewer than 200 million domestic flights happen in a year. That&#39;s the same as 0.11 flights per person. For comparison:</p>
+<table>
+<thead>
+<tr>
+<th>Country</th>
+<th>Flights per person per year</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>India</strong></td>
+<td><strong>0.11</strong></td>
+</tr>
+<tr>
+<td>Indonesia</td>
+<td>0.35</td>
+</tr>
+<tr>
+<td>China</td>
+<td>0.44</td>
+</tr>
+<tr>
+<td>Brazil</td>
+<td>0.45</td>
+</tr>
+<tr>
+<td>United States</td>
+<td>2.51</td>
+</tr>
+</tbody></table>
+<p>India today sits roughly where China sat in 2008-2010. If India simply grows toward half of where China is today over the next 10 years, the domestic flyer count nearly doubles. If it matches China, it quadruples. That is the runway the widget is modeling.</p>
+<p>Sources: <a href="https://data.worldbank.org/indicator/IS.AIR.PSGR">World Bank</a>, <a href="https://www.transtats.bts.gov/">US BTS</a>, <a href="https://en.wikipedia.org/wiki/Aviation_in_India">Wikipedia Aviation in India</a>.</p>
+<h2 id="why-indigo-has-60-share">Why IndiGo has 60% share</h2><p>IndiGo is the market leader because it survived. Jet Airways collapsed in 2019. Go First grounded in May 2023 and never came back. SpiceJet runs at 3-4% share with a broken balance sheet. Akasa is growing but still small.</p>
+<p>What IndiGo does right, in plain terms:</p>
+<ul>
+<li>Flies one aircraft type (the Airbus A320 family) so pilots, maintenance, and spare parts are shared across the whole fleet.</li>
+<li>Buys aircraft cheap and leases them to finance companies who lease them right back (keeps debt light on paper).</li>
+<li>Holds the best time-slots at Delhi, Mumbai, Bengaluru, which smaller rivals can&#39;t profitably match.</li>
+</ul>
+<p>Current share trend:</p>
+<table>
+<thead>
+<tr>
+<th>Month</th>
+<th>IndiGo</th>
+<th>Air India Group</th>
+<th>Everyone else</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Aug 2025</td>
+<td>64.2%</td>
+<td>27.3%</td>
+<td>8.5%</td>
+</tr>
+<tr>
+<td>Dec 2025</td>
+<td>59.6%</td>
+<td>29.6%</td>
+<td>10.8%</td>
+</tr>
+</tbody></table>
+<p>Source: <a href="https://en.wikipedia.org/wiki/Aviation_in_India">Wikipedia Aviation in India</a>. The December dip is from a crisis we cover below.</p>
+<h2 id="airports-the-runway-is-being-paved">Airports: the runway is being paved</h2><p>India has about <strong>150 commercial airports operating today</strong>. The government&#39;s target is 200+ by the early 2030s, with UDAN-backed regional airports filling the gap.</p>
+<p>The specific numbers that matter for IndiGo:</p>
+<ul>
+<li>Today&#39;s airport capacity: roughly <strong>350 million passengers per year</strong> across the top metros.</li>
+<li>New capacity by 2027: roughly <strong>+100 million</strong> (Navi Mumbai opened Dec 2025, Noida-Jewar launching now, Delhi T1 rebuild done, Bengaluru T2 Phase 2 coming).</li>
+<li>By 2035: cumulative additions pass <strong>+200 million</strong> as these new airports scale to full size.</li>
+</ul>
+<p>In plain English: a country that handles ~184M domestic flyers today will soon have the runways, gates, and terminals to handle 500M+ without breaking. Slot scarcity, which has been IndiGo&#39;s quiet growth ceiling, is lifting right as its fleet deliveries ramp up. IndiGo is the designated launch carrier at Jewar alongside Akasa and Air India Express.</p>
+<h2 id="where-indigo-stands-right-now">Where IndiGo stands right now</h2><p><strong>The five-year picture (consolidated, ₹ cr):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Fiscal</th>
+<th>Revenue</th>
+<th>Profit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FY21 (pandemic)</td>
+<td>14,641</td>
+<td>(5,806)</td>
+</tr>
+<tr>
+<td>FY22</td>
+<td>25,931</td>
+<td>(6,162)</td>
+</tr>
+<tr>
+<td>FY23</td>
+<td>54,446</td>
+<td>(306)</td>
+</tr>
+<tr>
+<td>FY24</td>
+<td>68,904</td>
+<td>8,172</td>
+</tr>
+<tr>
+<td>FY25</td>
+<td>80,803</td>
+<td><strong>7,258</strong></td>
+</tr>
+<tr>
+<td>Last 12 months to Dec-25</td>
+<td>84,675</td>
+<td>3,211</td>
+</tr>
+</tbody></table>
+<p>The profit collapse in the last line is recent and deserves its own paragraph.</p>
+<p><strong>What happened in December 2025.</strong> India&#39;s aviation regulator (DGCA) introduced stricter crew-duty rules effective 2 December. IndiGo was understaffed for the new rules, cancelled about 4,500 flights in ten days, lost 717 airport time-slots to competitors, and booked a one-time hit of roughly ₹1,546 cr. Profit in the October-December 2025 quarter fell to <strong>₹549 cr</strong> from ₹2,448 cr a year earlier. The CEO, Pieter Elbers, resigned in March 2026. <a href="https://en.wikipedia.org/wiki/Willie_Walsh">Willie Walsh</a>, the outgoing head of the global airline industry body IATA, takes over as CEO in August 2026.</p>
+<p><strong>The fleet.</strong> 434 aircraft in August 2025, around 440 today. On order: roughly <strong>900 more aircraft</strong> spread across the next decade, the largest commercial aircraft order in history.</p>
+<p><strong>The valuation today (22 April 2026):</strong></p>
+<ul>
+<li>Share price: ₹4,641 (52-week range ₹3,895-6,232, so about 25% below the high).</li>
+<li>Market cap: ₹1.79 lakh cr (roughly US$19 billion).</li>
+<li>P/E ratio: 39x last-twelve-month earnings.</li>
+<li>Promoter holding: 41.6% (down from ~70% three years ago as co-founder Rakesh Gangwal&#39;s family has sold down).</li>
+</ul>
+<p>A P/E of 39x is richly valued for an airline. It means the market is paying for years of future growth, not for today&#39;s earnings alone.</p>
+<h2 id="what-could-break-the-thesis">What could break the thesis</h2><ul>
+<li><strong>Fuel prices</strong>. Jet fuel is 30-40% of an airline&#39;s costs and is priced in US dollars. A sustained oil spike compresses margins fast. IndiGo doesn&#39;t hedge fuel.</li>
+<li><strong>Rupee weakness</strong>. Aircraft leases, fuel, and some maintenance are all dollar-linked. The rupee moved from ~83 to ~93 against the dollar over eighteen months, and that alone contributed to the Q3 FY26 profit drop.</li>
+<li><strong>Slot loss overhang</strong>. The 717 slots IndiGo gave up in December are now being redistributed. How many come back matters a lot.</li>
+<li><strong>Air India is no longer a joke</strong>. After the Tata takeover and merger with Vistara in late 2024, Air India has 189 aircraft, 570+ on order, and billions of rupees of fresh capital from Tata Sons and Singapore Airlines. It&#39;s still loss-making but it&#39;s no longer weak.</li>
+<li><strong>International expansion is unproven</strong>. IndiGo&#39;s long-haul widebody aircraft (the A350) start arriving in 2027. Long-haul flying is a different business from cheap domestic hops, dominated by Gulf carriers and Singapore Airlines.</li>
+<li><strong>Regulator risk</strong>. The same DGCA that fined IndiGo and took slots away can do more. A parliamentary panel summoned the airline after the December crisis.</li>
+</ul>
+<h2 id="what-to-watch">What to watch</h2><p><strong>Signs the growth story is on track</strong>: share recovers above 60% and stays there, quarterly profit returns to pre-crisis levels by FY27, A350 deliveries land on time in 2027.</p>
+<p><strong>Signs it isn&#39;t</strong>: share drifts below 55% for a year, profit margin stays compressed from fuel or rupee weakness, Air India&#39;s domestic share crosses 35%, or the A350 program slips by more than a year.</p>
+<p>This post is not a buy, sell, or hold recommendation. The widget lets you plug in your own assumptions and see what they imply. The story beneath the widget is about whether those assumptions are defensible. Both parts matter.</p>
+<p><strong>Sources and further reading:</strong></p>
+<ul>
+<li><a href="https://www.goindigo.in/information/investor-relations.html">IndiGo investor relations</a></li>
+<li><a href="https://www.dgca.gov.in/digigov-portal/">DGCA monthly market share</a></li>
+<li><a href="https://www.airbus.com/en/products-services/commercial-aircraft/global-market-forecast">Airbus Global Market Forecast</a></li>
+<li><a href="https://data.worldbank.org/indicator/IS.AIR.PSGR">World Bank air transport data</a></li>
+</ul>
+<p>All figures as of 23 April 2026 unless noted.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>A Practical Cost Checklist for Agent and Harness Engineering</title>
+      <link>https://dipkumar.dev/posts/agents/agent-harness-cost-checklist/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/agents/agent-harness-cost-checklist/</guid>
+      <pubDate>Mon, 20 Apr 2026 18:30:00 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation.</description>
+      <category>agents</category>
+      <category>harness</category>
+      <category>cost</category>
+      <category>engineering</category>
+      <content:encoded><![CDATA[<p><img src="/static/blog_photos/agent-harness-cost-checklist/hero.webp" alt="Abstract hero image showing modular agent systems, token flows, and cost-control checkpoints in a minimal monochrome style with indigo accents"></p>
+<h2 id="tldr-checklist">TLDR: Checklist</h2><ul>
+<li><input disabled="" type="checkbox"> <strong>Make prompt caching actually work: stabilize the prefix and verify hit rates.</strong>
+Keep reusable system prompts and shared chat history stable so the cache has something to hit. Track hit rates, and use provider-specific cache controls when they actually improve savings.</li>
+<li><input disabled="" type="checkbox"> <strong>Re-evaluate your default model.</strong>
+The easiest cost win is often switching to a cheaper model that still clears your quality bar on your own eval set.</li>
+<li><input disabled="" type="checkbox"> <strong>Right-size the output: reasoning budget and visible tokens.</strong>
+Output tokens are the most expensive tokens you generate. Match both the reasoning budget and the visible response length to the task. Routing does not deserve deep thinking or a paragraph.</li>
+<li><input disabled="" type="checkbox"> <strong>Move offline work to batch or flex lanes.</strong>
+Evals, backfills, enrichment, and asynchronous jobs should not be priced like interactive traffic.</li>
+<li><input disabled="" type="checkbox"> <strong>Compact context mid-run.</strong>
+Long agent runs keep paying for the same tool outputs and failed turns on every subsequent call. Compaction collapses stale history into summaries so you stop re-paying for yesterday&#39;s context on today&#39;s call.</li>
+<li><input disabled="" type="checkbox"> <strong>Fix your tools: load less, return less, regenerate less.</strong>
+Attaching every tool inflates the prompt before the agent starts. Giant payloads inflate the next call after. And for edit-heavy workflows, regenerating the whole output when most of it is unchanged wastes tokens you never needed to produce.</li>
+<li><input disabled="" type="checkbox"> <strong>Make fewer requests and parallelize independent work.</strong>
+A lot of agent cost comes from orchestration shape: too many round trips, too many retries, and too much sequential work.</li>
+<li><input disabled="" type="checkbox"> <strong>Collect traces and read them like a cost report.</strong>
+Without traces, you do not know where the repeated waste actually is.</li>
+<li><input disabled="" type="checkbox"> <strong>Cap the blast radius.</strong>
+One runaway loop, retry storm, or misconfigured thinking budget can 100x a session&#39;s cost before anyone notices. Hard caps on tokens, tool calls, retries, and spend turn unbounded worst cases into bounded ones.</li>
+<li><input disabled="" type="checkbox"> <strong>Do not default to an LLM when deterministic logic is enough.</strong>
+The cheapest token is the one you never send.</li>
+<li><input disabled="" type="checkbox"> <strong>Turn good traces into cheaper task-specific models.</strong>
+Once the basics are clean, distillation or fine-tuning can move repeated workflows onto smaller models.</li>
+</ul>
+<h2 id="introduction">Introduction</h2><p>Once you hit a certain scale, LLM cost becomes a significant part of your overall cost. You cannot ignore it anymore.
+The customer acquisition phase is over, and now you are in the growth phase. You need to know your COGS (Cost of Goods Sold) and make sure the product can stay profitable. This is a simple checklist to help with that. I have ordered it so you can start with the easy wins and then move toward the more complex work.</p>
+<p>This is not a silver bullet, and any engineer who has worked on agent systems already knows some of these things. But it is still a good place to start.</p>
+<h3 id="1-make-prompt-caching-actually-work-stabilize-the-prefix-and-verify-hit-rates">1. Make prompt caching actually work: stabilize the prefix and verify hit rates</h3><p>This is the first thing I would check because it is one of the highest-leverage fixes and it is often half-done.
+There are really two parts here, and both matter.</p>
+<p><strong>First, keep the prefix stable.</strong> Prompt caching only works when the reusable prefix stays identical. If you keep changing the system prompt, tool order, or early context, there is nothing for the cache to hit.</p>
+<p>Teams often destroy cacheability by accident:</p>
+<ul>
+<li>injecting the exact timestamp into the system prompt on every request, even when the current date or a coarse time window would be enough</li>
+<li>adding volatile session metadata high in the prompt</li>
+<li>changing tool definitions or tool order between turns</li>
+<li>stuffing retrieval output ahead of stable instructions</li>
+</ul>
+<p>Caching is not magic. You also need to understand how your provider actually implements it. Some providers let you control TTL. Some need explicit cache breakpoints. Some distinguish between implicit and explicit caching. If you do not understand the mechanism, it becomes very easy to think caching is enabled while getting little value from it.</p>
+<p><strong>Second, verify it is working.</strong> A lot of teams clean up the prompt and then never look at the numbers. That means they feel better about caching without knowing whether they actually saved anything. If you already have observability in place, there is a good chance cache-hit data is available somewhere. You just have to look at it routinely.</p>
+<p>Questions to ask:</p>
+<ul>
+<li>what is the cache-hit ratio?</li>
+<li>which workflows, agents, or model calls have low cache-hit ratios?</li>
+<li>how much latency and cost benefit are we actually getting from caching?</li>
+</ul>
+<p>If you do not measure cache hits, you do not know whether this section is helping or just sounding smart.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI prompt caching</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching">Anthropic prompt caching</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/caching/">Google Gemini context caching</a></li>
+</ul>
+<h3 id="2-re-evaluate-your-default-model">2. Re-evaluate your default model</h3><p>This is often the cheapest win because one model switch can change every request that follows.
+Too many teams launch with the strongest model available, get the product working, and then never revisit the choice. That is fine in the early stage. It gets expensive later.</p>
+<p>Be empirical, not sentimental:</p>
+<ul>
+<li>test a smaller model against your real workload</li>
+<li>do not trust a handful of cherry-picked prompts</li>
+<li>do not assume the model you launched with is still the right price/performance call</li>
+</ul>
+<p>Public trackers can help you shortlist candidates, but the real answer has to come from your own eval set. A leaderboard is useful for a first pass. It should not make the final decision for you. Smaller open-source models are also getting better quickly, so they are worth considering if your workload and deployment constraints allow it.</p>
+<p>Before building a router, before rewriting the harness, before talking about fine-tuning: if you swapped this model tomorrow, would users notice enough quality loss to justify the bill?</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://docs.anthropic.com/en/docs/prompt-engineering">Anthropic prompt engineering</a></li>
+<li><a href="https://platform.openai.com/docs/guides/cost-optimization">OpenAI cost optimization</a></li>
+<li><a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis model leaderboard</a></li>
+</ul>
+<h3 id="3-right-size-the-output-reasoning-budget-and-visible-tokens">3. Right-size the output: reasoning budget and visible tokens</h3><p>Most teams focus on input context and forget that output is where a lot of the bill shows up. In practice, you usually have two dials here, and both need to be controlled.</p>
+<p><strong>First dial: the reasoning budget.</strong> Not every step deserves heavy thinking. Code synthesis, planning, and ambiguous research may need it. Routing, classification, extraction, and simple transforms usually do not.</p>
+<p>If you are using a reasoning-capable model for lightweight internal steps, there is a good chance you are overspending.</p>
+<ul>
+<li>hard planning, code synthesis, multi-hop reasoning, or ambiguous research may deserve more thinking</li>
+<li>routing, filtering, extraction, and straightforward transforms usually deserve less</li>
+</ul>
+<p>Check your thinking budgets explicitly. If everything is set to ultra thinking by default, there is a good chance you are burning money on tasks that do not need it. Newer models do offer adaptive thinking, and that is a good start, but if you know your domain well, you should still set deliberate limits instead of delegating the whole decision to the model.</p>
+<p><strong>Second dial: the visible response.</strong> A lot of harnesses ask for much more text than the next step or the user actually needs.</p>
+<ul>
+<li>tell the model to be brief when brevity is acceptable</li>
+<li>cap outputs with <code>max_tokens</code> or stop conditions where the task allows it</li>
+<li>shorten structured output field names</li>
+<li>collapse verbose schemas where you can</li>
+<li>avoid asking for prose when a compact label or JSON field is enough</li>
+</ul>
+<p>The rule is simple: match the budget to the task. If the internal step only needs a label, do not pay for hidden reasoning and a paragraph of visible prose.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking">Anthropic extended thinking</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/thinking">Google Gemini thinking</a></li>
+<li><a href="https://platform.openai.com/docs/guides/latency-optimization">OpenAI latency optimization</a></li>
+</ul>
+<h3 id="4-move-offline-work-to-batch-or-flex-lanes">4. Move offline work to batch or flex lanes</h3><p>A surprising amount of agent traffic is not interactive, but many teams still price it as if a user is waiting on every request.</p>
+<p>Nightly eval runs, enrichment pipelines, backfills, report generation, and large review jobs do not need low-latency serving. If a workflow can wait, move it to a slower and cheaper lane.</p>
+<p>This is a clean win because it does not require better prompts, better models, or smarter agents. It usually just requires queue separation and the discipline not to mix interactive and offline traffic.</p>
+<p>If a workflow can wait minutes or hours, it should not be priced like a user-facing request. It is also worth checking provider pricing carefully here, because discounts, batch modes, and slower compute lanes are not packaged the same way across vendors.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://openai.com/api/pricing/">OpenAI API pricing</a></li>
+<li><a href="https://platform.openai.com/docs/guides/cost-optimization">OpenAI cost optimization</a></li>
+<li><a href="https://platform.openai.com/docs/guides/flex-processing?api-mode=chat">OpenAI Flex processing</a></li>
+</ul>
+<h3 id="5-compact-context-mid-run">5. Compact context mid-run</h3><p>Section 1 was about the stable prefix. This section is about the growing middle that keeps getting bigger during a long run. There are many ways to implement compaction, and you should choose the one that best fits your system.</p>
+<p>Long agent runs quietly accumulate cost inside the context window itself. Every tool output, every failed attempt, and every old decision gets re-sent on later calls. That means the model keeps paying to reread things that are no longer useful.</p>
+<p>Compaction fixes this by replacing stale history with a shorter summary while keeping the recent turns verbatim. The goal is not to remove useful context. The goal is to stop paying rent on dead context.</p>
+<p>Practical moves:</p>
+<ul>
+<li>summarize older turns when the context crosses a token threshold</li>
+<li>drop stale tool outputs once their result has been consumed downstream</li>
+<li>keep the last few turns verbatim so the model still has recent grounding</li>
+<li>write durable facts to an external memory instead of re-sending them every turn</li>
+</ul>
+<p>The test: pick a long session and look at the input token count on the last call. If most of it is material the model no longer needs, you are paying rent on dead context.</p>
+<h3 id="6-fix-your-tools-load-less-return-less-regenerate-less">6. Fix your tools: load less, return less, regenerate less</h3><p>Tools create cost before the call, during the call, and after the call. Most harnesses let all three happen without much control. And when I say tools here, I also mean MCP servers and skills. The same cost patterns apply there too.</p>
+<p><strong>Load less.</strong> Attaching the full tool catalog to every request is a token tax before the model does anything. Start with a smaller default set and load specialized tools only when they are actually needed.</p>
+<ul>
+<li>do not attach every tool to every task</li>
+<li>keep a small default toolset</li>
+<li>defer specialized tools until they are needed</li>
+<li>keep tool descriptions tight enough that the model does not thrash</li>
+</ul>
+<p><strong>Return less.</strong> In many harnesses, the expensive part is not the model alone. It is the amount of junk you keep feeding back into it. Tool calls often return full HTML when only two fields matter, giant JSON blobs when only one status matters, or verbose repeated metadata across every step.</p>
+<p>Audit a few traces and ask:</p>
+<ul>
+<li>what is the minimum useful tool result?</li>
+<li>what can be summarized outside the model?</li>
+<li>do I need to send the full output, or only the parts that are actually useful to the model?</li>
+<li>can I send only the changes instead of the whole payload?</li>
+<li>what can be filtered, truncated, or schema-compressed safely?</li>
+</ul>
+<p>If your tools return more than the next step needs, you pay twice: once to fetch the data and again to force the model to read it. This topic is deep enough for its own post, but even a basic audit here can remove a surprising amount of waste.</p>
+<p><strong>Regenerate less.</strong> For edit-heavy workflows like code assistants and document pipelines, do not regenerate the whole answer when only a small delta changed. If most of the file or response is stable, optimize for the change, not the entire output.</p>
+<p>Also move loops, conditionals, and simple transforms into code where possible. Every repeated control-flow step you take out of prompt context is one less thing the model has to re-read.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/advanced-tool-use">Anthropic advanced tool use</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/token-efficient-tool-use">Anthropic token-efficient tool use</a></li>
+<li><a href="https://platform.openai.com/docs/guides/latency-optimization">OpenAI latency optimization</a></li>
+<li><a href="https://platform.openai.com/docs/guides/predicted-outputs">OpenAI Predicted Outputs</a></li>
+</ul>
+<h3 id="7-make-fewer-requests-and-parallelize-independent-work">7. Make fewer requests and parallelize independent work</h3><p>This is especially common in larger organizations, where many teams work on different parts of the same product and extra LLM steps get added over time. A lot of agent cost comes from orchestration shape, not single-call pricing.
+Too many systems keep making extra requests because the flow was designed step by step and never simplified later.</p>
+<p>Many harnesses quietly do too much:</p>
+<ul>
+<li>one call to contextualize</li>
+<li>one call to decide whether to retrieve</li>
+<li>one call to route</li>
+<li>one call to summarize</li>
+<li>one call to format the answer</li>
+</ul>
+<p>Sometimes that decomposition is necessary. Often it is just habit.</p>
+<p>Two checks to start:</p>
+<ul>
+<li>can multiple sequential LLM steps be merged into one structured response?</li>
+<li>can independent steps run in parallel instead of serially?</li>
+</ul>
+<p>Every extra round trip adds cost, latency, and another place to fail. So this section is less about clever orchestration and more about removing unnecessary choreography.</p>
+<p>Speculative execution can also help when one path dominates and you can afford to start likely work early. It is not always the right choice, but it is worth testing in high-volume systems.</p>
+<h3 id="8-collect-traces-and-read-them-like-a-cost-report">8. Collect traces and read them like a cost report</h3><p>If you are not storing traces, you are guessing.</p>
+<p>Cost problems in agent systems are usually repetitive. The same failed retrieval path, the same tool loop, the same oversized context, the same retry storm, the same reasoning-heavy router call. Trace review is how you find those patterns.</p>
+<p>At this stage, the goal is not abstract observability. The goal is operational clarity.
+You want to answer questions like these:</p>
+<ul>
+<li>where are the tokens going?</li>
+<li>where are the repeated failures?</li>
+<li>which steps are low-value but high-cost?</li>
+<li>which prompts or tools trigger long outputs again and again?</li>
+</ul>
+<p>Once you have traces, you can do something much more valuable than general optimization: targeted removal of repeated waste.</p>
+<p>Traces also expose the worst-case shapes that the next section is built to bound.</p>
+<p>This is also where traces become more than a debug tool. They become a decision tool. Good trace review tells you whether the real problem is retrieval quality, an oversized tool payload, an overthinking router, a retry storm, or a prompt that keeps pushing the model into unnecessary work. Once you can see that clearly, the next optimization step becomes much easier to choose.</p>
+<h3 id="9-cap-the-blast-radius">9. Cap the blast radius</h3><p>Every item so far is about reducing cost. This one is different: it is about bounding the <em>worst case</em>.</p>
+<p>This section is less about saving 10 percent and more about avoiding the day you wake up to a bill that is 10x higher than expected.</p>
+<p>Agents fail expensively when they fail. A misconfigured thinking budget, a tool that loops on itself, a retry policy with no ceiling, or a malformed structured output that keeps triggering retries can blow up the bill very quickly.</p>
+<p>Hard caps, enforced at the harness level, are the only reliable defense. They do not need to be clever. They need to exist.</p>
+<ul>
+<li>max tokens per user turn</li>
+<li>max tool calls per task</li>
+<li>max retries per tool, not just globally</li>
+<li>max reasoning budget per call</li>
+<li>max retrieval fan-out</li>
+<li>max cost per user per day, with a circuit breaker that degrades gracefully</li>
+</ul>
+<p>Structured outputs belong in this chapter too. Provider-native JSON mode, tool-call schemas, and grammar-constrained decoding reduce the malformed-output-to-retry loop. The main win is not shorter responses. The main win is avoiding repeated failure traffic.</p>
+<p>This is not optimization. It is blast-radius control. Treat it like a production safety requirement, not a cost-engineering side quest.</p>
+<p>A useful test: if a single malformed prompt triggered your agent to loop forever, how much would it cost before something stopped it? If you do not know, that is the number you are exposed to.</p>
+<h3 id="10-do-not-default-to-an-llm-when-deterministic-logic-is-enough">10. Do not default to an LLM when deterministic logic is enough</h3><p>This is not glamorous, but it is one of the cleanest long-term cost controls.</p>
+<p>If a step is deterministic, rule-based, or cheap to implement directly, every avoided model call is a permanent win.</p>
+<p>Common examples:</p>
+<ul>
+<li>checking whether an order value crosses a threshold before routing to a human</li>
+<li>validating whether a payload matches schema before asking the model to repair it</li>
+<li>routing straightforward requests like password reset, pricing, or account status without an LLM in the loop</li>
+<li>applying guardrails and policy checks before the model ever sees the request</li>
+<li>returning precomputed outputs for constrained inputs instead of regenerating them every time</li>
+<li>rendering structured UI states directly instead of asking the model to narrate what the UI already knows</li>
+</ul>
+<p>That last one matters more than it seems. Many harnesses ask the model to produce prose the user does not need. If the output is structured or predictable, render it. Do not narrate it just because a language model can.</p>
+<p>The cheapest token is the one you never send.</p>
+<h3 id="11-turn-good-traces-into-cheaper-task-specific-models">11. Turn good traces into cheaper task-specific models</h3><p>If you are still at seed stage and just trying to get the core product working, this is usually not where your time should go. This is probably the most expensive step in the checklist, and it is not for everyone.</p>
+<p>This step comes with a real caveat: it only makes sense at a certain scale and with actual funding behind it.</p>
+<p>The rough loop is simple:</p>
+<ol>
+<li>get a strong prompt working on a frontier model</li>
+<li>capture high-quality outputs on real tasks</li>
+<li>build a dataset from those outputs</li>
+<li>fine-tune or distill into a smaller model for that task</li>
+</ol>
+<p>On paper that is clean. In practice, provider fine-tuning costs money upfront and requires prepaid credits or committed spend. If you are not running thousands of calls per day on the same task shape, the savings rarely justify the engineering and compute bill.</p>
+<p>Going further and fine-tuning your own open-source 7B–20B model is a completely different game. You need GPU infrastructure, data pipelines, evaluation harnesses, and ML engineering bandwidth. Some teams get there and it pays off. Most teams are not there yet, and spending time here before the earlier steps are clean is a mistake.</p>
+<p>The gap between &quot;pay the provider for a closed fine-tune&quot; and &quot;run your own GPU cluster&quot; has narrowed a lot. Managed APIs like Thinking Machines&#39; Tinker, Together AI, and Fireworks now expose LoRA fine-tuning over open-weight models like Qwen, Llama, and DeepSeek while handling the distributed training infrastructure. You keep the weights, which means the resulting model is portable across inference providers. If you have GPU access and want to run it yourself, libraries like Unsloth and Hugging Face PEFT make LoRA and QLoRA tractable on modest hardware.</p>
+<p>None of this removes the need for a real eval set, a real dataset, and real ML judgment. It just lowers the activation energy. Pair these tools with techniques like on-policy distillation when a smaller student model needs to match a larger teacher on a specific task shape.</p>
+<p>The honest default: if you have a high-volume, stable, repeating task and enough budget to run the experiment properly, investigate it. If you do not, skip this and spend the effort on something earlier in the list.</p>
+<p><strong>Define success criteria before you start.</strong> Without a clear quality floor, distillation is just guesswork.</p>
+<p><strong>If you want to go deeper:</strong></p>
+<p><em>Managed LoRA fine-tuning over open-weight models:</em></p>
+<ul>
+<li><a href="https://thinkingmachines.ai/tinker/">Thinking Machines Tinker</a></li>
+<li><a href="https://docs.together.ai/docs/fine-tuning-overview">Together AI fine-tuning</a></li>
+<li><a href="https://docs.fireworks.ai/fine-tuning/fine-tuning-models">Fireworks AI fine-tuning</a></li>
+</ul>
+<p><em>Self-hosted LoRA / QLoRA:</em></p>
+<ul>
+<li><a href="https://github.com/unslothai/unsloth">Unsloth</a></li>
+<li><a href="https://huggingface.co/docs/peft/index">Hugging Face PEFT</a></li>
+</ul>
+<p><em>Technique and closed-weight distillation:</em></p>
+<ul>
+<li><a href="https://thinkingmachines.ai/blog/lora/">Thinking Machines: LoRA Without Regret</a></li>
+<li><a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines: On-Policy Distillation</a></li>
+<li><a href="https://platform.openai.com/docs/guides/distillation">OpenAI distillation guide</a></li>
+</ul>
+<h3 id="closing-thought">Closing thought</h3><p>I kept this checklist deliberately abstract. Provider APIs, pricing pages, and reasoning parameters change every few months. The underlying failure modes (unstable prefixes, oversized tool payloads, unbounded loops, narrating instead of rendering) do not. A checklist that names a specific product would be out of date by the next quarter. One that names a pattern stays useful for longer.</p>
+<p>That abstraction also makes the checklist easy to use with agentic coding tools. You can paste one or two bullets from here into Claude Code, Cursor, or a similar assistant, point it at your harness code, and let it hunt. Prompts as simple as <em>&quot;check whether anything in our system prompt would invalidate prompt caching&quot;</em> or <em>&quot;find places where we attach the full tool catalog to every request&quot;</em> are usually enough to surface real issues. Agents are good at pattern-matching the structural problems this checklist describes. They are less good at judging whether a proposed fix actually saved money. That still needs traces and numbers from production.</p>
+<p>So treat this as a review rubric, not a recipe. Walk the list, delegate the mechanical parts to an agent, look at traces where the question is quantitative, and leave the deeper engineering work (routing layers, fine-tuning, distillation) until after the boring work is done. Most cost problems in agent systems are not glamorous. They begin with sloppy harness decisions, and the cheapest token is still the one you never send. </p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Agents Can Reason. They Still Can&apos;t Really Search.</title>
+      <link>https://dipkumar.dev/posts/agents/agent-search-problem/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/agents/agent-search-problem/</guid>
+      <pubDate>Mon, 16 Mar 2026 18:30:00 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Agents have a search problem across the whole stack: web search, RAG, tool discovery, skills/workflow loading, and even context compaction.</description>
+      <category>agents</category>
+      <category>rag</category>
+      <category>search</category>
+      <category>mcp</category>
+      <category>llm</category>
+      <content:encoded><![CDATA[<p>Modern agents can write code, call APIs, draft a memo, and pass a benchmark. That part is real. Put one in front of a clean, well-scoped task and it can look genuinely magical.</p>
+<p>Then you ask it to do something normal.</p>
+<p>Find the pricing page for a competitor that just relaunched their site. Pull a clause from a regulatory filing hidden inside a government portal. Answer a question that requires connecting facts spread across three internal docs written by people who already left the company. Deploy to an infrastructure setup with custom flags, a weird CI config, and a workaround for a flaky pre-push hook that somebody documented once in a Notion page nobody can find. Or just pick the right tool from a catalog of sixty. </p>
+<p>This is where things start falling apart.</p>
+<p>Not because the model suddenly forgot how to reason. Not because the prompt is missing some sacred incantation. The failure is more basic than that, and once you see it, you start seeing the same bug everywhere.</p>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Trying to get OpenClaw agents to do useful work is like trying to win at trading crypto - only the top 1% win.<br><br>The rest of us end up being the lobster meat for the host in the shell.<br><br>OpenClaw agents are terrible at executing complex multi step processes that require delegation.…</p>&mdash; Brad Mills 🔑⚡️ (@bradmillscan) <a href="https://twitter.com/bradmillscan/status/2028588309111546151?ref_src=twsrc%5Etfw">March 2, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<h2 id="the-recurring-bottleneck-is-search">The recurring bottleneck is search</h2><p>Search here means one simple thing: before an agent can reason well, it has to find the right thing.</p>
+<p>That &quot;thing&quot; might be:</p>
+<ul>
+<li>a source on the public web</li>
+<li>a useful chunk from your private docs</li>
+<li>the right tool or MCP action</li>
+<li>the right skill or procedure</li>
+<li>the relevant part of a long context window</li>
+</ul>
+<p>Agents fail on real-world tasks because they keep running into this problem in different places. If any one of those breaks, the whole task usually breaks with it.</p>
+<p><img src="/static/blog_photos/agent-search-problem/harness.png" alt="agentic-harness"></p>
+<p>You can see the same pattern in a few different places:</p>
+<ul>
+<li>web and external search</li>
+<li>knowledge retrieval over private documents</li>
+<li>tool and MCP discovery</li>
+<li>skill and procedure loading</li>
+<li>navigation inside long context itself</li>
+</ul>
+<p>That last category matters more than it seems. A context window is only useful if the model can find the right thing inside it at the right time. Bigger context windows do not remove search. They just move search inside the model.</p>
+<!-- DIAGRAM 1: Five Search Layers (main taxonomy)
+Excalidraw instructions:
+- "User Query" box on far left, arrow pointing right into a vertical stack of 5 labeled boxes:
+    1. Web / External Search      — subtitle: "find + access + extract"
+    2. Knowledge Retrieval (RAG)  — subtitle: "similarity ≠ usefulness"
+    3. Tool Discovery (MCP)       — subtitle: "50k tokens before first query"
+    4. Skill / Procedure Loading  — subtitle: "rediscovery is expensive"
+    5. Context Navigation         — subtitle: "bigger window = larger search space"
+- Arrow exits the stack to "Agent Answer" box on far right
+- Style: clean monochrome, rounded corners, muted subtitle text
+-->
+
+<p>The rest of this post walks through each one.</p>
+<h2 id="problem-1-the-web-was-not-built-for-agents">Problem 1: The web was not built for agents</h2><p>Let&#39;s start with the obvious version of the problem: web search.</p>
+<p>Agents need web search for very ordinary reasons:</p>
+<ul>
+<li>a personalized daily digest has to know what happened today, not at pretraining cutoff</li>
+<li>a market-monitoring agent has to track competitor pricing, product launches, and changelogs</li>
+<li>a research agent has to verify claims against primary sources</li>
+<li>a shopping or travel agent has to compare pages that change constantly</li>
+<li>a coding agent has to read the latest docs, issues, and release notes</li>
+</ul>
+<p>In other words, the minute the task depends on freshness, verification, or public evidence, the agent needs the web.</p>
+<p>Most teams assume this part is already solved. Add a built-in web search tool, get citations back, move on.</p>
+<p>But web search for an agent is not a simple lookup. It is a pipeline:</p>
+<ul>
+<li>come up with the right query</li>
+<li>pick the right source</li>
+<li>actually load the page</li>
+<li>render it if JavaScript is involved</li>
+<li>extract the useful part from noisy HTML</li>
+<li>decide whether the evidence is enough</li>
+<li>refine the query and try again if needed</li>
+</ul>
+<p>Any one of those steps can fail.</p>
+<p>Consider a founder building a competitive intelligence agent. The agent finds the right company page. The page is JavaScript-rendered. Cloudflare is blocking the headless browser. The content that matters is behind a soft login wall. The web search tool returned the URL. Getting what is actually on the page is a different product entirely, which is why <a href="https://docs.browserbase.com/features/stealth-mode">Browserbase</a> sells stealth mode, CAPTCHA solving, proxies, and even highlights its <a href="https://www.browserbase.com/blog/browserbase-cloudflare">Cloudflare signed agents</a> work. That product exists because the failure mode is real and systematic.</p>
+<p>Agents do not browse the web the way humans do. They negotiate with it.</p>
+<!-- DIAGRAM 2: First-wave retrieval vs. agentic retrieval
+Excalidraw instructions:
+- Two columns side by side with a header row
+- Left column "Static Retrieval":
+    linear chain with flat arrows: Query → Embed → Top-K Chunks → Append to Prompt → Answer
+- Right column "Agentic Retrieval":
+    loop with curved arrows: Query → Search → Evaluate → diamond "enough?"
+      → Yes branch: Answer
+      → No branch: "Refine" → back to Search
+- Label the loop arrow on the right "iterative"
+- Visual feel: left side is flat and linear, right side is dynamic with a visible loop
+-->
+
+<p>The managed web search tools from frontier labs such as OpenAI, Anthropic, and Google are useful. They return citations, handle some of the pipeline, and are now billed as explicit line items separate from model tokens. OpenAI and Anthropic both price web search at $10 per 1,000 searches. That pricing signal matters. The industry has already admitted that retrieval is not some free background utility. It is its own product surface with its own cost structure.</p>
+<p>But even with those tools, the hard part is not fully solved. Provider-native search is great when you want &quot;an answer with citations.&quot; It is much weaker when you need repeated monitoring, raw page access, extraction from messy sites, deeper iteration, or a reliable fetch primitive inside your own agent stack. A competitor-tracking agent, for example, does not just need a summarized answer. It needs the actual pricing page, the changed sections, maybe the FAQ, maybe the release notes, and often the raw content for comparison over time.</p>
+<p>That gap is exactly why <a href="https://firecrawl.dev">Firecrawl</a>, <a href="https://exa.ai">Exa</a>, <a href="https://tavily.com">Tavily</a>, and <a href="https://parallel.ai/products/search">Parallel</a> exist. Firecrawl&#39;s own <a href="https://docs.firecrawl.dev/features/search">search API</a> exposes <code>scrapeOptions</code> because &quot;find the page&quot; and &quot;get the useful content&quot; are different operations. Parallel makes the same point from another angle: its <a href="https://docs.parallel.ai/search/search-quickstart">Search API</a> is pitched as collapsing the traditional search -&gt; scrape -&gt; extract pipeline into one API, and its <a href="https://docs.parallel.ai/integrations/mcp/search-mcp">Search MCP</a> exposes <code>web_search</code> and <code>web_fetch</code> as the basic primitives for agents. Their product language is useful because it indirectly admits the same thing: agent search is not just ranking links. It is discovery plus access plus extraction plus compression for the next reasoning step.</p>
+<h2 id="problem-2-rag-solved-the-easy-slice">Problem 2: RAG solved the easy slice</h2><p>Now let&#39;s move one layer inward.</p>
+<p>The first generation of retrieval-augmented generation made the problem look tractable. Embed your documents, store vectors, retrieve the top-k most similar chunks, append them to the prompt. For narrow, well-scoped, single-hop questions over a clean corpus, this works.</p>
+<p>It breaks on anything harder.</p>
+<p>Suppose you build a technical QA system over internal docs. Single-hop questions work well. Then someone asks a question that requires connecting a constraint described in one document with a definition from another and a caveat buried in a third. Cosine similarity returns three chunks that look individually relevant, but they do not compose into an answer. The model finds each piece, but the retrieval step never actually bridges the gap between them.</p>
+<p>This failure is not accidental. It is structural. Similarity is not the same as usefulness. A chunk can be semantically close to a query and still be useless for the final answer. Another chunk can look semantically distant and still be essential for a reasoning step three hops later. This is exactly why IRCoT (interleaving retrieval with chain-of-thought, ACL 2023) and Self-RAG exist as research directions. One-shot retrieve-then-read hit a real ceiling, so the field moved toward iterative and adaptive retrieval.</p>
+<p>So the evolution is straightforward:</p>
+<ul>
+<li>simple RAG: retrieve once, read once</li>
+<li>better RAG: retrieve, reflect, and try again</li>
+<li>agentic RAG: break the problem apart, search in parallel, merge evidence, decide whether more search is needed</li>
+</ul>
+<p>This is why &quot;agentic RAG&quot; is now becoming a product surface, not just a paper idea. Azure AI Search now has <a href="https://learn.microsoft.com/en-us/azure/search/search-agentic-retrieval-concept">agentic retrieval</a>, where an LLM breaks a complex query into smaller subqueries, runs them in parallel, and merges the result. Their own example is basically a multi-hop retrieval problem in plain English: &quot;find me a hotel near the beach, with airport transportation, and that&#39;s within walking distance of vegetarian restaurants.&quot; That kind of query is awkward for classic one-shot retrieval, but much better suited to query decomposition plus parallel search.</p>
+<p><img src="/static/blog_photos/agent-search-problem/agentic-rag.png" alt="Agentic RAG"></p>
+<p>So yes, agentic RAG is solving a real problem. It is helping with multi-hop questions, multi-ask queries, and situations where the original user query is too broad or under-specified for one retrieval pass.</p>
+<p>But it is still far from fully solved.</p>
+<p>Even after you decompose a question well, a bunch of hard problems remain:</p>
+<ul>
+<li>the needed source might not be indexed at all</li>
+<li>the relevant page might be stale, contradictory, or poorly chunked</li>
+<li>the evidence might live across text, tables, and UI state instead of neat paragraphs</li>
+<li>one subquery can retrieve locally relevant passages that are still useless for the final answer</li>
+<li>the system still has to decide when it has enough evidence and when to keep searching</li>
+<li>each extra retrieval step adds latency and cost</li>
+</ul>
+<p>Microsoft&#39;s own <a href="https://learn.microsoft.com/en-us/azure/search/search-agentic-retrieval-concept">agentic retrieval docs</a> say the LLM-based query planning adds latency, even if parallel execution helps compensate. That tradeoff is important. Agentic RAG is not a free accuracy upgrade. It is a better search policy with more moving parts.</p>
+<p>A very normal real-world example is enterprise support. A user asks: &quot;Does our enterprise plan support SSO for contractors, what changed in the last release, and are there regional limits for EU tenants?&quot; The answer might live across pricing docs, old help-center pages, release notes, and an internal policy page. Agentic RAG is clearly better than one-shot top-k retrieval here because it can break the question apart. But it can still fail if one of those sources is stale, if the important caveat is hidden in a table, or if the retrieval system stops after finding something merely plausible.</p>
+<p>And this gets worse as the organization gets bigger.</p>
+<p>At small scale, RAG usually fails in understandable ways: bad chunking, weak embeddings, poor prompts. At big-company scale, it starts failing for more boring reasons:</p>
+<ul>
+<li>the same fact exists in five places, but only one copy is current</li>
+<li>permissions mean the best document exists, but the system cannot show it to this user</li>
+<li>different teams store knowledge in different tools with different metadata quality</li>
+<li>highly selective filters improve security but can hurt recall or latency</li>
+<li>constant document churn means the index is always racing reality</li>
+<li>vector storage and query cost stop being abstract and start becoming infrastructure constraints</li>
+</ul>
+<p>This is why enterprise search products like <a href="https://www.glean.com/searchengine">Glean</a> keep emphasizing 100+ connectors and real-time permissions-aware retrieval. They are not doing that for marketing decoration. They are reacting to the actual shape of the problem inside big companies: knowledge is fragmented across Slack, Confluence, Jira, Google Drive, Notion, wikis, tickets, PDFs, and internal apps, and the permission model is part of retrieval, not an afterthought.</p>
+<p>Even the lower-level search infrastructure shows the same pain. Azure AI Search&#39;s <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-filters">vector filter documentation</a> explicitly calls out a tradeoff between filtering, recall, and latency, and notes that some filter modes can produce false negatives for selective filters or small <code>k</code>. That matters a lot in enterprises because security and access control are often implemented as filters. So the retrieval system is not just trying to find the most relevant passage. It is trying to find the most relevant passage among the subset this user is allowed to see, while still being fast enough to feel interactive.</p>
+<p>There is also a scale tax on the index itself. Azure documents <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-index-size">vector index size limits</a> and <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-storage-options">storage tradeoffs</a> because large corpora consume memory and can require multiple stored copies depending on the workload. So even before the model starts reasoning, the retrieval layer is already trading off freshness, cost, recall, latency, and access control. A very normal enterprise question like &quot;What is the current travel reimbursement policy for contractors in Germany?&quot; can span an HR PDF, a newer policy page, a regional addendum, a legal exception in shared drive, and a stale Slack workaround. The hard part is not generating the answer. The hard part is finding the newest authoritative source and ignoring the plausible but outdated ones.</p>
+<p>RAG treated retrieval like a database lookup. Agentic systems reveal that retrieval is closer to exploration.</p>
+<h2 id="problem-3-mcp-and-tools-moved-the-problem-up-the-stack">Problem 3: MCP and tools moved the problem up the stack</h2><p>The Model Context Protocol gave agents a standard way to connect to tools. This is genuinely useful. It also made something more obvious: tools themselves are now a search problem.</p>
+<p>Once an agent has access to fifty or more tools, it runs into a familiar problem in a new form. Which tool is relevant? Which action name is correct? Is authentication already set up? Which capabilities should even be visible right now?</p>
+<p>Anthropic&#39;s own <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use">advanced tool use documentation</a> puts a number on this: large tool catalogs can push tool definitions past 50,000 tokens before the model has even read the user&#39;s request. Their recommended fix is to use a smaller retrieval model to return only the relevant tools based on user intent, and even use semantic search over tool descriptions. That recommendation is RAG. For actions.</p>
+<p>And the ecosystem is already moving in that direction. Anthropic&#39;s own <a href="https://www.anthropic.com/engineering/advanced-tool-use">advanced tool use engineering post</a> says agents should &quot;discover and load tools on-demand&quot; instead of stuffing every definition into context upfront. <a href="https://changelog.langchain.com/announcements/dynamic-tool-calling-in-langgraph-agents">LangGraph added dynamic tool calling</a> so the available tools can change at different points in a run. Their examples are telling: require an auth tool before exposing sensitive actions, start with a small toolset, then expand as the task evolves. <a href="https://developer.salesforce.com/blogs/2025/06/level-up-your-developer-tools-with-salesforce-dx-mcp">Salesforce&#39;s DX MCP blog</a> makes the same move with toolsets, noting that hosts can dynamically load only the tools they need to minimize memory use and improve performance.</p>
+<p>That is the deeper point. The problem is not just &quot;which tool should the model call?&quot; The problem is also &quot;which tools should even be attached right now?&quot; Static attachment made sense when agents had a handful of tools. It breaks down when the catalog is large, sensitive, or step-dependent. So now we are seeing dynamic tool attachment, scoped tool exposure, and tool retrieval as separate design patterns.</p>
+<p><img src="/static/blog_photos/agent-search-problem/rag-mcp.png" alt="RAG and MCP/Tools has same problem"></p>
+<!-- DIAGRAM 3: The same problem at two layers
+Excalidraw instructions:
+- Two rows stacked vertically, visually parallel
+- Row 1 label "RAG Era": [pile of document icons] → messy arrow → [context window box, overstuffed] → [confused model icon]
+- Row 2 label "MCP Era": [pile of wrench/tool icons] → messy arrow → [context window box, overstuffed] → [confused model icon]
+- A curly brace on the right spans both rows, labeled "Same bug. Different layer."
+- Visual tone: slightly dry/ironic — the repetition of structure is the point
+-->
+
+<p>We solved document overload by inventing retrieval. Now we are rebuilding the same fix for tools. <a href="https://docs.composio.dev/reference/api-reference/tool-router">Composio&#39;s Tool Router</a>, which explicitly searches, plans, and authenticates across tool ecosystems, is basically a retrieval layer for actions. Even outside product docs, the ecosystem keeps describing the same pain: Apify recently summarized the MCP moment as context overload, auth pain, and failed tool calls everywhere. Once you have enough MCP servers, you need search to find your search tools.</p>
+<h2 id="problem-4-skills-are-workflow-search">Problem 4: Skills are workflow search</h2><p>At this point, there is one more kind of thing the agent needs to find: workflow.</p>
+<p>Agents do not just lack facts and tools. They also lack reusable, environment-specific know-how.</p>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Using Skills well is a skill issue. <br><br>I didn&#39;t quite realize how much until I wrote this, the best can completely transform how your team works. <a href="https://t.co/a0kbhdHdyf">https://t.co/a0kbhdHdyf</a></p>&mdash; Thariq (@trq212) <a href="https://twitter.com/trq212/status/2033958799615398346?ref_src=twsrc%5Etfw">March 17, 2026</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>Consider a coding agent that needs to deploy to an internal infrastructure with custom build flags, a non-standard CI configuration, and a known workaround for a flaky pre-push hook. None of this is in pretraining. Without a skill, the agent has to rediscover the workaround by trial and error every time. It burns tokens, fails steps, and eventually needs help. With a skill, it loads the procedure on demand, executes it, and moves on.</p>
+<p>Skills are what happens when you stop making the agent rediscover the same workflow every turn.</p>
+<p>This is also where the ecosystem is starting to converge on a few file-level conventions.</p>
+<p>At the project layer, we now have dedicated memory files such as <code>AGENTS.md</code> and <code>CLAUDE.md</code>. They look similar, but they are solving a slightly different problem than skills.</p>
+<ul>
+<li><code>AGENTS.md</code> is emerging as a simple open format for repo-level instructions for coding agents</li>
+<li>OpenAI explicitly recommends <code>AGENTS.md</code> for Codex so the agent can learn repo conventions, testing commands, and project-specific gotchas</li>
+<li>Anthropic uses <code>CLAUDE.md</code> as Claude Code&#39;s project memory, with a hierarchy that can include enterprise, project, and user-level memory files</li>
+</ul>
+<p>These files are useful, but they are not the whole answer. They are mostly always-on project memory. Skills are more selective. They are a way to package a reusable capability so the agent can discover it and load it only when needed.</p>
+<p>The core issue is simple: you cannot stuff every workflow into the prompt. OpenAI&#39;s own Codex engineering write-up says the &quot;one big <code>AGENTS.md</code>&quot; approach failed and that <code>AGENTS.md</code> works better as a map than as an encyclopedia. That is the same pattern we keep seeing everywhere else. Once the context gets large enough, the problem becomes navigation again.</p>
+<p>So the stack is starting to separate into two layers:</p>
+<ul>
+<li><code>AGENTS.md</code> / <code>CLAUDE.md</code> for always-on project memory</li>
+<li><code>SKILL.md</code> / <code>skill.md</code> for workflows that should be loaded on demand</li>
+</ul>
+<p>That second layer is getting standardized too. <a href="https://docs.openclaw.ai/skills">OpenClaw treats skills as Agent Skills-compatible folders</a>, the <a href="https://agentskills.io/specification">Agent Skills specification</a> defines <code>SKILL.md</code> with progressive disclosure, <a href="https://vercel.com/changelog/introducing-skills-the-open-agent-skills-ecosystem">Vercel&#39;s skills ecosystem</a> is pushing the same format across agents, and <a href="https://www.mintlify.com/docs/ai/skillmd">Mintlify now auto-generates <code>skill.md</code></a> for docs. The reason this works is straightforward: <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/">Hermes uses progressive disclosure for skills</a> because not every workflow should live in prompt context all the time. Some workflows need their own retrieval layer.</p>
+<p>Documents answer <em>what is true</em>. Tools answer <em>what can I do</em>. Skills answer <em>how should I do it here</em>.</p>
+<h2 id="problem-5-a-bigger-context-window-is-a-larger-search-space">Problem 5: A bigger context window is a larger search space</h2><p>Now for the part I think people still under-appreciate: context itself.</p>
+<p>The common response to long-context failures is simple. If the model cannot find the relevant information, give it a bigger context window. This framing is almost exactly backwards.</p>
+<p>A larger context window does not automatically improve the model&#39;s ability to locate what matters inside it. It increases the size of the space the model has to navigate. The bottleneck is not room. It is navigation.</p>
+<p>Consider a research agent processing a 200-page technical report. The binding constraint appears on page four. The answer that depends on it is on page 180. The model can individually look at both sections and still fail to connect them. This is basically the &quot;lost in the middle&quot; problem: relevant information buried inside a long input is used less reliably than information near the edges.</p>
+<p>And once you look at real agent products, you can see that everyone has quietly accepted this. Nobody is relying on &quot;just make the window bigger&quot; as the only answer anymore. They are all building context-management systems on top.</p>
+<!-- DIAGRAM 4: Context window as search space
+Excalidraw instructions:
+- Large rectangle representing the context window, mostly filled with gray hatching or noise
+- One small highlighted yellow/orange region inside, positioned roughly in the middle, labeled "actually relevant"
+- Small arrow pointing to it labeled "lost in the middle"
+- Caption below the rectangle: "A million-token context window is not knowledge. It is a search space."
+- Optional: show two versions — small window and large window — where the relevant region stays the same size but the surrounding noise grows
+-->
+
+<p>The choices differ by provider, but the pattern is the same.</p>
+<ul>
+<li>OpenAI is leaning into native compaction. In the Codex stack, the conversation gets compacted automatically once it crosses a threshold. Their newer <code>/responses/compact</code> flow does not just replace old messages with a plain-English summary; it returns a smaller list of items plus a special compaction item intended to preserve more of the model&#39;s latent understanding across context-window boundaries. That is a very specific design choice: compress the past, keep the task moving, and treat context management as part of the runtime.</li>
+<li>Anthropic exposes compaction much more directly at the product layer. Claude Code has auto-compact, a manual <code>/compact</code> command, optional focus instructions like <code>/compact Focus on code samples and API usage</code>, and even <code>CLAUDE.md</code> hooks for custom summary instructions. That is a different design choice: context compaction is explicit, steerable, and summary-driven.</li>
+<li>Google has pushed harder on a different axis: very large context windows and context caching. Gemini 3 emphasizes 1M-token context, and the Gemini API has both implicit and explicit context caching so repeated prefixes can be reused across requests. Gemini CLI also emphasizes checkpointing to save and resume longer sessions. That is not exactly the same as compaction, but it is still a context-management strategy. Instead of aggressively shrinking the conversation, it tries to give you more room, reuse the expensive prefix, and resume work when needed.</li>
+</ul>
+<p>So the choices are different:</p>
+<ul>
+<li>bigger windows</li>
+<li>summarization and compaction</li>
+<li>checkpointing and resume</li>
+<li>persistent project memory files</li>
+<li>cached prefixes across requests</li>
+</ul>
+<p>But all of them are really answers to the same question: how does the agent keep the right parts of history available without drowning in the whole history?</p>
+<p>This is why <a href="https://github.com/aiwavecomputer/recursive-lm">Recursive Language Models</a> introduce explicit navigation operators such as peek, partition, grep, and zoom instead of just extending sequence length forever. Those are search operations over context. Related work like <a href="https://papers.voltropy.com/LCM">LCM</a> makes the same point from another angle: long context and local search need to work together. Once you look at it this way, recursive context methods start looking less like magic context scaling and more like retrieval policies over an internal search space.</p>
+<p>Context engineering is just search engineering with better marketing.</p>
+<h2 id="conclusion-search-keeps-coming-back">Conclusion: Search keeps coming back</h2><p>Search keeps showing up everywhere: on the public web, inside RAG systems, across tool and MCP catalogs, inside skills and workflow loading, and even inside the context window itself.</p>
+<p>That is why so many people are attacking the problem from different angles. Some are building better web-search stacks. Some are building agentic RAG. Some are building tool routers and dynamic attachment. Some are building skills, memory files, compaction, caching, and context-navigation systems. They all look different, but they are all trying to solve the same thing.</p>
+<p>If agents can reliably solve search across all of these surfaces, that would be a huge capability jump. It would mean they can consistently find the right evidence, the right tool, the right workflow, and the right context before acting. That gets us much closer to agents that feel robust, general, and meaningfully closer to AGI in practice.</p>
+<p><em>Can anyone turn web search, knowledge retrieval, tool discovery, workflow/skills loading, and context navigation into one coherent search runtime for agents, or is this the hard part that keeps standing between today&#39;s agents and something much closer to AGI?</em></p>
+<hr>
+<p><em>References:</em></p>
+<ul>
+<li>Apify X post on MCP pain: <a href="https://x.com/apify/status/2011556498477105383">x.com/apify/status/2011556498477105383</a></li>
+<li>Agent Skills: <a href="https://agentskills.io/specification">Specification</a></li>
+<li>AGENTS.md: <a href="https://agents.md/">Open format</a></li>
+<li>Anthropic advanced tool use guide: <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use">Tool use implementation</a></li>
+<li>Anthropic engineering: <a href="https://www.anthropic.com/engineering/advanced-tool-use">Advanced tool use</a></li>
+<li>Anthropic Claude Code memory: <a href="https://docs.anthropic.com/en/docs/claude-code/memory">CLAUDE.md memory</a></li>
+<li>Anthropic Claude Code costs: <a href="https://docs.anthropic.com/en/docs/claude-code/costs">Compaction and auto-compact</a></li>
+<li>Anthropic Claude Code slash commands: <a href="https://docs.anthropic.com/en/docs/claude-code/slash-commands">Slash commands</a></li>
+<li>Azure AI Search: <a href="https://learn.microsoft.com/en-us/azure/search/search-agentic-retrieval-concept">Agentic retrieval</a></li>
+<li>Azure AI Search: <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-filters">Vector filters</a></li>
+<li>Azure AI Search: <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-index-size">Vector index size</a></li>
+<li>Azure AI Search: <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-storage-options">Vector storage options</a></li>
+<li>Browserbase Cloudflare post: <a href="https://www.browserbase.com/blog/browserbase-cloudflare">Browserbase + Cloudflare</a></li>
+<li>Composio Tool Router: <a href="https://docs.composio.dev/reference/api-reference/tool-router">Tool Router API</a></li>
+<li>Firecrawl search docs: <a href="https://docs.firecrawl.dev/features/search">Search API</a></li>
+<li>Glean: <a href="https://www.glean.com/searchengine">Enterprise search engine</a></li>
+<li>Gemini 3: <a href="https://ai.google.dev/gemini-api/docs/gemini-3">1M context window</a></li>
+<li>Gemini API: <a href="https://ai.google.dev/gemini-api/docs/caching/">Context caching</a></li>
+<li>Gemini CLI: <a href="https://github.com/google-gemini/gemini-cli">Checkpointing and GEMINI.md</a></li>
+<li>Hermes skills: <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/">Progressive disclosure</a></li>
+<li>IRCoT, Trivedi et al. (ACL 2023): <a href="https://aclanthology.org/2023.acl-long.557/">Interleaving Retrieval with Chain-of-Thought Reasoning</a></li>
+<li>LCM: <a href="https://papers.voltropy.com/LCM">Long Context Models and local search</a></li>
+<li>LangGraph: <a href="https://changelog.langchain.com/announcements/dynamic-tool-calling-in-langgraph-agents">Dynamic tool calling</a></li>
+<li>Mintlify: <a href="https://www.mintlify.com/docs/ai/skillmd">skill.md</a></li>
+<li>OpenAI: <a href="https://openai.com/index/how-openai-uses-codex-to-build-codex/">How OpenAI uses Codex to build Codex</a></li>
+<li>OpenAI: <a href="https://openai.com/index/harness-engineering-for-an-agent-centric-world/">Harness engineering for an agent-centric world</a></li>
+<li>OpenAI: <a href="https://openai.com/index/unrolling-the-codex-agent-loop/">Unrolling the Codex agent loop</a></li>
+<li>Self-RAG, Asai et al. (NeurIPS 2023): <a href="https://openreview.net/forum?id=hSyW5go0v8">Self-RAG: Learning to Retrieve, Generate, and Critique</a></li>
+<li>Salesforce DX MCP: <a href="https://developer.salesforce.com/blogs/2025/06/level-up-your-developer-tools-with-salesforce-dx-mcp">Dynamic toolsets</a></li>
+<li>Lost in the Middle, Liu et al. (TACL 2024): <a href="https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00638/119630/">How Language Models Use Long Contexts</a></li>
+<li>OpenClaw skills: <a href="https://docs.openclaw.ai/skills">Skills docs</a></li>
+<li>Parallel Search API: <a href="https://docs.parallel.ai/search/search-quickstart">Search quickstart</a></li>
+<li>Parallel Search MCP: <a href="https://docs.parallel.ai/integrations/mcp/search-mcp">Search MCP</a></li>
+<li>Parallel Search product: <a href="https://parallel.ai/products/search">Parallel Search</a></li>
+<li>Recursive Language Models: <a href="https://arxiv.org/pdf/2510.06252">Paper</a> · <a href="https://github.com/aiwavecomputer/recursive-lm">Repo</a></li>
+<li>Vercel: <a href="https://vercel.com/changelog/introducing-skills-the-open-agent-skills-ecosystem">Introducing skills</a></li>
+<li>Browserbase stealth mode: <a href="https://docs.browserbase.com/features/stealth-mode">docs.browserbase.com/features/stealth-mode</a></li>
+</ul>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs</title>
+      <link>https://dipkumar.dev/posts/llm/bits-per-byte/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/llm/bits-per-byte/</guid>
+      <pubDate>Wed, 15 Oct 2025 17:29:08 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>What bits-per-byte (BPB) is, why it beats perplexity for comparing LLMs across different tokenizers, and how to calculate it from cross-entropy loss.</description>
+      <category>llm</category>
+      <category>tokenizer</category>
+      <content:encoded><![CDATA[<blockquote>
+<p>Karpathy recently released <a href="https://github.com/karpathy/nanochat/">nanochat repo</a> which cotains code for <strong>training the best ChatGPT under $100</strong>. While skimming the high level code, I noticed across <code>bits per bytes</code> instead of typical <code>cross entropy</code> loss. And, i found it interesting, so i decided to dig in. </p>
+</blockquote>
+<h3 id="tldr">TL;DR</h3><ul>
+<li>Bit per byte (BPB) is just cross-entropy measured per byte. We divide cross-entropy by bytes and log(2) to convert to bits.</li>
+<li>Because it’s per byte, BPB is tokenizer-agnostic and lets you compare models fairly even when they use different vocabularies and rules.</li>
+<li>Perplexity and token-level loss change when you change the tokenizer; BPB largely doesn’t.</li>
+</ul>
+<p>LLM doesn&#39;t predict the text, it predicts the (next) token. But token definitions depend on the tokenizer (BPE, Unigram, merges, special tokens, etc.). Swap tokenizers and the same sentence can become more or fewer tokens. So <code>per-token</code> metrics (avg CE, perplexity) change even if the underlying modeling quality didn’t.</p>
+<p>Some popular tokenizer choices are:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Tokenizer</th>
+<th>Vocab Size</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GPT-4</td>
+<td>cl100k_base (BPE)</td>
+<td>100,256</td>
+</tr>
+<tr>
+<td>LLaMA 3</td>
+<td>TikToken (BPE)</td>
+<td>128,000</td>
+</tr>
+<tr>
+<td>Gemini 2.5</td>
+<td>SentencePiece (Unigram)</td>
+<td>256,000</td>
+</tr>
+<tr>
+<td>Claude</td>
+<td>closed-source</td>
+<td>undisclosed</td>
+</tr>
+</tbody></table>
+<p>Different tokenizers ≠ comparable &quot;tokens&quot;. So a model that uses a coarser tokenizer (fewer, longer tokens) can appear to have a lower per-token loss or perplexity, simply because the denominator changed.</p>
+<p>Instead of normalizing loss per token, normalize per byte of UTF-8 text that those tokens represent. Then, no matter how you split words into tokens, you&#39;re still asking: how many bits, on average, does the model need to encode each byte of text?</p>
+<h3 id="example-why-per-token-metrics-mislead">Example: Why Per-Token Metrics Mislead</h3><p>Consider two models predicting &quot;The Capital of India&quot; -&gt; &quot; is Delhi&quot; (8 bytes in UTF-8, including the space):</p>
+<p><strong>Model A</strong> (coarse tokenizer):</p>
+<ul>
+<li>Tokens: <code>[&quot; is&quot;, &quot; Delhi&quot;]</code> (2 tokens)</li>
+<li>Per-token loss: <code>[1.5, 4.5]</code> nats</li>
+<li>Total loss: 6.0 nats</li>
+</ul>
+<p><strong>Model B</strong> (fine-grained tokenizer):</p>
+<ul>
+<li>Tokens: <code>[&quot; is&quot;, &quot; Del&quot;, &quot;hi&quot;]</code> (3 tokens)  </li>
+<li>Per-token loss: <code>[1.5, 2.0, 2.5]</code> nats</li>
+<li>Total loss: 6.0 nats</li>
+</ul>
+<p><strong>Per-token metrics (misleading):</strong></p>
+<pre><code class="language-bash">Model A avg loss:  6.0 / 2 = 3.0 nats/token
+Model B avg loss:  6.0 / 3 = 2.0 nats/token  ← appears better!
+
+Model A perplexity:  exp(3.0) = 20.09
+Model B perplexity:  exp(2.0) = 7.39        ← appears better!
+</code></pre>
+<p>Model B looks significantly better, but it&#39;s the <strong>same 6.0 nats</strong> spread over more tokens.</p>
+<p><strong>Bits-per-byte (fair comparison):</strong></p>
+<pre><code class="language-bash">Model A BPB:  6.0 / (ln(2) × 8) = 1.08 bits/byte
+Model B BPB:  6.0 / (ln(2) × 8) = 1.08 bits/byte  ← identical!
+</code></pre>
+<p>BPB correctly shows both models have the same predictive quality. The apparent &quot;improvement&quot; in Model B&#39;s per-token metrics was purely an artifact of tokenization granularity.</p>
+<h3 id="implementation">Implementation</h3><p>Below is the simplified and more readable version of the <a href="https://github.com/karpathy/nanochat/blob/master/nanochat/loss_eval.py">original code</a>.</p>
+<pre><code class="language-python">import math
+import torch
+import torch.distributed as dist
+
+@torch.no_grad()
+def evaluate_bpb(model, batches, steps: int, token_bytes: torch.Tensor) -&gt; float:
+    &quot;&quot;&quot;
+    Compute Bits-Per-Byte (BPB) over `steps` batches.
+
+    Shapes (your mental model):
+      B  = batch size
+      Seq = sequence length
+      V  = vocab size
+
+    Inputs:
+      - model: callable like model(x, y, loss_reduction=&#39;none&#39;) -&gt; loss per token.
+               Expects:
+                 x: (B, Seq) token ids (int64)
+                 y: (B, Seq) target token ids (int64), may contain ignore_index (&lt;0)
+               Returns:
+                 loss2d: (B, Seq) per-token loss in NATs (float32/float16)
+      - batches: iterable yielding (x, y) as above.
+      - steps: number of batches to evaluate.
+      - token_bytes: (V,) int64 — byte length of each token id; 0 for special tokens
+                     (those should not count toward BPB).
+
+    Notes:
+      - BPB = (sum of losses in NATs over *counted* tokens) / (ln(2) * total_counted_bytes)
+      - Tokens contribute to the denominator by their byte length; tokens with 0 bytes
+        (specials) and ignored targets (&lt;0) are excluded from both numerator &amp; denominator.
+    &quot;&quot;&quot;
+    device = model.get_device() if hasattr(model, &quot;get_device&quot;) else next(model.parameters()).device
+
+    # Accumulators across steps (and later across ranks)
+    sum_nats  = torch.tensor(0.0, dtype=torch.float32, device=device)  # scalar
+    sum_bytes = torch.tensor(0,   dtype=torch.int64,   device=device)  # scalar
+
+    token_bytes = token_bytes.to(device=device, dtype=torch.int64)     # (V,)
+
+    batch_iter = iter(batches)
+    for _ in range(steps):
+        x, y = next(batch_iter)                  # x: (B, Seq), y: (B, Seq)
+        x = x.to(device)
+        y = y.to(device)
+
+        loss2d = model(x, y, loss_reduction=&#39;none&#39;)  # (B, Seq) NATs
+        loss1d = loss2d.reshape(-1)                  # (B*Seq,)
+        y1d    = y.reshape(-1)                       # (B*Seq,)
+
+        if (y1d &lt; 0).any():
+            # Mask out ignore_index (&lt;0) before indexing into token_bytes
+            valid  = (y1d &gt;= 0)                                      # (B*Seq,)
+            ysafe  = torch.where(valid, y1d, torch.zeros_like(y1d))  # (B*Seq,)
+            nb     = torch.where(valid, token_bytes[ysafe], torch.zeros_like(y1d))  # (B*Seq,) int64
+        else:
+            nb = token_bytes[y1d]  # (B*Seq,) int64
+
+        # Count only tokens with positive byte length
+        counted = (nb &gt; 0)                             # (B*Seq,) bool
+        sum_nats  += (loss1d[counted]).sum()           # scalar
+        sum_bytes += nb[counted].sum()                 # scalar int64
+
+    # Distributed sum over all ranks, if initialized
+    if dist.is_initialized() and dist.get_world_size() &gt; 1:
+        dist.all_reduce(sum_nats,  op=dist.ReduceOp.SUM)
+        dist.all_reduce(sum_bytes, op=dist.ReduceOp.SUM)
+
+    total_nats  = float(sum_nats.item())
+    total_bytes = int(sum_bytes.item())
+
+    # Guard against division by zero (e.g., all tokens were special/ignored)
+    if total_bytes == 0:
+        return float(&quot;nan&quot;)
+
+    bpb = total_nats / (math.log(2.0) * total_bytes)
+    return bpb
+</code></pre>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Creativity Is a Luxury</title>
+      <link>https://dipkumar.dev/posts/life/creativity-is-a-luxury/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/life/creativity-is-a-luxury/</guid>
+      <pubDate>Sun, 17 Aug 2025 15:13:08 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Creativity is a luxury. It requires time, energy and space.</description>
+
+      <content:encoded><![CDATA[<p>Creativity is a luxury.</p>
+<p>It demands time, energy and space: things that feel scarce when rent, groceries, and the next shift loom larger than any poem or prototype. Most of us are caught in a slow-spinning loop of laundry, commutes, and alarms that reset before the dream has even ended.</p>
+<p>It is also a luxury that needs literal room: a quiet corner, a desk that isn’t the dinner table, a door that closes. I have watched friends whose bedrooms double as storage closets carry old laptops to 24-hour cafés or office lobbies after hours, hunting for any pocket of stillness where code can compile without a toddler tugging at the charger.</p>
+<p>Much of the talk about “why they don’t innovate” is aimed at developing nations, as if ingenuity were a switch we forgot to flip. The question forgets that for many, the next level of the game called life is simply surviving this week.  </p>
+<p>Creativity requires time, the one thing handed out in identical seconds but lived in wildly unequal ways. A developer on bug-fix cycles measures the day in thirty-minute bites between Jira pings; a CTO can clear a whole afternoon to whiteboard a new microservice. Same 24 hours, but one calendar is packed with other people&#39;s priorities, the other guarded so ideas can breathe.</p>
+<p>Yet even in the squeeze, support engineers still refactor a memory leak during the last hour of their shift, and interns build open-source yet another caching library on hostel Wi-Fi at 2 a.m. Moral richness doesn&#39;t wait for perfect conditions; it grows in cracks, stubborn and green, proving that the luxury of creativity is one humans keep insisting on, even when the price feels impossibly high.</p>
+<details>
+<summary>Disclaimer</summary>
+
+<p>This writing was assisted by an LLM.</p>
+</details>
+
+]]></content:encoded>
+    </item>
+    <item>
+      <title>GPT-5 Router - Inevitable Future of Chat Interfaces</title>
+      <link>https://dipkumar.dev/posts/llm/gpt5-router/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/llm/gpt5-router/</guid>
+      <pubDate>Wed, 13 Aug 2025 15:18:22 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Why OpenAI&apos;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.</description>
+      <category>llm</category>
+      <category>ux</category>
+      <content:encoded><![CDATA[<blockquote class="twitter-tweet"><p lang="en" dir="ltr">OpenAI GPT-5 Router is like Apple removing headphone jack.<br>It sucks but everyone will follow it.</p>&mdash; immortal (@immortal_0698) <a href="https://twitter.com/immortal_0698/status/1956062348688388210?ref_src=twsrc%5Etfw">August 14, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<h2 id="what-is-gpt-5-router">What is GPT-5 Router</h2><p>The GPT-5 router picks the right model for each request in real time. In plain English: easy stuff goes to the small model; complex stuff goes to the big brain. The goal is simple, better answers per dollar and millisecond by mixing models instead of forcing a single static choice. I suspect router will be a key component in subscription pricing.</p>
+<h2 id="how-it-works-routing-as-classification-problem">How It Works: Routing as Classification Problem</h2><p>Understanding the router means treating it like a classifier. For example, you have two models: a smaller, no-reasoning model and a larger, reasoning model. Given a user query, the router has to make a call:</p>
+<ul>
+<li>Smaller model: when the query is simple</li>
+<li>Larger model: when the query is complex</li>
+</ul>
+<p>In reality, we have more models, but for simplicity, we will stick to two models.</p>
+<h3 id="the-classification-matrix">The Classification Matrix</h3><p>A compact way to reason about this: a confusion matrix. To keep score, call the positive class &quot;complex&quot; and the negative class &quot;simple&quot;. Rows are the router&#39;s decision; columns are the true difficulty of user query.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Actual Difficulty: Simple</th>
+<th>Actual Difficulty: Complex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Route: Smaller</td>
+<td>True Negative (TN)</td>
+<td>False Negative (FN)</td>
+</tr>
+<tr>
+<td>Route: Larger</td>
+<td>False Positive (FP)</td>
+<td>True Positive (TP)</td>
+</tr>
+</tbody></table>
+<p>We don&#39;t have to worry about the diagonal elements, as they are the cases where the router is correct. But we need to worry about the off-diagonal elements : False Positive and False Negative.</p>
+<h3 id="error-analysis-both-mistakes-cost-money">Error Analysis: Both Mistakes Cost Money</h3><p><strong>False Negative (Complex → Smaller)</strong>: The worst outcome</p>
+<ul>
+<li>Breaks user experience - they get a shallow answer to a deep question</li>
+<li>Damages trust and perceived quality </li>
+<li>Users complain, cancel subscriptions, bad reviews</li>
+<li>Cost: Customer churn and reputation damage</li>
+</ul>
+<p><strong>False Positive (Simple → Larger)</strong>: The expensive mistake</p>
+<ul>
+<li>User gets a great answer but you burn unnecessary compute</li>
+<li>$0.05 query becomes a $0.60 query (12x cost)</li>
+<li>At scale, this adds up fast - 10,000 false positives = $5,500 in wasted compute</li>
+<li>Cost: Direct margin erosion</li>
+</ul>
+<p>So the strategy becomes: bias toward false positives (overspend on compute) rather than false negatives (lose customers). You can optimize compute costs later, but you can&#39;t win back a user who thinks your AI is &quot;dumber than your previous model.&quot;</p>
+<p>This is why OpenAI initially erred on the side of caution with the router, then faced backlash when the pendulum swung too far toward false negatives. The sweet spot is narrow and expensive to find.</p>
+<h2 id="economic-motivation-the-subscription-squeeze">Economic Motivation: The Subscription Squeeze</h2><p>This technical complexity of router exists because OpenAI faces a challenging economic reality: <strong>flat subscription pricing becomes difficult when usage explodes exponentially</strong>. As per Sam Altman, even $200/month struggles to maintain profitability.</p>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">insane thing: we are currently losing money on openai pro subscriptions!<br><br>people use it much more than we expected.</p>&mdash; Sam Altman (@sama) <a href="https://twitter.com/sama/status/1876104315296968813?ref_src=twsrc%5Etfw">January 6, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<h3 id="math-behind-the-subscription-pricing">Math Behind the Subscription Pricing</h3><p>Here&#39;s the math behind the subscription pricing:</p>
+<ul>
+<li>Users pay $20/month for supposedly &quot;unlimited&quot; access (Nothing is unlimited)</li>
+<li>But Big models can burn upto $0.5+ per query in compute costs (Reasoning models)</li>
+<li>Deep research runs cost ~$1+ each and take 20+ minutes</li>
+<li>Other features such as memory, tools, etc. are not free.</li>
+</ul>
+<p>It&#39;s not just OpenAI - other companies are facing similar challenges:</p>
+<ul>
+<li>Anthropic - Their $20/month subscription includes significant rate limiting. </li>
+<li>Cursor - They recently announced that after 250 Sonnet requests, they&#39;ll meter usage and charge based on consumption</li>
+</ul>
+<h3 id="routers-are-going-to-get-better">Routers are going to get better</h3><p>Creating a good router is fundamentally a data problem, and OpenAI has a massive advantage here. Every query-response pair becomes training data for router improvement:</p>
+<p><strong>Data Collection at Scale:</strong></p>
+<ul>
+<li>Millions of daily interactions across different complexity levels</li>
+<li>User feedback signals (thumbs up/down, follow-up questions)</li>
+<li>Engagement metrics (time spent reading, follow-up queries)</li>
+<li>Cost-per-query data for model optimization</li>
+</ul>
+<p><strong>Iterative Improvement Loop:</strong></p>
+<ul>
+<li>Router misroutes a complex query → user complains or asks follow-up</li>
+<li>OpenAI labels this as &quot;should have gone to reasoning model&quot;</li>
+<li>Router learns: similar queries get routed to larger model next time</li>
+<li>Over time, accuracy improves from 80% → 90% → 95%+</li>
+</ul>
+<h2 id="the-gpt-5-launch-backlash">The GPT-5 Launch Backlash</h2><p>When OpenAI launched GPT-5 with mandatory routing, users immediately complained about quality degradation. The router was routing too many complex queries to the smaller model, making GPT-5 seem &quot;dumber&quot; than GPT-4o.</p>
+<p><strong>User Backlash:</strong></p>
+<ul>
+<li>Users reported <a href="https://www.techradar.com/ai-platforms-assistants/chatgpt/chatgpt-users-are-not-happy-with-gpt-5-launch-as-thousands-take-to-reddit-claiming-the-new-upgrade-is-horrible">shallow answers to complex prompts</a></li>
+<li>Reddit filled with complaints about the <a href="https://www.macrumors.com/2025/08/08/openai-gpt-5-complaints/">perceived downgrade</a></li>
+<li>Loss of manual model selection frustrated <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">paid subscribers</a></li>
+</ul>
+<p><strong>OpenAI&#39;s Response:</strong></p>
+<ul>
+<li><a href="https://www.tomsguide.com/ai/chatgpt-4o-is-coming-back-after-massive-gpt-5-backlash-heres-what-happened">Brought back GPT-4o access</a> for Plus users</li>
+<li>Acknowledged router problems and began <a href="https://www.axios.com/2025/08/12/gpt-5-bumpy-launch-openai">tuning improvements</a></li>
+<li>Added more transparency about which model responds</li>
+</ul>
+<h2 id="conclusion-prediction">Conclusion / Prediction</h2><p>The router will come back - but better trained. OpenAI learned that accuracy matters more than cost savings for user satisfaction. Expect:</p>
+<ul>
+<li><strong>Higher-tier customers</strong>: Will likely get manual model selection options</li>
+<li><strong>Free/basic tiers</strong>: Will live with the router, but a much-improved version</li>
+<li><strong>Industry trend</strong>: Other AI companies will adopt similar routing strategies as costs mount</li>
+</ul>
+<p>The economics make routers inevitable, but OpenAI&#39;s rough launch showed that execution quality determines success or failure.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Instruction Aware Embeddings</title>
+      <link>https://dipkumar.dev/posts/rag/instruction-aware-embeddings/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/rag/instruction-aware-embeddings/</guid>
+      <pubDate>Tue, 08 Jul 2025 07:44:36 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings</description>
+      <category>rag</category>
+      <category>embedding</category>
+      <content:encoded><![CDATA[<h1 id="why-your-retriever-is-failing-and-how-context-can-save-it">Why Your Retriever is Failing and How Context Can Save It</h1><p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
+<hr>
+<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever & Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
+<ul>
+<li>They collapse multiple meanings of &quot;apple&quot; into one vector.  </li>
+<li>The top results can mix stock guides, product pages, and nutrition articles.</li>
+</ul>
+<p>You might think this is a hypothetical scenario that rarely occurs in practice. However, here&#39;s a real-world example from Google Deep Research that illustrates the issue:</p>
+<pre><code class="language-text">Query: &quot;We want to create a simple presentation on MCP server. We want to discuss why it&#39;s needed, current limitations, and potential use cases.
+
+We also want to highlight its technical challenges.
+
+Let&#39;s write a concise presentation for this.&quot;
+</code></pre>
+<p><img src="/static/blog_photos/context-gemini.png" alt="image"></p>
+<p>It returned information about &quot;Unisys ClearPath MCP&quot; rather than the intended &quot;Model Control Protocol (MCP)&quot; proposed by Anthropic. This real-world misalignment underscores how context-less embeddings can derail retrieval.  </p>
+<hr>
+<h2 id="2-missing-context-in-embedding">2. Missing Context in Embedding</h2><p>Embeddings encode <strong>semantic similarity</strong> but lack task or intent signals. Out of the box, they answer the question:  </p>
+<blockquote>
+<p>&quot;Which documents <em>sound</em> most like this query?&quot;  </p>
+</blockquote>
+<p>They don&#39;t know if &quot;apple&quot; refers to finance, technology, or groceries—so they return a blend of all.</p>
+<hr>
+<h2 id="3-how-does-it-work-without-context">3. How Does It Work Without Context?</h2><p>Using script&#39;s results (see <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">gist</a>), here&#39;s the <strong>plain embedding</strong> behavior for &quot;I want to buy apple&quot; with OpenAI and Qwen models:</p>
+<pre><code class="language-text">📝 Query: &#39;I want to buy apple&#39;
+🔍 Using plain query (no instruction)
+
+🤖 OpenAI Model Results:
+1. How to Buy Apple Stock   (Score: 0.536)
+2. Where to Buy Apples      (Score: 0.497)
+3. iPhone 15 Pro Purchase   (Score: 0.455)
+
+🤖 Qwen Model Results:
+1. Where to Buy Apples       (Score: 0.604)
+2. How to Buy Apple Stock    (Score: 0.594)
+3. Health Benefits of Apples (Score: 0.501)
+</code></pre>
+<p>Both embeddings mix stock, fruit, and product topics. The <strong>Qwen</strong> model edges out OpenAI by a small margin, but neither is decisively focused.</p>
+<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen & Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
+<pre><code class="language-python"># Minimal instruction-aware query construction
+instruction = &quot;Given a grocery shopping question, retrieve fruit purchase information&quot;
+query = &quot;I want to buy apple&quot;
+instructed_query = f&quot;Instruction: {instruction}\nQuery: {query}&quot;
+</code></pre>
+<p><img src="/static/blog_photos/context-qwen.png" alt="image"></p>
+<hr>
+<p><strong>Visualizing the Flow:</strong></p>
+<pre><code class="language-text">User Query: &quot;I want to buy apple&quot;
+        |
+        v
+[Plain Embedding Model]
+        |
+        v
+Results: [Stock guides, iPhones, fruit articles]  &lt;-- Mixed, ambiguous
+
+User Query + Instruction: &quot;Given a grocery shopping question, retrieve fruit purchase information\nI want to buy apple&quot;
+        |
+        v
+[Instruction-Aware Embedding Model]
+        |
+        v
+Results: [Fruit purchase guides, grocery info]  &lt;-- Focused, relevant
+</code></pre>
+<hr>
+<h3 id="focused-scenario-performance-gains">Focused Scenario Performance Gains</h3><p>Below is a comparison of similarity scores for the <strong>correct document</strong> in each use case, showing how instruction-aware embeddings shift the focus within the same model. 
+Note, OpenAI does not support instruction-aware embeddings yet, but we tried to run the same instruction-aware query with OpenAI&#39;s embedding model. As you can see, it did not work very well and it&#39;s clear, instruction-aware embeddings need to be supported by the model and it&#39;s not just a matter of adding a prefix to the query.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Model</th>
+<th>Plain Score</th>
+<th>Instruction Score</th>
+<th>Δ Score</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Financial (Stock Purchase)</td>
+<td>OpenAI</td>
+<td>0.536</td>
+<td>0.472</td>
+<td>−0.064</td>
+</tr>
+<tr>
+<td>Financial (Stock Purchase)</td>
+<td>Qwen</td>
+<td>0.594</td>
+<td>0.743</td>
+<td>+0.149</td>
+</tr>
+<tr>
+<td>Technology (iPhone Purchase)</td>
+<td>OpenAI</td>
+<td>0.455</td>
+<td>0.393</td>
+<td>−0.062</td>
+</tr>
+<tr>
+<td>Technology (iPhone Purchase)</td>
+<td>Qwen</td>
+<td><em>&lt;0.501</em></td>
+<td>0.512</td>
+<td><strong>↑</strong></td>
+</tr>
+<tr>
+<td>Grocery (Fruit Purchase)</td>
+<td>OpenAI</td>
+<td>0.497</td>
+<td>0.502</td>
+<td>+0.005</td>
+</tr>
+<tr>
+<td>Grocery (Fruit Purchase)</td>
+<td>Qwen</td>
+<td>0.604</td>
+<td>0.680</td>
+<td>+0.076</td>
+</tr>
+</tbody></table>
+<p><em>Note:</em> Qwen did not surface the iPhone doc in its top-3 plain results (score &lt;0.501), yet it rises to #2 (0.512) with instruction.</p>
+<p><strong>What does this mean?</strong><br>Notice how Qwen&#39;s instruction-aware mode dramatically increases the relevance score for the correct document, while OpenAI&#39;s model barely changes or even drops. This demonstrates that simply adding instructions to the query only works if the model is trained to use them.</p>
+<hr>
+<h2 id="5-alternative-query-rewriting">5. Alternative: Query Rewriting</h2><p>Embeddings also benefit when the query itself carries the necessary context. Instead of relying solely on instruction-aware models, you can rewrite the user&#39;s query using chat history or domain knowledge to inject focus. For example:</p>
+<ul>
+<li><strong>Original Query:</strong> &quot;I want to buy apple&quot;</li>
+<li><strong>Rewritten Query:</strong> &quot;Where can I buy fresh apples at my local grocery store?&quot;</li>
+</ul>
+<p>Such rewrites embed context directly into the text, allowing plain embedding models to retrieve the correct documents (fruit vendors, grocery guides) without specialized instructions. This technique can be automated via:</p>
+<ul>
+<li>A chat interface that remembers previous messages and reformulates queries.</li>
+<li>A domain-specific rewriter that maps generic queries to more precise, vocabulary-rich versions.</li>
+</ul>
+<p>By combining query rewriting with embeddings, you get the best of both worlds: minimal model changes and focused retrieval.</p>
+<hr>
+<h2 id="6-what-you-can-do-about-it">6. What You Can Do About It</h2><p>Facing ambiguous queries? You have four straightforward strategies:</p>
+<ol>
+<li><p><strong>Instruction-aware embeddings</strong></p>
+<ul>
+<li>Use models like Qwen3-Embedding-8B that accept contextual instructions.</li>
+<li>Best for: New projects or high-priority use cases.</li>
+<li>Trade-offs: Requires switching your embedding provider.</li>
+</ul>
+</li>
+<li><p><strong>Query rewriting</strong></p>
+<ul>
+<li>Rewrite queries to inject context (e.g., &quot;Where can I buy fresh organic apples?&quot;).</li>
+<li>Best for: Legacy systems or teams using plain embedding models.</li>
+<li>Trade-offs: Requires building and maintaining rewriting logic.</li>
+</ul>
+</li>
+<li><p><strong>Hybrid approach</strong></p>
+<ul>
+<li>Combine query rewriting for immediate gains with instruction-aware models for future migrations.</li>
+<li>Best for: Teams seeking a phased adoption strategy.</li>
+<li>Trade-offs: More complex workflow but balances risk and reward.</li>
+</ul>
+</li>
+<li><p><strong>Ask clarifying questions</strong></p>
+<ul>
+<li>Detect vague or ambiguous queries and prompt the user for more details before retrieving.</li>
+<li>Best for: Interactive search interfaces and chatbots.</li>
+<li>Trade-offs: Requires a conversational UI and may add extra steps to user interactions.</li>
+</ul>
+</li>
+</ol>
+<p>Choose the strategy that fits your team&#39;s resources and goals, and start by tackling your most ambiguous queries first.</p>
+<hr>
+<h2 id="7-closing-thoughts">7. Closing Thoughts</h2><ul>
+<li><strong>Missing context</strong> in embeddings is the core challenge for ambiguous queries.  </li>
+<li><strong>Instruction-aware embeddings</strong> (like Qwen3-Embedding-8B) deliver <em>stronger</em> task focus, dramatically improving top-ranked results.  </li>
+<li>You can mimic this in OpenAI by manually adding instructions, but specialized models yield bigger gains.</li>
+</ul>
+<p><strong>What should you do next?</strong>  </p>
+<ul>
+<li>Audit your current retrieval system for ambiguous queries.</li>
+<li>Experiment with instruction-aware models if available.</li>
+<li>Implement query rewriting where needed to improve retrieval focus.</li>
+</ul>
+<p>Embrace instruction-aware retrieval to resolve ambiguity and serve exactly what users intend—every time.  </p>
+<hr>
+<p><em>References:</em>  </p>
+<ul>
+<li>Qwen3 Embedding model card: <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Hugging Face</a>  </li>
+<li>Code example and full script: <a href="https://gist.github.com/immortal3/6af71b0f9be87489d13a7e0f2cf68120">compare.py on GitHub Gist</a></li>
+</ul>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Improving Retrieval in RAG (via Recall, Precision, and NDCG)</title>
+      <link>https://dipkumar.dev/posts/rag/retrieval-imprv/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/rag/retrieval-imprv/</guid>
+      <pubDate>Sat, 08 Mar 2025 06:53:53 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG</description>
+      <category>rag</category>
+      <content:encoded><![CDATA[<h1 id="improving-retrieval-in-rag-via-recall-precision-and-ndcg">Improving Retrieval in RAG (via Recall, Precision, and NDCG)</h1><h2 id="introduction">Introduction</h2><p>Retrieval-Augmented Generation (RAG) is the superhero sidekick that grounds your Large Language Model (LLM) in cold, hard facts. But here&#39;s the dirty secret: if your retrieval sucks, your RAG system is just a fancy chatbot with a broken brain. Weak retrieval = missed documents, irrelevant results, and rankings that make no sense.</p>
+<p>This guide cuts through the noise. You&#39;ll learn how to turbocharge your RAG retrieval with a no-fluff, step-by-step approach to maximize recall, sharpen precision, and nail NDCG. Whether you&#39;re a data scientist, developer, or AI enthusiast, this is your playbook to stop screwing around and start getting results. Let&#39;s roll.</p>
+<h2 id="the-basics-of-retrieval">The Basics of Retrieval</h2><h3 id="vector-search-vs-full-text-search">Vector Search vs. Full-Text Search</h3><p>Retrieval is the backbone of RAG, and it&#39;s a tug-of-war between two heavyweights: vector search and full-text search. Here&#39;s the breakdown:</p>
+<p><strong>Vector Search</strong>: Turns words into numbers (embeddings) to capture meaning. Think of it as a genius librarian who gets that &quot;machine learning frameworks&quot; is related to &quot;neural network libraries&quot; even if the exact words don&#39;t match.</p>
+<p><em>Example</em>: Query = &quot;machine learning frameworks.&quot; Vector search grabs articles about &quot;PyTorch vs TensorFlow comparison&quot; because it understands semantic similarity.</p>
+<p><strong>Full-Text Search</strong>: The old-school keyword matcher. It&#39;s like a librarian who only cares about exact titles—if &quot;machine learning frameworks&quot; isn&#39;t in the text, you&#39;re out of luck.</p>
+<p><em>Example</em>: Same query, &quot;machine learning frameworks.&quot; Full-text search might miss that PyTorch article unless the phrase matches perfectly, but it&#39;ll snag anything with &quot;frameworks&quot; lightning-fast.</p>
+<p>Here&#39;s a quick comparison:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Vector Search</th>
+<th>Full-Text Search</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Strengths</td>
+<td>Semantic understanding</td>
+<td>Speed, exact matches</td>
+</tr>
+<tr>
+<td>Weaknesses</td>
+<td>Slower, resource-hungry</td>
+<td>Misses context</td>
+</tr>
+<tr>
+<td>Best For</td>
+<td>Complex queries</td>
+<td>Simple lookups</td>
+</tr>
+</tbody></table>
+<p><strong>Why Both Matter</strong>: Hybrid search (vector + keywords) is the cheat code. Combine them, and you get the best of both worlds—broad coverage with pinpoint accuracy.</p>
+<h2 id="metrics-101-what-to-optimize-for">Metrics 101 – What to Optimize For</h2><p>You can&#39;t fix what you don&#39;t measure. Here&#39;s your retrieval holy trinity:</p>
+<p><strong>Recall</strong>: Are you finding all the good stuff?</p>
+<p><em>Example</em>: Imagine 100 blog posts about &quot;transformer architecture&quot; exist. Your retriever grabs 85 of them. That&#39;s 85% recall. Miss too many, and your LLM is flying blind.</p>
+<p><strong>Precision</strong>: Are you dodging the junk?</p>
+<p><em>Example</em>: You retrieve 100 documents for &quot;transformer architecture,&quot; but only 70 are relevant (the rest are about &quot;electrical transformers&quot;). That&#39;s 70% precision. Too much noise, and your RAG drowns in garbage.</p>
+<p><strong>NDCG</strong> (Normalized Discounted Cumulative Gain): Are the best hits at the top?</p>
+<p><em>Example</em>: Picture the perfect ranking: top 5 results about transformer models are gold, next 5 are decent. If your retriever puts electrical engineering papers at #1 and buries the good ML content at #10, your NDCG tanks. High NDCG = happy users.</p>
+<h3 id="the-hierarchy-of-needs">The Hierarchy of Needs</h3><ol>
+<li><strong>Recall First</strong>: Cast a wide net—don&#39;t miss the critical docs.</li>
+<li><strong>Precision Next</strong>: Trim the fat—keep only what&#39;s relevant.</li>
+<li><strong>NDCG Last</strong>: Polish the rankings—put the best up top.</li>
+</ol>
+<h2 id="step-1-maximizing-recall">Step 1 – Maximizing Recall</h2><h3 id="why-recall-first">Why Recall First?</h3><p>If your retriever misses key documents, your generator&#39;s toast. It&#39;s like cooking a steak dinner with no steak. Recall is step one—get everything on the table.</p>
+<h3 id="tactics-to-boost-recall">Tactics to Boost Recall</h3><ol>
+<li><p><strong>Query Expansion</strong>: Make your query a beast by adding synonyms or related terms.</p>
+<p><em>Example</em>: Query = &quot;transformer models.&quot; Expand it to &quot;attention mechanisms,&quot; &quot;BERT architecture,&quot; &quot;language model design.&quot; </p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Check out WordNet for traditional expansion</li>
+<li>Use an LLM for contextual expansion or even re-writing to multiple different queries. In production, run all these expansions in parallel and merge results.</li>
+</ul>
+</li>
+<li><p><strong>Hybrid Search</strong>: Merge vector and keyword results like a DJ mixing tracks. Use reciprocal rank fusion (1/rank) to blend the scores.</p>
+<p><em>Example</em>: Query = &quot;transformer models.&quot; Vector search finds &quot;attention mechanism design,&quot; while full-text grabs &quot;BERT model implementations.&quot; Fusion ranks them smartly.</p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Use a hybrid search engine like <a href="https://www.pinecone.io/learn/hybrid-search/">Pinecone</a>, <a href="https://qdrant.tech/articles/hybrid-search/">Qdrant</a>, or <a href="https://turbopuffer.com/docs/hybrid">TurboPuffer</a></li>
+</ul>
+</li>
+<li><p><strong>Fine-Tune Embeddings</strong>: Generic embeddings suck for niche domains. Train on your data—say, medical literature or financial reports—for better matches.</p>
+<p><em>Example</em>: Fine-tune on a dataset of ML research papers. Now &quot;transformer architecture&quot; queries snag &quot;multi-head attention mechanism&quot; docs too.</p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Do it yourself: fine-tune <a href="https://huggingface.co/BAAI/bge-small-en">BAAI/bge-small</a> on your own data and benchmark it against current embeddings</li>
+<li>Follow LlamaIndex&#39;s <a href="https://docs.llamaindex.ai/en/latest/examples/finetuning/embeddings/finetune_embedding/">guide on embedding fine-tuning</a></li>
+<li>Take inspiration from Glean, which fine-tunes embeddings for each customer (<a href="https://www.youtube.com/watch?v=jTBsWJ2TKy8">Video</a>)</li>
+</ul>
+</li>
+<li><p><strong>Chunking Strategy</strong>: Break documents into bite-sized pieces. Smaller chunks (e.g., 256 tokens) catch more, but overlap them (e.g., 50 tokens) to keep context.</p>
+<p><em>Example</em>: An ML research paper on &quot;transformer models&quot; split into 500-token chunks might miss a key implementation detail. Shrink to 250 tokens with overlap, and you nab it.</p>
+<p><em>Pro Tip</em>: </p>
+<ul>
+<li>Depending on your embedding model and domain, benchmark chunk size and overlap to find the best balance.</li>
+</ul>
+</li>
+</ol>
+<h2 id="step-2-precision-tuning">Step 2 – Precision Tuning</h2><h3 id="why-precision-matters">Why Precision Matters</h3><p>You&#39;ve got a pile of docs—now ditch the trash. Precision ensures your RAG isn&#39;t wading through irrelevant sludge.</p>
+<h3 id="precision-boosting-strategies">Precision-Boosting Strategies</h3><ol>
+<li><p><strong>Re-Rankers</strong>: Run a heavy-hitter model (e.g., BERT cross-encoder) on your top 50-100 results to rescore them.</p>
+<p><em>Example</em>: Query = &quot;transformer architecture.&quot; Initial retrieval grabs 100 docs, including some about &quot;electrical power transformers.&quot; A re-ranker kicks out the electrical engineering stuff, keeping ML architecture gold.</p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Use Cohere&#39;s Rerank API, it&#39;s dead simple to integrate</li>
+<li>For brave souls, try open-source options such as <a href="https://github.com/stanford-futuredata/ColBERT">ColBERT</a> and <a href="https://huggingface.co/BAAI/bge-reranker-base">BAAI/bge-reranker-base</a></li>
+</ul>
+</li>
+<li><p><strong>Metadata Filtering</strong>: Use tags like date, category, or source to slice the fat.</p>
+<p><em>Example</em>: Query = &quot;transformer models.&quot; Filter out docs older than 2020 or from non-ML domains—bam, instant precision boost.</p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Implement with vector databases like Pinecone, TurboPuffer, or Qdrant that support metadata filtering</li>
+</ul>
+</li>
+<li><p><strong>Thresholding</strong>: Set a similarity cutoff (e.g., cosine &gt; 0.5) to trash low-confidence matches.</p>
+<p><em>Example</em>: Query = &quot;transformer architecture.&quot; Docs below 0.5 might be random electrical engineering content—drop &#39;em and keep the signal.</p>
+<p><em>What to do</em>: </p>
+<ul>
+<li>Configure similarity score thresholds in your vector database query APIs</li>
+</ul>
+</li>
+</ol>
+<h2 id="step-3-ndcg-optimization">Step 3 – NDCG Optimization</h2><h3 id="why-ranking-matters">Why Ranking Matters</h3><p>You&#39;ve maximized recall and precision—now make sure the gold is at the top. With LLMs having finite token limits, the order of retrieval can make or break your RAG system. If your best content is buried at position #30, your LLM might never see it.</p>
+<h3 id="ranking-improvement-strategies">Ranking Improvement Strategies</h3><ol>
+<li><p><strong>Reranking</strong>: Use re-rankers to filter and re-rank your results. This helps to improve both precision and NDCG.</p>
+</li>
+<li><p><strong>User Feedback Integration</strong>: Capture what users actually find valuable and use it to improve your rankings.</p>
+<p><em>Example</em>: Users consistently reference information from the third document in your RAG answers for &quot;transformer applications.&quot; Your system learns to boost similar documents higher for that query, dramatically improving NDCG.</p>
+<p><em>What to do</em>:</p>
+<ul>
+<li><strong>Track interactions</strong>: Implement explicit feedback (thumbs up/down) and implicit signals (time spent, follow-up questions)</li>
+<li><strong>Build feedback loops</strong>: Create a simple database that stores query-document pairs with user ratings</li>
+<li><strong>Implement active learning</strong>: Prioritize collecting feedback on borderline documents where the system is uncertain</li>
+<li><strong>Curate your corpus</strong>: Ruthlessly remove consistently low-rated documents from your vector database—this is a game-changer that most teams overlook</li>
+<li><strong>Apply immediate boosts</strong>: For frequent queries, manually boost documents with positive feedback by 1.2-1.5x in your ranking algorithm</li>
+</ul>
+<p><em>Pro Tip</em>: Don&#39;t wait for perfect data—start with a simple &quot;Was this helpful?&quot; button after each RAG response, and you&#39;ll be shocked how quickly you can improve rankings with even sparse feedback.</p>
+</li>
+<li><p><strong>Context is King</strong>: Leverage conversation history to supercharge your retrieval relevance.</p>
+<p><em>Example</em>: A user asks &quot;What are the best frameworks?&quot; after discussing PyTorch for 10 minutes. Without context, you might return generic framework docs. With context, you nail it with PyTorch-specific framework comparisons.</p>
+<p><em>What to do</em>:</p>
+<ul>
+<li><strong>Store conversation history</strong>: Keep the last 3-5 exchanges in a context window</li>
+<li><strong>Question rewriting</strong>: Use the history to expand ambiguous queries</li>
+<li><strong>Context-aware filtering</strong>: Use topics from previous exchanges to filter metadata</li>
+</ul>
+<p><em>Pro Tip</em>: Don&#39;t just append history blindly—it creates noise. Instead, extract key entities and concepts from previous exchanges and use them to enrich your current query. For example, if discussing &quot;transformer models for NLP tasks,&quot; extract &quot;transformer&quot; + &quot;NLP&quot; as context boosters.</p>
+</li>
+</ol>
+<h3 id="measuring-ndcg-improvement">Measuring NDCG Improvement</h3><p>Don&#39;t fly blind—benchmark your changes:</p>
+<ol>
+<li>Create a test set with queries and human-judged relevance scores</li>
+<li>Calculate NDCG@k (typically k=5 or k=10) before and after changes</li>
+<li>Aim for at least 5-10% lift in NDCG to justify implementation costs</li>
+</ol>
+<p><em>Pro Tip</em>: Let&#39;s do some LLM math that won&#39;t make your brain explode! Focus on NDCG@k based on your document size, because your poor LLM can only eat so many tokens before it gets a tummy ache.</p>
+<p>Here&#39;s a real-world example with numbers so simple even your coffee-deprived morning brain can handle them:</p>
+<ul>
+<li>Your average document: 10,000 tokens (that&#39;s a chatty document!)</li>
+<li>Your fancy GPT-4o: 128,000 token capacity (big brain energy!)</li>
+<li>Your context + prompt: ~3,000 tokens (the appetizer)</li>
+</ul>
+<p>Now for the main course calculation:
+10,000 tokens × 10 documents = 100,000 tokens
+100,000 tokens + 3,000 tokens = 103,000 tokens</p>
+<p>103,000 &lt; 128,000... We&#39;re good! 🎉</p>
+<h2 id="conclusion-build-a-retrieval-flywheel">Conclusion: Build a Retrieval Flywheel</h2><p>Here&#39;s the game plan:</p>
+<ol>
+<li><strong>Hybrid Search</strong>: Max out recall—grab everything.</li>
+<li><strong>Re-Rankers</strong>: Sharpen precision—ditch the junk.</li>
+<li><strong>Contextual Ranking</strong>: Make sure the gold is at the top.</li>
+</ol>
+<p>This isn&#39;t a one-and-done deal. It&#39;s a flywheel—every tweak spins it faster. Experiment with chunk sizes, thresholds, and models. Small wins stack up to massive gains.</p>
+<p><strong>Final Tip</strong>: Don&#39;t guess—test. Try a 0.7 threshold vs. 0.9. Swap 256-token chunks for 512. Data beats dogma.</p>
+<h2 id="retrieval-cheat-sheet">Retrieval Cheat Sheet</h2><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Goal</th>
+<th>Tactics</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Recall</td>
+<td>Grab everything</td>
+<td>Query Expansion, Hybrid Search, Fine-Tuning, Chunking</td>
+</tr>
+<tr>
+<td>2. Precision</td>
+<td>Ditch the junk</td>
+<td>Re-Rankers, Metadata Filters, Thresholds</td>
+</tr>
+<tr>
+<td>3. NDCG</td>
+<td>Perfect rankings</td>
+<td>Reranking, User Feedback, Context</td>
+</tr>
+</tbody></table>
+<p>That&#39;s it—your RAG retrieval is now a lean, mean, result-spitting machine. Go forth and dominate!</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>AWS BedRock - Converse API - A single endpoint for all models ?</title>
+      <link>https://dipkumar.dev/posts/aws-bedrock/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/aws-bedrock/</guid>
+      <pubDate>Thu, 13 Jun 2024 17:45:53 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Exploring AWS Bedrock&apos;s Converse API, a single unified endpoint for chatting with any foundation model including Claude, Llama, and Mistral.</description>
+      <category>llm</category>
+      <category>ai</category>
+      <content:encoded><![CDATA[<p>Amazon Bedrock is a fully managed service that makes high-performing foundation models (FMs) from leading AI startups and Amazon available for your use through a unified API. You can choose from a wide range of foundation models to find the model that is best suited for your use case. Amazon Bedrock also offers a broad set of capabilities to build generative AI applications with security, privacy, and responsible AI. With Amazon Bedrock, you can easily experiment with and evaluate top foundation models for your use cases, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and build agents that execute tasks using your enterprise systems and data sources. [1]</p>
+<p>AWS BedRock&#39;s Converse API is a single endpoint that allows you to chat with any model. Indeed, <strong>the single endpoint</strong> is, I believe, the best feature of AWS BedRock. Let&#39;s visit this endpoint and see how it works.</p>
+<pre><code class="language-python">
+model_id = &quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;
+
+inference_config = {&quot;temperature&quot;: 0.5}
+additional_model_fields = {&quot;top_k&quot;: 200}
+
+# Send the message.
+response = bedrock_client.converse(
+    modelId=model_id,
+    messages=messages,
+    system=system_prompts,
+    inferenceConfig=inference_config,
+    additionalModelRequestFields=additional_model_fields
+)
+</code></pre>
+<p>By changing <code>model_id</code>, you can switch between different models. </p>
+<p>I think AWS BedRock should have used the same standards as OpenAI&#39;s client rather than creating their own
+But, hey, it&#39;s still a single endpoint. right ?... 
+I should be just able to switch models by changing model_id. right ?....</p>
+<p><img src="https://i.imgflip.com/5bgun8.jpg?a477264=400x400" alt="AWS BedRock Endpoint"></p>
+<h2 id="hidden-gotcha-of-converse-api">Hidden Gotcha of Converse API</h2><h3 id="not-every-model-is-available">Not every model is available</h3><p>AWS BedRock has LLama3, Anthropic Claude, Mistral and their own Titan. But, It doesn&#39;t have OpenAI models like GPT-4/GPT-4o. This might not be a deal breaker, depending on what you are trying to achieve.
+You can check the availability of models in <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html">AWS Bedrock Models</a></p>
+<h3 id="not-every-model-has-system-prompt-or-multi-modality-support">Not every model has system prompt, or multi-modality support</h3><p>If you check converse API parameters, you will see that there is a parameter called <code>system</code>. This parameter is used to provide system prompt to the model. However, not every model supports system prompts. (Because they were not trained with system prompts). If you&#39;re switching between models via code using ENV/Flags/Config, you might need to handle edge cases where a system prompt is unavailable for the given <code>modelId</code>. Otherwise, It will throw an Exception. (Ideally, i think it should just give a warning) 
+AWS has a <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features">nice table</a> to check if given model has system prompt.</p>
+<p>The same goes for multi-modality. If your messages include images, switching between models might not be straightforward.</p>
+<h3 id="not-every-model-has-same-context-window">Not every model has same context window</h3><p>I mean this is on you, but again good reminder.</p>
+<h3 id="advance-prompt-technique-like-prefilling-assistant-message">Advance Prompt technique like Prefilling Assistant Message</h3><pre><code class="language-python"># code copied from https://eugeneyan.com//writing/prompting/#prefill-claudes-responses
+input = &quot;&quot;&quot;
+&lt;description&gt;
+The SmartHome Mini is a compact smart home assistant available in black or white for 
+only $49.99. At just 5 inches wide, it lets you control lights, thermostats, and other 
+connected devices via voice or app—no matter where you place it in your home. This 
+affordable little hub brings convenient hands-free control to your smart devices.
+&lt;/description&gt;
+
+Extract the &lt;name&gt;, &lt;size&gt;, &lt;price&gt;, and &lt;color&gt; from this product &lt;description&gt;.
+
+Return the extracted attributes within &lt;attributes&gt;.
+&quot;&quot;&quot;
+
+messages=[
+    {
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: input,
+    },
+    {
+        &quot;role&quot;: &quot;assistant&quot;,
+        &quot;content&quot;: &quot;&lt;attributes&gt;&lt;name&gt;&quot;  # Prefilled response
+    }
+]
+# raise error_class(parsed_response, operation_name)
+# botocore.errorfactory.ValidationException: An error occurred (ValidationException) when calling the Converse  
+# operation: The model that you are using requires the last turn in the conversation to be a user message. Add a 
+# user message to the conversation and try again.
+</code></pre>
+<p>If you&#39;re using advanced prompting techniques, such as Prefilling Assistant Messages [3], where you pre-populate the message with text designated as &#39;assistant&#39;, you need to be cautious when switching between models. Not all models are compatible with this technique and their is validation check which will raise exception.</p>
+<p>So, Overall, We are still far away from having a unified API for all models. I will update this article if i find anything new. </p>
+<h2 id="references">References</h2><p>[1] <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html">https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html</a></p>
+<p>[2] <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features">https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features</a></p>
+<p>[3] <a href="https://eugeneyan.com//writing/prompting/#prefill-claudes-responses">https://eugeneyan.com//writing/prompting/#prefill-claudes-responses</a></p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Essential Database Design: Five Fields Every Table Must Have</title>
+      <link>https://dipkumar.dev/posts/essential-db-design-1/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/essential-db-design-1/</guid>
+      <pubDate>Wed, 17 Apr 2024 06:05:38 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging.</description>
+      <category>database</category>
+      <category>db</category>
+      <category>design</category>
+      <content:encoded><![CDATA[<h1 id="essential-fields">Essential Fields</h1><p>Be it relational or not, every table <strong>should</strong> have these 5 fields:</p>
+<ol>
+<li>created_at (default now())</li>
+<li>updated_at (default now())</li>
+<li>deleted_at (default null)</li>
+<li>created_by (not null)</li>
+<li>updated_by (not null)</li>
+</ol>
+<blockquote>
+<p>Just to be clear, every table should have these 5 fields and not must. Adding these fields have other side-effects such as bloat, performance and disk size. But, if you&#39;re having these problems, i hope you&#39;re profitable. </p>
+</blockquote>
+<h2 id="why-should-you-include-this-fields-">Why should you include this fields ?</h2><h3 id="auditability">Auditability</h3><p>Incorporating these fields into every table significantly simplifies the auditing process. They enable you to track who created or modified an entry and when these actions occurred. It&#39;s important to note that while this doesn&#39;t provide a complete audit trail, not all tables require exhaustive audit trails. These fields deliver sufficient oversight for many applications.</p>
+<h3 id="soft-delete-capability">Soft Delete Capability</h3><p>Utilizing the <code>deleted_at</code> field for soft deletions boosts data recovery and error correction capabilities, enabling businesses to effortlessly restore mistakenly deleted data or perform historical data analysis without relying on intricate backup systems. Additionally, you can set up a cron job to transfer data to an archive table periodically. For instance, you might move all data marked as deleted over three months ago to cold storage. This strategy helps maintain manageable table sizes by systematically archiving older records.</p>
+<h3 id="row-level-securitypermissions-rls">Row Level Security/Permissions (RLS)</h3><p>These fields might seem superfluous at first, but they are incredibly useful for controlling user access to specific rows within a table. For instance, you may want to prevent a user from updating a row that was created by someone else. By using these fields, you can define such permissions clearly and effectively. Furthermore, they enable more nuanced scenarios—for example, allowing a user to restore a deleted row only if they were the original creator, while still permitting any user to delete a row. This level of detailed control ensures both data integrity and adherence to specified access protocols.</p>
+<h3 id="avoiding-nightmares-a-cautionary-tale">Avoiding Nightmares: A Cautionary Tale</h3><p>Imagine you&#39;ve deployed a cron job in the background designed to update certain attributes in your table based on specific business logic. It ran flawlessly during the staging tests, so you pushed it to production without further validation. But then, disaster strikes: the script modifies incorrect data. Fortunately, the updated_at and updated_by fields can come to your rescue (though not always). To identify the affected data, you can execute a query like:</p>
+<pre><code class="language-sql">SELECT * FROM items WHERE updated_at BETWEEN {script_begin} AND {script_end} AND updated_by = {script_user};
+</code></pre>
+<p>This allows you to pinpoint the exact entries altered during the time the script ran, providing a straightforward way to assess and rectify the unintended changes. This is a prime example of how such fields can help mitigate potential disasters, helping you manage crises more effectively.</p>
+<h2 id="orm-django">ORM: Django</h2><p>if you&#39;re using some framework for accessing db like ORM in your codebase, it becomes easier to add these fields to your tables and helper queries. For example, I am showcasing you how to add these fields in django (python).</p>
+<h3 id="1-create-mixin-class">1. Create mixin class</h3><pre><code class="language-python">from django.db import models
+from django.utils import timezone
+from django.conf import settings
+
+class AuditFieldsMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name=&quot;%(class)s_created_by&quot;, on_delete=models.SET_NULL, null=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name=&quot;%(class)s_updated_by&quot;, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        abstract = True
+
+    def soft_delete(self):
+        self.deleted_at = timezone.now()
+        self.save()
+</code></pre>
+<p>What’s going on here? We’re defining fields that automatically capture when and by whom a record was created or updated. Plus, we threw in a soft_delete method for good measure, so you can &quot;delete&quot; records without actually losing them.</p>
+<h4 id="slap-the-mixin-on-a-model">Slap the Mixin on a Model</h4><p>Using this mixin is as easy as pie. Just inherit from AuditFieldsMixin in your model:</p>
+<pre><code class="language-python">class Item(AuditFieldsMixin):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    # Imagine there are other fields here too!
+</code></pre>
+<h3 id="2-querysets-that-ignore-deleted-stuff">2. QuerySets That Ignore Deleted Stuff</h3><p>You don&#39;t want your default queries pulling up deleted records, right? Let’s fix that by tweaking the model’s manager to ignore anything that’s been soft-deleted:</p>
+<pre><code class="language-python">class AuditQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(deleted_at__isnull=True)
+
+    def deleted(self):
+        return self.filter(deleted_at__isnull=False)
+
+class AuditManager(models.Manager):
+    def get_queryset(self):
+        return AuditQuerySet(self.model, using=self._db).active()
+
+class Item(AuditFieldsMixin):
+    objects = AuditManager()
+    all_objects = models.Manager()  # This lets you access ALL records, even the &quot;deleted&quot; ones
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    # More fields, potentially
+</code></pre>
+<h2 id="conclusion">Conclusion</h2><p>Why do you need conclusion ? This is ain&#39;t generated by GPT. I am just a human being trying to help you.</p>
+<p>If you have any past expirences of getting saved by some random fields, please let me know. I would be happy to learn. </p>
+<p>Send me an email at <code>pate@</code> + <code>dipkumar.dev</code></p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Speeding up the GPT - KV cache</title>
+      <link>https://dipkumar.dev/posts/gpt-kvcache/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/gpt-kvcache/</guid>
+      <pubDate>Sun, 12 Feb 2023 06:32:55 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.</description>
+      <category>transformer</category>
+      <category>nlp</category>
+      <category>gpt</category>
+      <category>speedup</category>
+      <content:encoded><![CDATA[<p>The common optimization trick for speeding up transformer inference is KV caching  <a href="https://kipp.ly/blog/transformer-inference-arithmetic/">1</a> <a href="https://lilianweng.github.io/posts/2023-01-10-inference-optimization/">2</a>. This technique is so prominent that huggingface library has <code>use_cache</code> flag is enabled by default <a href="https://huggingface.co/transformers/v3.0.2/model_doc/gpt2.html?highlight=use_cache#transformers.GPT2Model.forward">6</a>. A few days ago, I read an awesome blog post on <a href="https://jaykmody.com/blog/gpt-from-scratch/">GPT in 60 Lines of NumPy</a>. So, i thought, why not extend it to use the KV cache technique? So, let’s roll up our sleeves and start working on it. Before you read further, the blog assumes you have background on transformers; if you don&#39;t, then read <a href="https://jaykmody.com/blog/gpt-from-scratch/">this blog post</a>. It’s awesome, and you will learn a lot from it.</p>
+<h2 id="why-the-naive-single-token-approach-fails">Why the naive single-token approach fails</h2><p>First, let’s understand a few things about GPT code.</p>
+<pre><code class="language-python">def gpt(inputs: list[int]) -&gt; list[list[float]]:
+    # inputs has shape [n_seq]
+    # output has shape [n_seq, n_vocab]
+    output = # beep boop neural network magic
+    return output
+</code></pre>
+<p>We can deduce from the input-output signature that we can provide arbitrary long input and receive output of the same length, with each element of the output indicating the probability of the next token. So, I can just give a single token as input and get the probability of next token. It should just work, right ?</p>
+<p>Modifying the code of picoGPT to just give the input of the last single token and get the probability of the next token.</p>
+<pre><code class="language-python">for _ in tqdm(range(n_tokens_to_generate), &quot;generating&quot;):  # auto-regressive decode loop
+        logits = gpt2(inputs[-1:], **params, n_head=n_head)  # model forward pass
+        next_id = np.argmax(logits[-1])  # greedy sampling
+        inputs = np.append(inputs, [next_id])  # append prediction to input
+</code></pre>
+<p>We are providing <code>inputs[-1:]</code> as input (single token) to the model. So, we are just passing a single token as input. Let&#39;s see what happens.</p>
+<pre><code class="language-markdown"> the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the
+</code></pre>
+<p>I didn’t work. Because the main magic is in the attention, in order to have good prediction of next tokens we need to provide all previous tokens. Although in practice, we do have limited memory and compute which forces us to provide context upto last N tokens. for example, chagpt has context upto 4096. In summary, We can’t just pass a single token and get very good prediction of next token. This makes attention have quadratic complexity.</p>
+<p>But, if we look at the architecture of GPT, we can see that we only interact with previous tokens in the attention block, all other layers, such as the embedding layer, the feed forward layer, the layer norm, etc., don’t care about previous tokens. So, what if we can cache the input of the attention block for all previous tokens and pass it during inference? We don’t have to pass all these tokens again and again. We can just pass the last token and get the probability of the next token.</p>
+<h2 id="what-to-cache-in-attention">What to cache in attention</h2><p>The input of the attention block is q, k, v and mask. We can try to cache q, k, and v for all previous tokens. But, let’s think about what really matters for us. We only need k and v of the previous tokens to perform attention on the current input token because we are only passing one token as input. See the image below for a visual representation of what I mean. </p>
+<pre><code class="language-python">def attention(q, k, v, mask):  # [n_q, d_k], [n_k, d_k], [n_k, d_v], [n_q, n_k] -&gt; [n_q, d_v]
+    return softmax(q @ k.T / np.sqrt(q.shape[-1]) + mask) @ v
+</code></pre>
+<p><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache"></p>
+<p>So, we need to calculate new_k and new_v for current input token. Append it to the existing cache and pass it to attention block for further processing. </p>
+<h3 id="updating-the-multi-head-attention-cache">Updating the multi-head attention cache</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+    # qkv projection
+    # when we pass kvcache, n_seq = 1. so we will compute new_q, new_k and new_v
+    x = linear(x, **c_attn)  # [n_seq, n_embd] -&gt; [n_seq, 3*n_embd]
+
+    # split into qkv
+    qkv = np.split(x, 3, axis=-1)  # [n_seq, 3*n_embd] -&gt; [3, n_seq, n_embd]
+
+    if kvcache:
+        # qkv
+        new_q, new_k, new_v = qkv  # new_q, new_k, new_v = [1, n_embd]
+        old_k, old_v = kvcache
+        k = np.vstack([old_k, new_k]) # k = [n_seq, n_embd], where n_seq = prev_n_seq + 1
+        v = np.vstack([old_v, new_v]) # v = [n_seq, n_embd], where n_seq = prev_n_seq + 1
+        qkv = [new_q, k, v]
+</code></pre>
+<p>There is one more thing we need to take care of is causal mask. When we pass single token we would like it to attend to all previous tokens.</p>
+<h3 id="adjusting-the-causal-mask">Adjusting the causal mask</h3><pre><code class="language-python">    # causal mask to hide future inputs from being attended to
+    if kvcache: 
+        # when we pass kvcache, we are passing single token as input which need to attend to all previous tokens, so we create mask with all 0s
+        causal_mask = np.zeros((1, k.shape[0]))
+    else:
+        # create triangular causal mask
+        causal_mask = (1 - np.tri(x.shape[0])) * -1e10  # [n_seq, n_seq]
+</code></pre>
+<p>Combining all the things together, we get the following code.</p>
+<h3 id="final-mha-implementation">Final `mha` implementation</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+    # qkv projection
+    # n_seq = 1 when we pass kvcache, so we will compute new_q, new_k and new_v
+    x = linear(x, **c_attn)  # [n_seq, n_embd] -&gt; [n_seq, 3*n_embd]
+
+    # split into qkv
+    qkv = np.split(x, 3, axis=-1)  # [n_seq, 3*n_embd] -&gt; [3, n_seq, n_embd]
+
+    if kvcache:
+        # qkv
+        new_q, new_k, new_v = qkv  # new_q, new_k, new_v = [1, n_embd]
+        old_k, old_v = kvcache
+        k = np.vstack([old_k, new_k]) # k = [n_seq, n_embd], where n_seq = prev_n_seq + 1
+        v = np.vstack([old_v, new_v]) # v = [n_seq, n_embd], where n_seq = prev_n_seq + 1
+        qkv = [new_q, k, v]
+
+    current_cache = [qkv[1], qkv[2]]
+
+    # split into heads
+    qkv_heads = list(map(lambda x: np.split(x, n_head, axis=-1), qkv))  # [3, n_seq, n_embd] -&gt; [n_head, 3, n_seq, n_embd/n_head]
+
+    # causal mask to hide future inputs from being attended to
+    if kvcache:
+        causal_mask = np.zeros((1, k.shape[0]))
+    else:
+        causal_mask = (1 - np.tri(x.shape[0])) * -1e10  # [n_seq, n_seq]
+
+    # perform attention over each head
+    out_heads = [attention(q, k, v, causal_mask) for q, k, v in zip(*qkv_heads)]  # [n_head, 3, n_seq, n_embd/n_head] -&gt; [n_head, n_seq, n_embd/n_head]
+
+    
+    # merge heads
+    x = np.hstack(out_heads)  # [n_head, n_seq, n_embd/n_head] -&gt; [n_seq, n_embd]
+
+    # out projection
+    x = linear(x, **c_proj)  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+
+    return x, current_cache
+</code></pre>
+<p>We introduced minor breaking changes in output as well. We are introducing <code>current_cache</code> alongside our normal output. This is because we can use an updated cache for the next run.</p>
+<p>We also need to change a few functions to make it work.</p>
+<h2 id="propagating-the-cache-through-the-transformer">Propagating the cache through the transformer</h2><pre><code class="language-python">def transformer_block(x, mlp, attn, ln_1, ln_2, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+    # multi-head causal self attention
+    attn_out, kvcache_updated = mha(layer_norm(x, **ln_1), **attn, n_head=n_head, kvcache=kvcache)
+    x = x + attn_out  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+
+    # position-wise feed forward network
+    x = x + ffn(layer_norm(x, **ln_2), **mlp)  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+
+    return x, kvcache_updated
+</code></pre>
+<p>We added <code>kvcache</code> as an input to the function and returned <code>kvcache_updated</code> as an output for each transformer block. We also need to change <code>transformer</code> function.</p>
+<pre><code class="language-python"> def gpt2(inputs, wte, wpe, blocks, ln_f, n_head, kvcache = None):  # [n_seq] -&gt; [n_seq, n_vocab]
+    if not kvcache:
+        kvcache = [None]*len(blocks)
+        wpe_out = wpe[range(len(inputs))]
+    else: # cache already available, only send last token as input for predicting next token
+        wpe_out = wpe[[len(inputs)-1]]
+        inputs = [inputs[-1]]
+
+    # token + positional embeddings
+    x = wte[inputs] + wpe_out  # [n_seq] -&gt; [n_seq, n_embd]
+
+    
+    # forward pass through n_layer transformer blocks
+    new_kvcache = []
+    for block, kvcache_block in zip(blocks, kvcache):
+        x, updated_cache = transformer_block(x, **block, n_head=n_head, kvcache=kvcache_block)  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+        new_kvcache.append(updated_cache)  # TODO: inplace extend new cache instead of re-saving whole
+
+    # projection to vocab
+    x = layer_norm(x, **ln_f)  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+    return x @ wte.T, new_kvcache  # [n_seq, n_embd] -&gt; [n_seq, n_vocab]
+</code></pre>
+<p>Notice, When we have already compute <code>kvcache</code>, we only return input last token to GPT2 alongside with <code>kvcache</code>. You can also see <code>len(kvcache) == # number of transformer blocks</code>. This is because we need to update <code>kvcache</code> for attention and we have single attention in each transformer block.</p>
+<p>And, finally, it&#39;s time to change our <code>generate</code> function to use cache. In the first iteration, we will not have <code>kvcache</code> and we will pass <code>kvcache=None</code> to <code>gpt2</code> function. In subsequent iterations, we will utilise the previously generated <code>kvcache</code>.</p>
+<h2 id="using-the-cache-during-generation">Using the cache during generation</h2><pre><code class="language-python">kvcache = None
+for _ in tqdm(range(n_tokens_to_generate), &quot;generating&quot;):  # auto-regressive decode loop
+    logits, kvcache = gpt2(inputs, **params, n_head=n_head, kvcache=kvcache)  # model forward pass
+    next_id = np.argmax(logits[-1])  # greedy sampling
+    inputs = np.append(inputs, [next_id])  # append prediction to input
+</code></pre>
+<p>This cache helps us to reduce computation for each iteration. We can see that, in first iteration, we are computing attention for all tokens in input. But, in subsequent iterations, we are only computing attention for last token. Reducing time complexity from <code>O(n^2)</code> to <code>O(n)</code>.</p>
+<p>Finally, we can verify generate text with our previous code which didn&#39;t have caching and compare two output. Both output should be same.</p>
+<h2 id="verifying-the-output">Verifying the output</h2><p>In terminal</p>
+<pre><code class="language-python">&gt;&gt;&gt; python gpt2_kvcache.py &quot;Alan Turing theorized that computers would one day become&quot;
+Output:
+ the most powerful machines on the planet.
+
+The computer is a machine that can perform complex calculations, and it can perform these calculations in a way that is very similar to the human brain.
+</code></pre>
+<p>You can see the all the code in this <a href="https://github.com/jaymody/picoGPT/pull/7/files">pull request</a>. You can also see the code in this <a href="https://github.com/immortal3/picoGPT">repository</a>.</p>
+<p>You can see more details of calculation related to kv cache memory footprint calculation and computation time in this <a href="https://kipp.ly/blog/transformer-inference-arithmetic/">blog post</a>.</p>
+<h2 id="references">References</h2><ol>
+<li><a href="https://kipp.ly/blog/transformer-inference-arithmetic/">https://kipp.ly/blog/transformer-inference-arithmetic/</a></li>
+<li><a href="https://lilianweng.github.io/posts/2023-01-10-inference-optimization/">https://lilianweng.github.io/posts/2023-01-10-inference-optimization/</a></li>
+<li><a href="https://jaykmody.com/blog/gpt-from-scratch/">https://jaykmody.com/blog/gpt-from-scratch/</a></li>
+</ol>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>LC contest problems summary</title>
+      <link>https://dipkumar.dev/posts/leetcode-contest/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/leetcode-contest/</guid>
+      <pubDate>Sun, 28 Nov 2021 11:39:55 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>Solutions and hints for LeetCode biweekly and weekly contest problems, organized by contest with progressive hints.</description>
+      <category>algorithms</category>
+      <category>lc</category>
+      <content:encoded><![CDATA[<h3 id="biweekly-66-27th-nov-2021httpsleetcodecomcontestbiweekly-contest-66">[Biweekly-66 (27th Nov, 2021)](https://leetcode.com/contest/biweekly-contest-66/)</h3><ol>
+<li><a href="https://leetcode.com/contest/biweekly-contest-66/problems/count-common-words-with-one-occurrence/">2085. Count Common Words With One Occurrence</a></li>
+</ol>
+<p>Use hashmap (Counter)</p>
+<ol start="2">
+<li><p><a href="https://leetcode.com/contest/biweekly-contest-66/problems/minimum-number-of-buckets-required-to-collect-rainwater-from-houses/">2086. Minimum Number of Buckets Required to Collect Rainwater from Houses</a>&quot;
+ First put the bucket at best place and the remove those covering home. 
+ Answer is (best bucket cnt + remaining house). 
+ Corner case: check for each house is coverable </p>
+</li>
+<li><p><a href="https://leetcode.com/contest/biweekly-contest-66/problems/minimum-cost-homecoming-of-a-robot-in-a-grid/">2087. Minimum Cost Homecoming of a Robot in a Grid</a>
+ djikstra will fail. why ? 
+ Too many cells to cover (10**10). Think of something else 
+ To reach home, which path you need to take ? (cost is non-negative) 
+ To reach home, number of rows and number of cols changes are fixed.  </p>
+</li>
+<li><p><a href="https://leetcode.com/contest/biweekly-contest-66/problems/count-fertile-pyramids-in-a-land/">2088. Count Fertile Pyramids in a Land</a>
+ Deconstruct pyramid into smaller part and then think to calculate how many pyramids are there 
+ we can calculate left and right perpendiculars and then construct pyramids from them 
+ calculate for normal and flipped version of grid</p>
+</li>
+</ol>
+<h3 id="weekly-269-28th-nov-2021httpsleetcodecomcontestweekly-contest-269">[Weekly-269 (28th Nov, 2021)](https://leetcode.com/contest/weekly-contest-269)</h3><ol>
+<li><a href="https://leetcode.com/contest/weekly-contest-269/problems/find-target-indices-after-sorting-array/">2089. Find Target Indices After Sorting Array</a>
+ Implementation </li>
+<li><a href="https://leetcode.com/contest/weekly-contest-269/problems/k-radius-subarray-averages/">2090. K Radius Subarray Averages</a>
+ Prefix sum </li>
+<li><a href="https://leetcode.com/contest/weekly-contest-269/problems/removing-minimum-and-maximum-from-array/">2091. Removing Minimum and Maximum From Array</a>
+ Greedy cases to minimize number of remove
+ min(r+1, n-l, l+1+(n-r)). here l and r are index of max and min elements (l &lt; r). </li>
+<li><a href="https://leetcode.com/contest/weekly-contest-269/problems/find-all-people-with-secret/">2092. Find All People With Secret</a>
+ sort by time and try to share secret
+ at current timestamp, find connected components and color all nodes if one of them have seen secret</li>
+</ol>
+<!-- 
+1. []()
+ 
+2. []()
+ 
+3. []()
+ 
+4. []()
+ 
+ -->
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Hugo commands</title>
+      <link>https://dipkumar.dev/posts/hugo-cmds/</link>
+      <guid isPermaLink="true">https://dipkumar.dev/posts/hugo-cmds/</guid>
+      <pubDate>Sun, 28 Nov 2021 11:38:55 GMT</pubDate>
+      <dc:creator><![CDATA[Dipkumar Patel]]></dc:creator>
+      <description>A quick reference for common Hugo static site generator commands and workflows.</description>
+      <category>hugo</category>
+      <content:encoded><![CDATA[<h3 id="run-local-server">run local server</h3><pre><code>hugo server -D
+</code></pre>
+<h3 id="create-new-post">Create New Post</h3><pre><code>hugo new content/posts/{post-name}.md
+</code></pre>
+<h3 id="hugo-buildexport-the-site">Hugo build/export the site</h3><pre><code>hugo -d ../becoming-the-unbeatable
+</code></pre>
+<h3 id="relative-imports">relative imports</h3><p>example: static\icons\favicon.png <br>relative imports: icons\favicon.png</p>
+<h3 id="fix-for-label-image">fix for label image</h3><p>icon: small_icon.jpg
+instead of 
+icon: small_icon.png</p>
+<p>github issue: <a href="https://github.com/adityatelange/hugo-PaperMod/issues/622">https://github.com/adityatelange/hugo-PaperMod/issues/622</a></p>
+]]></content:encoded>
+    </item>
+  </channel>
+</rss>

@@ -513,6 +513,67 @@ h1 {
     color: var(--accent-color);
 }
 
+/* Related Posts */
+.related-posts {
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.related-posts-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 20px;
+}
+
+.related-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.related-post-item {
+    padding: 0;
+}
+
+.related-post-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.related-post-link:hover .related-post-title {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.related-post-emoji {
+    font-size: 0.95rem;
+}
+
+.related-post-description {
+    margin: 4px 0 0 26px;
+    color: var(--muted-color);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .related-post-description {
+        margin-left: 22px;
+    }
+}
+
 /* Reading Progress Bar */
 .reading-progress {
     position: fixed;
