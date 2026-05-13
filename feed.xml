@@ -9,7 +9,7 @@
     <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
     <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 13 May 2026 15:41:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 13 May 2026 16:58:31 GMT</lastBuildDate>
     <generator>dipkumar.dev custom static generator</generator>
     <item>
       <title>Building with Claude Managed Agents - Sharp Edges</title>
