@@ -74,7 +74,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Instruction Aware Embeddings","description":"Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings","datePublished":"2025-07-08T07:44:36.000Z","dateModified":"2026-03-14T04:15:47.000Z","inLanguage":"en","keywords":"rag, embedding","wordCount":974,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/instruction-aware-embeddings/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Instruction Aware Embeddings","description":"Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings","datePublished":"2025-07-08T07:44:36.000Z","dateModified":"2026-03-14T04:15:47.000Z","inLanguage":"en","keywords":"rag, embedding","wordCount":974,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/instruction-aware-embeddings/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -268,7 +268,7 @@ We also want to highlight its technical challenges.
 
 Let&#39;s write a concise presentation for this.&quot;
 </code></pre>
-<p><img src="/static/blog_photos/context-gemini.png" alt="image"></p>
+<p><picture><source srcset="/static/blog_photos/context-gemini.webp" type="image/webp"><img src="/static/blog_photos/context-gemini.png" alt="image" width="1771" height="610" loading="lazy" decoding="async"></picture></p>
 <p>It returned information about &quot;Unisys ClearPath MCP&quot; rather than the intended &quot;Model Control Protocol (MCP)&quot; proposed by Anthropic. This real-world misalignment underscores how context-less embeddings can derail retrieval.  </p>
 <hr>
 <h2 id="2-missing-context-in-embedding">2. Missing Context in Embedding</h2><p>Embeddings encode <strong>semantic similarity</strong> but lack task or intent signals. Out of the box, they answer the question:  </p>
@@ -298,7 +298,7 @@ instruction = &quot;Given a grocery shopping question, retrieve fruit purchase i
 query = &quot;I want to buy apple&quot;
 instructed_query = f&quot;Instruction: {instruction}\nQuery: {query}&quot;
 </code></pre>
-<p><img src="/static/blog_photos/context-qwen.png" alt="image"></p>
+<p><picture><source srcset="/static/blog_photos/context-qwen.webp" type="image/webp"><img src="/static/blog_photos/context-qwen.png" alt="image" width="585" height="315" loading="lazy" decoding="async"></picture></p>
 <hr>
 <p><strong>Visualizing the Flow:</strong></p>
 <pre><code class="language-text">User Query: &quot;I want to buy apple&quot;

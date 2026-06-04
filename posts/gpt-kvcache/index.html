@@ -78,7 +78,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Speeding up the GPT - KV cache","description":"How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.","datePublished":"2023-02-12T06:32:55.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"transformer, nlp, gpt, speedup","wordCount":905,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/gpt-kvcache/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Speeding up the GPT - KV cache","description":"How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.","datePublished":"2023-02-12T06:32:55.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"transformer, nlp, gpt, speedup","wordCount":905,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/gpt-kvcache/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -153,7 +153,7 @@
 <pre><code class="language-python">def attention(q, k, v, mask):  # [n_q, d_k], [n_k, d_k], [n_k, d_v], [n_q, n_k] -&gt; [n_q, d_v]
     return softmax(q @ k.T / np.sqrt(q.shape[-1]) + mask) @ v
 </code></pre>
-<p><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache"></p>
+<p><picture><source srcset="/static/blog_photos/kvcache.webp" type="image/webp"><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache" width="1752" height="908" loading="lazy" decoding="async"></picture></p>
 <p>So, we need to calculate new_k and new_v for current input token. Append it to the existing cache and pass it to attention block for further processing. </p>
 <h3 id="updating-the-multi-head-attention-cache">Updating the multi-head attention cache</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
     # qkv projection

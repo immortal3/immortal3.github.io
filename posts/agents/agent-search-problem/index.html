@@ -80,7 +80,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Agents Can Reason. They Still Can't Really Search.","description":"Agents have a search problem across the whole stack: web search, RAG, tool discovery, skills/workflow loading, and even context compaction.","datePublished":"2026-03-16T18:30:00.000Z","dateModified":"2026-03-19T14:49:04.000Z","inLanguage":"en","keywords":"agents, rag, search, mcp, llm","wordCount":4498,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/agents/agent-search-problem/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Agents Can Reason. They Still Can't Really Search.","description":"Agents have a search problem across the whole stack: web search, RAG, tool discovery, skills/workflow loading, and even context compaction.","datePublished":"2026-03-16T18:30:00.000Z","dateModified":"2026-03-19T14:49:04.000Z","inLanguage":"en","keywords":"agents, rag, search, mcp, llm","wordCount":4498,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/agents/agent-search-problem/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -253,7 +253,7 @@
 <li>the relevant part of a long context window</li>
 </ul>
 <p>Agents fail on real-world tasks because they keep running into this problem in different places. If any one of those breaks, the whole task usually breaks with it.</p>
-<p><img src="/static/blog_photos/agent-search-problem/harness.png" alt="agentic-harness"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/harness.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/harness.png" alt="agentic-harness" width="2562" height="1346" loading="lazy" decoding="async"></picture></p>
 <p>You can see the same pattern in a few different places:</p>
 <ul>
 <li>web and external search</li>
@@ -328,7 +328,7 @@ Excalidraw instructions:
 <li>agentic RAG: break the problem apart, search in parallel, merge evidence, decide whether more search is needed</li>
 </ul>
 <p>This is why &quot;agentic RAG&quot; is now becoming a product surface, not just a paper idea. Azure AI Search now has <a href="https://learn.microsoft.com/en-us/azure/search/search-agentic-retrieval-concept">agentic retrieval</a>, where an LLM breaks a complex query into smaller subqueries, runs them in parallel, and merges the result. Their own example is basically a multi-hop retrieval problem in plain English: &quot;find me a hotel near the beach, with airport transportation, and that&#39;s within walking distance of vegetarian restaurants.&quot; That kind of query is awkward for classic one-shot retrieval, but much better suited to query decomposition plus parallel search.</p>
-<p><img src="/static/blog_photos/agent-search-problem/agentic-rag.png" alt="Agentic RAG"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/agentic-rag.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/agentic-rag.png" alt="Agentic RAG" width="1694" height="1069" loading="lazy" decoding="async"></picture></p>
 <p>So yes, agentic RAG is solving a real problem. It is helping with multi-hop questions, multi-ask queries, and situations where the original user query is too broad or under-specified for one retrieval pass.</p>
 <p>But it is still far from fully solved.</p>
 <p>Even after you decompose a question well, a bunch of hard problems remain:</p>
@@ -361,7 +361,7 @@ Excalidraw instructions:
 <p>Anthropic&#39;s own <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use">advanced tool use documentation</a> puts a number on this: large tool catalogs can push tool definitions past 50,000 tokens before the model has even read the user&#39;s request. Their recommended fix is to use a smaller retrieval model to return only the relevant tools based on user intent, and even use semantic search over tool descriptions. That recommendation is RAG. For actions.</p>
 <p>And the ecosystem is already moving in that direction. Anthropic&#39;s own <a href="https://www.anthropic.com/engineering/advanced-tool-use">advanced tool use engineering post</a> says agents should &quot;discover and load tools on-demand&quot; instead of stuffing every definition into context upfront. <a href="https://changelog.langchain.com/announcements/dynamic-tool-calling-in-langgraph-agents">LangGraph added dynamic tool calling</a> so the available tools can change at different points in a run. Their examples are telling: require an auth tool before exposing sensitive actions, start with a small toolset, then expand as the task evolves. <a href="https://developer.salesforce.com/blogs/2025/06/level-up-your-developer-tools-with-salesforce-dx-mcp">Salesforce&#39;s DX MCP blog</a> makes the same move with toolsets, noting that hosts can dynamically load only the tools they need to minimize memory use and improve performance.</p>
 <p>That is the deeper point. The problem is not just &quot;which tool should the model call?&quot; The problem is also &quot;which tools should even be attached right now?&quot; Static attachment made sense when agents had a handful of tools. It breaks down when the catalog is large, sensitive, or step-dependent. So now we are seeing dynamic tool attachment, scoped tool exposure, and tool retrieval as separate design patterns.</p>
-<p><img src="/static/blog_photos/agent-search-problem/rag-mcp.png" alt="RAG and MCP/Tools has same problem"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/rag-mcp.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/rag-mcp.png" alt="RAG and MCP/Tools has same problem" width="1321" height="1056" loading="lazy" decoding="async"></picture></p>
 <!-- DIAGRAM 3: The same problem at two layers
 Excalidraw instructions:
 - Two rows stacked vertically, visually parallel

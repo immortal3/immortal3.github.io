@@ -9,7 +9,7 @@
     <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
     <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 04 Jun 2026 13:47:54 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 04 Jun 2026 16:01:34 GMT</lastBuildDate>
     <generator>dipkumar.dev custom static generator</generator>
     <item>
       <title>Wordmaze: a one-shot, verifier-graded puzzle for RL</title>
@@ -214,10 +214,10 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 </code></pre>
 <h2 id="baselines">Baselines</h2><p>This is the most fun part, also where you lose money if you don&#39;t have free credits.</p>
 <p>Here is the baseline on the hard <code>m4-6</code> test split:</p>
-<p><img src="/static/blog_photos/wordmaze/fig-leaderboard.png" alt="Wordmaze m4-6 test leaderboard: gemini-3.1-pro 99.5%, 3.5-flash 83.5%, 2.5-flash 36.5%, Qwen3.5-9B 9.5%, Qwen3.5-4B 2.5%"></p>
+<p><picture><source srcset="/static/blog_photos/wordmaze/fig-leaderboard.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-leaderboard.png" alt="Wordmaze m4-6 test leaderboard: gemini-3.1-pro 99.5%, 3.5-flash 83.5%, 2.5-flash 36.5%, Qwen3.5-9B 9.5%, Qwen3.5-4B 2.5%" width="1798" height="1045" loading="lazy" decoding="async"></picture></p>
 <p>The top models basically solve it: 3.1-pro at 99.5%, 3.5-flash at 83.5%. The small open models are stuck in single digits, 9.5% for the 9B and 2.5% for the 4B. That gap, near-perfect at the top and almost nothing at the bottom, is the whole reason I made the dataset.</p>
 <p>Accuracy alone hides the more interesting part, though. Here it is plotted against how much each model thinks (its reasoning tokens):</p>
-<p><img src="/static/blog_photos/wordmaze/fig-frontier-budget.png" alt="Fully-valid rate versus median reasoning tokens for the three Gemini models on Wordmaze m4-6"></p>
+<p><picture><source srcset="/static/blog_photos/wordmaze/fig-frontier-budget.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-frontier-budget.png" alt="Fully-valid rate versus median reasoning tokens for the three Gemini models on Wordmaze m4-6" width="2029" height="1106" loading="lazy" decoding="async"></picture></p>
 <p>Look at the weakest of the three. <code>gemini-2.5-flash</code> scores 36.5%, and not because it ran out of room to think. The opposite. It uses a median of 19,374 reasoning tokens <sup class="cite-ref"><a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">[5]<span class="cite-tip">Wei et al. (2022) &middot; Chain-of-Thought Prompting &middot; arXiv:2201.11903</span></a></sup> per puzzle, against 3.1-pro&#39;s 4,100, and still loses. On six-move puzzles its median goes past 60k. In the plot, the dot is each model&#39;s median and the diamond is its slow tail (the 95th percentile). Both flash models hit the 63k token cap on their worst puzzles; 3.1-pro&#39;s worst (about 10k) is still below 2.5-flash&#39;s typical puzzle. So 2.5-flash isn&#39;t really reasoning, it&#39;s flailing: it searches, second-guesses, and never lands. <strong>More thinking time isn&#39;t the fix. A better model is.</strong> <sup class="cite-ref"><a href="https://arxiv.org/abs/2408.03314" target="_blank" rel="noopener">[6]<span class="cite-tip">Snell et al. (2024) &middot; Scaling LLM Test-Time Compute &middot; arXiv:2408.03314</span></a></sup> The stronger model gets there with less thinking, not more.</p>
 <p>Where do the failures concentrate? Format and word-validity are nearly free for everyone. Even 2.5-flash gets 98% valid format and 80% valid words. The puzzle lives in two checks: <code>one_letter_changes</code> and <code>password_matches</code>. 2.5-flash matches the password only 44% of the time. The character-level bookkeeping, which letter changed and in which direction, is what separates the models.</p>
 <p>The open models fail the same way, only harder. Stripped of a reasoning budget the 4B collapses toward zero, 4% on <code>one_letter_changes</code> in direct-answer mode. A concrete 4B failure, on a four-move puzzle:</p>
@@ -262,7 +262,7 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 </tr>
 </tbody></table>
 <p>The strongest model barely notices: 3.1-pro is 99.5% on both configs. The weaker ones drop as puzzles get longer, and 2.5-flash drops the most. But the two averages hide what&#39;s really going on. It&#39;s clearer move by move.</p>
-<p><img src="/static/blog_photos/wordmaze/fig-difficulty.png" alt="Accuracy and median reasoning tokens versus move count for the three Gemini models"></p>
+<p><picture><source srcset="/static/blog_photos/wordmaze/fig-difficulty.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-difficulty.png" alt="Accuracy and median reasoning tokens versus move count for the three Gemini models" width="2484" height="1167" loading="lazy" decoding="async"></picture></p>
 <p>The chart plots accuracy and thinking against the number of moves, one line per config. The two lines meet at four moves, which tells us the difficulty comes from how many moves a puzzle needs, not from which config it came from. That&#39;s the dial I lean on in the training post. 3.1-pro stays flat near 100% from three moves to six, and its thinking only creeps up, about 1.4k tokens to 5.7k. 2.5-flash goes the other way on both: accuracy falls from 65% to 17%, and its thinking jumps from 6k to 63k on the six-move puzzles. Ten times the effort, a sixth of the wins. Harder puzzles should cost more thought, sure, but for a good model that cost stays small, and for a weak one it blows up <sup class="cite-ref"><a href="https://arxiv.org/abs/2506.06941" target="_blank" rel="noopener">[7]<span class="cite-tip">Shojaee et al. (2025) &middot; The Illusion of Thinking &middot; arXiv:2506.06941</span></a></sup>.</p>
 <p>Mean versus median says the same thing more sharply. For 3.1-pro the two are close (on m4-6, median 4.1k, mean 4.7k), so almost every puzzle costs about the same. For 2.5-flash the mean sits well above the median (median 19k, mean 31k; on m3-4 the mean is triple the median). That gap means a handful of puzzles send it spiraling into tens of thousands of tokens with nothing to show. 3.5-flash has those bad puzzles too, but it usually still gets the answer. 2.5-flash usually doesn&#39;t.</p>
 <p>Wall-clock time tells the same story. On the m3-4 runs I also logged how long each request took. At the median, 3.5-flash is fastest (12s), 3.1-pro a bit slower at 19s (bigger model, fewer tokens), and 2.5-flash slowest at 33s. The tail is where it hurts: 3.1-pro and 3.5-flash stay under about 40 seconds 90% of the time, but 2.5-flash&#39;s slowest 10% run over four minutes. Its average is 92 seconds, nearly triple its median, the same runaway tail, now in seconds instead of tokens. The best model isn&#39;t the quickest per puzzle, but it&#39;s the only one you&#39;d trust on a deadline.</p>
@@ -275,7 +275,7 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 <p>A language model doesn&#39;t read letters, it reads tokens <sup class="cite-ref"><a href="https://arxiv.org/abs/1508.07909" target="_blank" rel="noopener">[8]<span class="cite-tip">Sennrich et al. (2016) &middot; Subword Units (BPE) &middot; arXiv:1508.07909</span></a></sup>. A short word like <code>shots</code> or <code>steps</code> is usually a single token, one number to the model. And those two numbers are unrelated: nothing in them tells the model which letters the words share or where they differ. So to answer &quot;did exactly one letter change?&quot;, the model can&#39;t just glance at the spelling. It has to recall each word letter by letter, line the two up, and compare, all in its head, in words.</p>
 <p>The password is harder still. For every move the model has to find which letter changed <em>and</em> decide whether it moved forward or backward in the alphabet (<code>l → r</code> is forward, so <code>F</code>). That&#39;s two small character puzzles per step, on top of searching for a valid path. Frontier models grind through it with thousands of tokens of scratch work. A 4B can&#39;t keep that up, so it falls apart.</p>
 <p>So here&#39;s a test. If the tokenizer is the problem, handing the model the letters should help. I reran the 4B with every word spelled out with spaces, <code>c o l d</code> instead of <code>cold</code>. Now each letter is its own token, which is the idea behind character-level models <sup class="cite-ref"><a href="https://arxiv.org/abs/2105.13626" target="_blank" rel="noopener">[9]<span class="cite-tip">Xue et al. (2021) &middot; ByT5 &middot; arXiv:2105.13626</span></a></sup> <sup class="cite-ref"><a href="https://arxiv.org/abs/2103.06874" target="_blank" rel="noopener">[10]<span class="cite-tip">Clark et al. (2021) &middot; CANINE &middot; arXiv:2103.06874</span></a></sup>:</p>
-<p><img src="/static/blog_photos/wordmaze/fig-tokenization.png" alt="Char-spacing roughly doubles a 4B's character-level pass rates on Wordmaze m3-4"></p>
+<p><picture><source srcset="/static/blog_photos/wordmaze/fig-tokenization.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-tokenization.png" alt="Char-spacing roughly doubles a 4B's character-level pass rates on Wordmaze m3-4" width="1517" height="1099" loading="lazy" decoding="async"></picture></p>
 <p>It worked. One-letter steps doubled, password matches nearly doubled, and fully-valid went from 18.5% to 26.5%, even though spacing makes the text about twice as long, so the model has <em>less</em> room to work, not more. Handing it the letters helped more than the extra length hurt. That&#39;s a strong hint the tokenizer, not raw smarts, is a real part of why small models struggle here.</p>
 <h2 id="whats-next">What's next</h2><p>That&#39;s the environment: a one-shot puzzle, a pure-function verifier with a per-check signal, a reproducible generator, and a baseline gap that runs from 99.5% at the frontier down to single digits for a 4B. The gap is the whole motivation. A small open model can <em>almost</em> do this when you give it room to reason, which is the regime where RL might help: there&#39;s a non-zero success rate to amplify.</p>
 <p>The next post is the training story: what happens when you point GRPO at a 4B and try to close that gap. It does not go the way you&#39;d hope. The first honest result is that a naive pipeline made the model <em>worse</em> than its untrained base, by learning to game the very checks above. That failure, what it says about reward design, and whether RL can push a model past what its base already does <sup class="cite-ref"><a href="https://arxiv.org/abs/2504.13837" target="_blank" rel="noopener">[11]<span class="cite-tip">Yue et al. (2025) &middot; Limits of RLVR &middot; arXiv:2504.13837</span></a></sup>, is part two.</p>
@@ -771,7 +771,7 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
       <category>harness</category>
       <category>cost</category>
       <category>engineering</category>
-      <content:encoded><![CDATA[<p><img src="/static/blog_photos/agent-harness-cost-checklist/hero.webp" alt="Abstract hero image showing modular agent systems, token flows, and cost-control checkpoints in a minimal monochrome style with indigo accents"></p>
+      <content:encoded><![CDATA[<p><img src="/static/blog_photos/agent-harness-cost-checklist/hero.webp" alt="Abstract hero image showing modular agent systems, token flows, and cost-control checkpoints in a minimal monochrome style with indigo accents" loading="lazy" decoding="async"></p>
 <h2 id="tldr-checklist">TLDR: Checklist</h2><ul>
 <li><input disabled="" type="checkbox"> <strong>Make prompt caching actually work: stabilize the prefix and verify hit rates.</strong>
 Keep reusable system prompts and shared chat history stable so the cache has something to hit. Track hit rates, and use provider-specific cache controls when they actually improve savings.</li>
@@ -1037,7 +1037,7 @@ You want to answer questions like these:</p>
 <li>the relevant part of a long context window</li>
 </ul>
 <p>Agents fail on real-world tasks because they keep running into this problem in different places. If any one of those breaks, the whole task usually breaks with it.</p>
-<p><img src="/static/blog_photos/agent-search-problem/harness.png" alt="agentic-harness"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/harness.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/harness.png" alt="agentic-harness" width="2562" height="1346" loading="lazy" decoding="async"></picture></p>
 <p>You can see the same pattern in a few different places:</p>
 <ul>
 <li>web and external search</li>
@@ -1112,7 +1112,7 @@ Excalidraw instructions:
 <li>agentic RAG: break the problem apart, search in parallel, merge evidence, decide whether more search is needed</li>
 </ul>
 <p>This is why &quot;agentic RAG&quot; is now becoming a product surface, not just a paper idea. Azure AI Search now has <a href="https://learn.microsoft.com/en-us/azure/search/search-agentic-retrieval-concept">agentic retrieval</a>, where an LLM breaks a complex query into smaller subqueries, runs them in parallel, and merges the result. Their own example is basically a multi-hop retrieval problem in plain English: &quot;find me a hotel near the beach, with airport transportation, and that&#39;s within walking distance of vegetarian restaurants.&quot; That kind of query is awkward for classic one-shot retrieval, but much better suited to query decomposition plus parallel search.</p>
-<p><img src="/static/blog_photos/agent-search-problem/agentic-rag.png" alt="Agentic RAG"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/agentic-rag.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/agentic-rag.png" alt="Agentic RAG" width="1694" height="1069" loading="lazy" decoding="async"></picture></p>
 <p>So yes, agentic RAG is solving a real problem. It is helping with multi-hop questions, multi-ask queries, and situations where the original user query is too broad or under-specified for one retrieval pass.</p>
 <p>But it is still far from fully solved.</p>
 <p>Even after you decompose a question well, a bunch of hard problems remain:</p>
@@ -1145,7 +1145,7 @@ Excalidraw instructions:
 <p>Anthropic&#39;s own <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use">advanced tool use documentation</a> puts a number on this: large tool catalogs can push tool definitions past 50,000 tokens before the model has even read the user&#39;s request. Their recommended fix is to use a smaller retrieval model to return only the relevant tools based on user intent, and even use semantic search over tool descriptions. That recommendation is RAG. For actions.</p>
 <p>And the ecosystem is already moving in that direction. Anthropic&#39;s own <a href="https://www.anthropic.com/engineering/advanced-tool-use">advanced tool use engineering post</a> says agents should &quot;discover and load tools on-demand&quot; instead of stuffing every definition into context upfront. <a href="https://changelog.langchain.com/announcements/dynamic-tool-calling-in-langgraph-agents">LangGraph added dynamic tool calling</a> so the available tools can change at different points in a run. Their examples are telling: require an auth tool before exposing sensitive actions, start with a small toolset, then expand as the task evolves. <a href="https://developer.salesforce.com/blogs/2025/06/level-up-your-developer-tools-with-salesforce-dx-mcp">Salesforce&#39;s DX MCP blog</a> makes the same move with toolsets, noting that hosts can dynamically load only the tools they need to minimize memory use and improve performance.</p>
 <p>That is the deeper point. The problem is not just &quot;which tool should the model call?&quot; The problem is also &quot;which tools should even be attached right now?&quot; Static attachment made sense when agents had a handful of tools. It breaks down when the catalog is large, sensitive, or step-dependent. So now we are seeing dynamic tool attachment, scoped tool exposure, and tool retrieval as separate design patterns.</p>
-<p><img src="/static/blog_photos/agent-search-problem/rag-mcp.png" alt="RAG and MCP/Tools has same problem"></p>
+<p><picture><source srcset="/static/blog_photos/agent-search-problem/rag-mcp.webp" type="image/webp"><img src="/static/blog_photos/agent-search-problem/rag-mcp.png" alt="RAG and MCP/Tools has same problem" width="1321" height="1056" loading="lazy" decoding="async"></picture></p>
 <!-- DIAGRAM 3: The same problem at two layers
 Excalidraw instructions:
 - Two rows stacked vertically, visually parallel
@@ -1564,7 +1564,7 @@ We also want to highlight its technical challenges.
 
 Let&#39;s write a concise presentation for this.&quot;
 </code></pre>
-<p><img src="/static/blog_photos/context-gemini.png" alt="image"></p>
+<p><picture><source srcset="/static/blog_photos/context-gemini.webp" type="image/webp"><img src="/static/blog_photos/context-gemini.png" alt="image" width="1771" height="610" loading="lazy" decoding="async"></picture></p>
 <p>It returned information about &quot;Unisys ClearPath MCP&quot; rather than the intended &quot;Model Control Protocol (MCP)&quot; proposed by Anthropic. This real-world misalignment underscores how context-less embeddings can derail retrieval.  </p>
 <hr>
 <h2 id="2-missing-context-in-embedding">2. Missing Context in Embedding</h2><p>Embeddings encode <strong>semantic similarity</strong> but lack task or intent signals. Out of the box, they answer the question:  </p>
@@ -1594,7 +1594,7 @@ instruction = &quot;Given a grocery shopping question, retrieve fruit purchase i
 query = &quot;I want to buy apple&quot;
 instructed_query = f&quot;Instruction: {instruction}\nQuery: {query}&quot;
 </code></pre>
-<p><img src="/static/blog_photos/context-qwen.png" alt="image"></p>
+<p><picture><source srcset="/static/blog_photos/context-qwen.webp" type="image/webp"><img src="/static/blog_photos/context-qwen.png" alt="image" width="585" height="315" loading="lazy" decoding="async"></picture></p>
 <hr>
 <p><strong>Visualizing the Flow:</strong></p>
 <pre><code class="language-text">User Query: &quot;I want to buy apple&quot;
@@ -1958,7 +1958,7 @@ response = bedrock_client.converse(
 <p>I think AWS BedRock should have used the same standards as OpenAI&#39;s client rather than creating their own
 But, hey, it&#39;s still a single endpoint. right ?... 
 I should be just able to switch models by changing model_id. right ?....</p>
-<p><img src="https://i.imgflip.com/5bgun8.jpg?a477264=400x400" alt="AWS BedRock Endpoint"></p>
+<p><img src="https://i.imgflip.com/5bgun8.jpg?a477264=400x400" alt="AWS BedRock Endpoint" loading="lazy" decoding="async"></p>
 <h2 id="hidden-gotcha-of-converse-api">Hidden Gotcha of Converse API</h2><h3 id="not-every-model-is-available">Not every model is available</h3><p>AWS BedRock has LLama3, Anthropic Claude, Mistral and their own Titan. But, It doesn&#39;t have OpenAI models like GPT-4/GPT-4o. This might not be a deal breaker, depending on what you are trying to achieve.
 You can check the availability of models in <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html">AWS Bedrock Models</a></p>
 <h3 id="not-every-model-has-system-prompt-or-multi-modality-support">Not every model has system prompt, or multi-modality support</h3><p>If you check converse API parameters, you will see that there is a parameter called <code>system</code>. This parameter is used to provide system prompt to the model. However, not every model supports system prompts. (Because they were not trained with system prompts). If you&#39;re switching between models via code using ENV/Flags/Config, you might need to handle edge cases where a system prompt is unavailable for the given <code>modelId</code>. Otherwise, It will throw an Exception. (Ideally, i think it should just give a warning) 
@@ -2116,7 +2116,7 @@ class Item(AuditFieldsMixin):
 <pre><code class="language-python">def attention(q, k, v, mask):  # [n_q, d_k], [n_k, d_k], [n_k, d_v], [n_q, n_k] -&gt; [n_q, d_v]
     return softmax(q @ k.T / np.sqrt(q.shape[-1]) + mask) @ v
 </code></pre>
-<p><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache"></p>
+<p><picture><source srcset="/static/blog_photos/kvcache.webp" type="image/webp"><img src="/static/blog_photos/kvcache.jpg" alt="attention with kvcache" width="1752" height="908" loading="lazy" decoding="async"></picture></p>
 <p>So, we need to calculate new_k and new_v for current input token. Append it to the existing cache and pass it to attention block for further processing. </p>
 <h3 id="updating-the-multi-head-attention-cache">Updating the multi-head attention cache</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
     # qkv projection
