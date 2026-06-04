@@ -122,7 +122,6 @@
     var p = PUZZLES[cur];
     $("wmt-moves").textContent = p.moves; $("wmt-pw").textContent = p.pw;
     buildLine(); render();
-    if (tiles[0]) tiles[0].focus();
   }
 
   $("wmt-reset").addEventListener("click", function () { tiles.forEach(function (t) { t.value = ""; }); render(); if (tiles[0]) tiles[0].focus(); });
@@ -131,7 +130,7 @@
     groups.forEach(function (g, gi) { var word = s[gi + 1]; g.tiles.forEach(function (t, j) { t.value = word[j]; }); });
     render();
   });
-  $("wmt-new").addEventListener("click", function () { cur = (cur + 1) % PUZZLES.length; setup(); });
+  $("wmt-new").addEventListener("click", function () { cur = (cur + 1) % PUZZLES.length; setup(); if (tiles[0]) tiles[0].focus(); });
 
   setup();
 

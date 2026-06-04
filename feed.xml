@@ -9,7 +9,7 @@
     <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
     <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 04 Jun 2026 13:32:18 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 04 Jun 2026 13:47:54 GMT</lastBuildDate>
     <generator>dipkumar.dev custom static generator</generator>
     <item>
       <title>Wordmaze: a one-shot, verifier-graded puzzle for RL</title>
@@ -130,8 +130,9 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
     <span class="wmt-spec">fill the ladder in <b id="wmt-moves"></b> moves &middot; password <b id="wmt-pw"></b></span>
     <button type="button" class="wmt-btn wmt-mini" id="wmt-new">New puzzle</button>
   </div>
+  <div class="wmt-desc">Build a word ladder: change exactly one letter each step to get from the first word to the last, in the number of moves shown. For each step, <b>F</b> means the changed letter moved forward in the alphabet and <b>B</b> means backward; the F/B string has to spell the password.</div>
   <div class="wmt-line" id="wmt-line"></div>
-  <div class="wmt-cap">Type each step one letter per box; it auto-advances. The changed letter lights up &mdash; green if it makes a valid one-letter word, red if not. The F/B under each arrow builds the password. <em>Words are checked against a wordfreq English list, loaded in the background.</em></div>
+  <div class="wmt-cap">Type each step one letter per box; it auto-advances. The changed letter lights up green; the box turns red if the step isn't a valid one-letter word. The F/B under each arrow builds the password. <em>Words are checked against a wordfreq English list, loaded in the background.</em></div>
   <div class="wmt-pwrow">
     <span class="wmt-pwlabel">password</span>
     <span class="wmt-pwcells" id="wmt-pwcells"></span>
@@ -155,15 +156,16 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 .wmt-word { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid transparent; border-radius: 6px; }
 .wmt-tile { width: 30px; height: 38px; text-align: center; border: 1px solid #d0d0d0; border-radius: 5px; font-weight: 600; font-size: 1.05em; color: #000; padding: 0; }
 .wmt-tile:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.18); }
-.wmt-tile.hot { color: #6366f1; border-color: #6366f1; background: rgba(99,102,241,0.12); }
+.wmt-tile.hot { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.12); }
 .wmt-word.ok .wmt-tile { border-color: #bfe0c9; }
-.wmt-word.ok .wmt-tile.hot { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.12); }
 .wmt-word.bad .wmt-tile { border-color: #f0a6b5; }
 .wmt-word.bad .wmt-tile.hot { color: #be123c; border-color: #be123c; background: #fff5f7; }
 .wmt-arrow { display: inline-flex; flex-direction: column; align-items: center; min-width: 24px; color: #9ca3af; }
 .wmt-arrow .a-sym { font-size: 0.95em; line-height: 1; }
 .wmt-arrow .a-fb { font-size: 0.72em; font-weight: 700; height: 1.1em; color: #6366f1; }
 .wmt-arrow .a-fb.bad { color: #be123c; }
+.wmt-desc { color: #4b5563; font-size: 0.82em; line-height: 1.55; margin-bottom: 16px; }
+.wmt-desc b { color: #15803d; }
 .wmt-cap { color: #6b7280; font-size: 0.8em; margin-bottom: 16px; line-height: 1.5; }
 .wmt-pwrow { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid #e5e5e5; padding-top: 14px; font-size: 0.9em; }
 .wmt-pwlabel { color: #6b7280; }
