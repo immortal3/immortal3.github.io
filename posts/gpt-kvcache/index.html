@@ -18,8 +18,8 @@
 
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Speeding up the GPT - KV cache | Dip</title>
-            <meta name="description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.">
+            <title>KV cache in GPT: how it speeds up transformer inference | Dip</title>
+            <meta name="description" content="A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster.">
             <meta name="author" content="Dipkumar Patel">
             <meta name="keywords" content="transformer, nlp, gpt, speedup, machine learning, llm, ai agents, distributed systems, software engineering, dipkumar patel">
             
@@ -27,8 +27,8 @@
             
             <link rel="canonical" href="https://dipkumar.dev/posts/gpt-kvcache/">
             <link rel="alternate" type="application/rss+xml" title="Dipkumar Patel — Blog" href="https://dipkumar.dev/feed.xml">
-            <meta property="og:title" content="Speeding up the GPT - KV cache" />
-            <meta property="og:description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough." />
+            <meta property="og:title" content="KV cache in GPT: how it speeds up transformer inference" />
+            <meta property="og:description" content="A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster." />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="https://dipkumar.dev/posts/gpt-kvcache/" />
             <meta property="og:site_name" content="Dip" />
@@ -54,8 +54,8 @@
             
             
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="Speeding up the GPT - KV cache" />
-            <meta name="twitter:description" content="How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough." />
+            <meta name="twitter:title" content="KV cache in GPT: how it speeds up transformer inference" />
+            <meta name="twitter:description" content="A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
@@ -78,7 +78,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Speeding up the GPT - KV cache","description":"How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.","datePublished":"2023-02-12T06:32:55.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"transformer, nlp, gpt, speedup","wordCount":905,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/gpt-kvcache/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"KV cache in GPT: how it speeds up transformer inference","description":"A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster.","datePublished":"2023-02-12T06:32:55.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"transformer, nlp, gpt, speedup","wordCount":905,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/gpt-kvcache/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -100,10 +100,10 @@
                             <article class="post-content no-toc">
                                 <header>
                                     
-                                    <h1>Speeding up the GPT - KV cache</h1>
+                                    <h1>KV cache in GPT: how it speeds up transformer inference</h1>
                                     
                                         <p class="post-subtitle">
-                                            How KV caching speeds up GPT inference by reusing past key-value pairs, with a NumPy implementation walkthrough.
+                                            A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster.
                                         </p>
                                     
                                     <div class="meta-row">
@@ -313,10 +313,10 @@ The computer is a machine that can perform complex calculations, and it can perf
                                                     <li class="related-post-item">
                                                         <a href="/posts/agents/claude-managed-agents-gotchas/" class="related-post-link">
                                                             <span class="related-post-emoji">🤖</span>
-                                                            <span class="related-post-title">Building with Claude Managed Agents - Sharp Edges</span>
+                                                            <span class="related-post-title">Claude Managed Agents: sharp edges and gotchas</span>
                                                         </a>
                                                         
-                                                            <p class="related-post-description">A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard.</p>
+                                                            <p class="related-post-description">What Anthropic Claude Managed Agents provide, where the API is limited, and gotchas around sessions, environments, tools, and GitHub repos.</p>
                                                         
                                                     </li>
                                                 

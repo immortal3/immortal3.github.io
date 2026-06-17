@@ -18,8 +18,8 @@
 
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>GPT-5 Router - Inevitable Future of Chat Interfaces | Dip</title>
-            <meta name="description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.">
+            <title>GPT-5 router: why chat apps will route across models | Dip</title>
+            <meta name="description" content="Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX.">
             <meta name="author" content="Dipkumar Patel">
             <meta name="keywords" content="llm, ux, machine learning, ai agents, distributed systems, software engineering, dipkumar patel">
             
@@ -27,8 +27,8 @@
             
             <link rel="canonical" href="https://dipkumar.dev/posts/llm/gpt5-router/">
             <link rel="alternate" type="application/rss+xml" title="Dipkumar Patel — Blog" href="https://dipkumar.dev/feed.xml">
-            <meta property="og:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces" />
-            <meta property="og:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users." />
+            <meta property="og:title" content="GPT-5 router: why chat apps will route across models" />
+            <meta property="og:description" content="Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX." />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="https://dipkumar.dev/posts/llm/gpt5-router/" />
             <meta property="og:site_name" content="Dip" />
@@ -50,8 +50,8 @@
             
             
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="GPT-5 Router - Inevitable Future of Chat Interfaces" />
-            <meta name="twitter:description" content="Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users." />
+            <meta name="twitter:title" content="GPT-5 router: why chat apps will route across models" />
+            <meta name="twitter:description" content="Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
@@ -74,7 +74,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"GPT-5 Router - Inevitable Future of Chat Interfaces","description":"Why OpenAI's GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.","datePublished":"2025-08-13T15:18:22.000Z","dateModified":"2025-12-22T05:04:46.000Z","inLanguage":"en","keywords":"llm, ux","wordCount":959,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/llm/gpt5-router/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"GPT-5 router: why chat apps will route across models","description":"Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX.","datePublished":"2025-08-13T15:18:22.000Z","dateModified":"2025-12-22T05:04:46.000Z","inLanguage":"en","keywords":"llm, ux","wordCount":959,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/llm/gpt5-router/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -96,10 +96,10 @@
                             <article class="post-content has-toc">
                                 <header>
                                     
-                                    <h1>GPT-5 Router - Inevitable Future of Chat Interfaces</h1>
+                                    <h1>GPT-5 router: why chat apps will route across models</h1>
                                     
                                         <p class="post-subtitle">
-                                            Why OpenAI&#39;s GPT-5 router is inevitable: understanding the cost squeeze driving automatic model selection and what it means for users.
+                                            Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX.
                                         </p>
                                     
                                     <div class="meta-row">
@@ -370,20 +370,20 @@
                                                         <li class="related-post-item">
                                                             <a href="/posts/llm/bits-per-byte/" class="related-post-link">
                                                                 <span class="related-post-emoji">📏</span>
-                                                                <span class="related-post-title">Bits-per-Byte (BPB): a tokenizer-agnostic way to measure LLMs</span>
+                                                                <span class="related-post-title">Bits per byte (BPB) for LLMs: tokenizer-agnostic loss</span>
                                                             </a>
                                                             
-                                                                <p class="related-post-description">What bits-per-byte (BPB) is, why it beats perplexity for comparing LLMs across different tokenizers, and how to calculate it from cross-entropy loss.</p>
+                                                                <p class="related-post-description">BPB measures LLM loss per UTF-8 byte, making tokenizer comparisons fair. Formula, worked example, and PyTorch-style implementation.</p>
                                                             
                                                         </li>
                                                     
                                                         <li class="related-post-item">
                                                             <a href="/posts/aws-bedrock/" class="related-post-link">
                                                                 <span class="related-post-emoji">☁️</span>
-                                                                <span class="related-post-title">AWS BedRock - Converse API - A single endpoint for all models ?</span>
+                                                                <span class="related-post-title">AWS Bedrock Converse API: one endpoint for Claude, Llama, and Mistral</span>
                                                             </a>
                                                             
-                                                                <p class="related-post-description">Exploring AWS Bedrock&#39;s Converse API, a single unified endpoint for chatting with any foundation model including Claude, Llama, and Mistral.</p>
+                                                                <p class="related-post-description">How to call Amazon Bedrock Converse API, pass messages and inference config, and handle common model-specific validation errors.</p>
                                                             
                                                         </li>
                                                     

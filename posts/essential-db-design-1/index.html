@@ -18,8 +18,8 @@
 
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Essential Database Design: Five Fields Every Table Must Have | Dip</title>
-            <meta name="description" content="Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging.">
+            <title>Database audit fields: created_at, updated_at, created_by, updated_by | Dip</title>
+            <meta name="description" content="When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys.">
             <meta name="author" content="Dipkumar Patel">
             <meta name="keywords" content="database, db, design, machine learning, llm, ai agents, distributed systems, software engineering, dipkumar patel">
             
@@ -27,8 +27,8 @@
             
             <link rel="canonical" href="https://dipkumar.dev/posts/essential-db-design-1/">
             <link rel="alternate" type="application/rss+xml" title="Dipkumar Patel — Blog" href="https://dipkumar.dev/feed.xml">
-            <meta property="og:title" content="Essential Database Design: Five Fields Every Table Must Have" />
-            <meta property="og:description" content="Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging." />
+            <meta property="og:title" content="Database audit fields: created_at, updated_at, created_by, updated_by" />
+            <meta property="og:description" content="When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys." />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="https://dipkumar.dev/posts/essential-db-design-1/" />
             <meta property="og:site_name" content="Dip" />
@@ -52,8 +52,8 @@
             
             
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="Essential Database Design: Five Fields Every Table Must Have" />
-            <meta name="twitter:description" content="Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging." />
+            <meta name="twitter:title" content="Database audit fields: created_at, updated_at, created_by, updated_by" />
+            <meta name="twitter:description" content="When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
@@ -76,7 +76,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Essential Database Design: Five Fields Every Table Must Have","description":"Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging.","datePublished":"2024-04-17T06:05:38.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"database, db, design","wordCount":645,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/essential-db-design-1/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Database audit fields: created_at, updated_at, created_by, updated_by","description":"When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys.","datePublished":"2024-04-17T06:05:38.000Z","dateModified":"2026-04-26T06:14:58.000Z","inLanguage":"en","keywords":"database, db, design","wordCount":645,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/essential-db-design-1/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -98,10 +98,10 @@
                             <article class="post-content no-toc">
                                 <header>
                                     
-                                    <h1>Essential Database Design: Five Fields Every Table Must Have</h1>
+                                    <h1>Database audit fields: created_at, updated_at, created_by, updated_by</h1>
                                     
                                         <p class="post-subtitle">
-                                            Why every database table should include created_at, updated_at, deleted_at, created_by, and updated_by fields for auditability and debugging.
+                                            When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys.
                                         </p>
                                     
                                     <div class="meta-row">
@@ -227,10 +227,10 @@ class Item(AuditFieldsMixin):
                                                     <li class="related-post-item">
                                                         <a href="/posts/agents/claude-managed-agents-gotchas/" class="related-post-link">
                                                             <span class="related-post-emoji">🤖</span>
-                                                            <span class="related-post-title">Building with Claude Managed Agents - Sharp Edges</span>
+                                                            <span class="related-post-title">Claude Managed Agents: sharp edges and gotchas</span>
                                                         </a>
                                                         
-                                                            <p class="related-post-description">A short look at Claude&#39;s newly released managed agents and the limited feature set that might catch you off guard.</p>
+                                                            <p class="related-post-description">What Anthropic Claude Managed Agents provide, where the API is limited, and gotchas around sessions, environments, tools, and GitHub repos.</p>
                                                         
                                                     </li>
                                                 

@@ -18,8 +18,8 @@
 
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Improving Retrieval in RAG (via Recall, Precision, and NDCG) | Dip</title>
-            <meta name="description" content="A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG">
+            <title>How to improve RAG retrieval: recall, precision, and NDCG | Dip</title>
+            <meta name="description" content="Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics.">
             <meta name="author" content="Dipkumar Patel">
             <meta name="keywords" content="rag, machine learning, llm, ai agents, distributed systems, software engineering, dipkumar patel">
             
@@ -27,8 +27,8 @@
             
             <link rel="canonical" href="https://dipkumar.dev/posts/rag/retrieval-imprv/">
             <link rel="alternate" type="application/rss+xml" title="Dipkumar Patel — Blog" href="https://dipkumar.dev/feed.xml">
-            <meta property="og:title" content="Improving Retrieval in RAG (via Recall, Precision, and NDCG)" />
-            <meta property="og:description" content="A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG" />
+            <meta property="og:title" content="How to improve RAG retrieval: recall, precision, and NDCG" />
+            <meta property="og:description" content="Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics." />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="https://dipkumar.dev/posts/rag/retrieval-imprv/" />
             <meta property="og:site_name" content="Dip" />
@@ -48,8 +48,8 @@
             
             
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="Improving Retrieval in RAG (via Recall, Precision, and NDCG)" />
-            <meta name="twitter:description" content="A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG" />
+            <meta name="twitter:title" content="How to improve RAG retrieval: recall, precision, and NDCG" />
+            <meta name="twitter:description" content="Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics." />
             <meta name="twitter:site" content="@immortaldip" />
             <meta name="twitter:creator" content="@immortaldip" />
             <meta name="twitter:image" content="https://dipkumar.dev/static/social-share-v4.jpg" />
@@ -72,7 +72,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Improving Retrieval in RAG (via Recall, Precision, and NDCG)","description":"A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG","datePublished":"2025-03-08T06:53:53.000Z","dateModified":"2025-12-22T05:04:46.000Z","inLanguage":"en","keywords":"rag","wordCount":1775,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/retrieval-imprv/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"How to improve RAG retrieval: recall, precision, and NDCG","description":"Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics.","datePublished":"2025-03-08T06:53:53.000Z","dateModified":"2025-12-22T05:04:46.000Z","inLanguage":"en","keywords":"rag","wordCount":1775,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/retrieval-imprv/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -94,10 +94,10 @@
                             <article class="post-content has-toc">
                                 <header>
                                     
-                                    <h1>Improving Retrieval in RAG (via Recall, Precision, and NDCG)</h1>
+                                    <h1>How to improve RAG retrieval: recall, precision, and NDCG</h1>
                                     
                                         <p class="post-subtitle">
-                                            A practical guide to improving retrieval in RAG systems by optimizing recall, precision, and NDCG
+                                            Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics.
                                         </p>
                                     
                                     <div class="meta-row">
