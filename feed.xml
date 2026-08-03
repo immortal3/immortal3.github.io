@@ -9,7 +9,7 @@
     <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
     <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Jun 2026 16:17:24 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 03 Aug 2026 05:35:21 GMT</lastBuildDate>
     <generator>dipkumar.dev custom static generator</generator>
     <item>
       <title>Wordmaze: a one-shot, verifier-graded puzzle for RL</title>
@@ -277,7 +277,7 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 <p>So here&#39;s a test. If the tokenizer is the problem, handing the model the letters should help. I reran the 4B with every word spelled out with spaces, <code>c o l d</code> instead of <code>cold</code>. Now each letter is its own token, which is the idea behind character-level models <sup class="cite-ref"><a href="https://arxiv.org/abs/2105.13626" target="_blank" rel="noopener">[9]<span class="cite-tip">Xue et al. (2021) &middot; ByT5 &middot; arXiv:2105.13626</span></a></sup> <sup class="cite-ref"><a href="https://arxiv.org/abs/2103.06874" target="_blank" rel="noopener">[10]<span class="cite-tip">Clark et al. (2021) &middot; CANINE &middot; arXiv:2103.06874</span></a></sup>:</p>
 <p><picture><source srcset="/static/blog_photos/wordmaze/fig-tokenization.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-tokenization.png" alt="Char-spacing roughly doubles a 4B's character-level pass rates on Wordmaze m3-4" width="1517" height="1099" loading="lazy" decoding="async"></picture></p>
 <p>It worked. One-letter steps doubled, password matches nearly doubled, and fully-valid went from 18.5% to 26.5%, even though spacing makes the text about twice as long, so the model has <em>less</em> room to work, not more. Handing it the letters helped more than the extra length hurt. That&#39;s a strong hint the tokenizer, not raw smarts, is a real part of why small models struggle here.</p>
-<h2 id="whats-next">What's next</h2><p>That&#39;s the environment: a one-shot puzzle, a pure-function verifier with a per-check signal, a reproducible generator, and a baseline gap that runs from 99.5% at the frontier down to single digits for a 4B. The gap is the whole motivation. A small open model can <em>almost</em> do this when you give it room to reason, which is the regime where RL might help: there&#39;s a non-zero success rate to amplify.</p>
+<h2 id="whats-next">What&#39;s next</h2><p>That&#39;s the environment: a one-shot puzzle, a pure-function verifier with a per-check signal, a reproducible generator, and a baseline gap that runs from 99.5% at the frontier down to single digits for a 4B. The gap is the whole motivation. A small open model can <em>almost</em> do this when you give it room to reason, which is the regime where RL might help: there&#39;s a non-zero success rate to amplify.</p>
 <p>The next post is the training story: what happens when you point GRPO at a 4B and try to close that gap. It does not go the way you&#39;d hope. The first honest result is that a naive pipeline made the model <em>worse</em> than its untrained base, by learning to game the very checks above. That failure, what it says about reward design, and whether RL can push a model past what its base already does <sup class="cite-ref"><a href="https://arxiv.org/abs/2504.13837" target="_blank" rel="noopener">[11]<span class="cite-tip">Yue et al. (2025) &middot; Limits of RLVR &middot; arXiv:2504.13837</span></a></sup>, is part two.</p>
 <p>The dataset is on the <a href="https://huggingface.co/datasets/immortal3/wordmaze">Hub</a> if you want to point a model at it. If you beat 3.1-pro, I&#39;d like to know how.</p>
 <style>
@@ -1552,7 +1552,7 @@ def evaluate_bpb(model, batches, steps: int, token_bytes: torch.Tensor) -&gt; fl
       <category>embedding</category>
       <content:encoded><![CDATA[<h1 id="why-your-retriever-is-failing-and-how-context-can-save-it">Why Your Retriever is Failing and How Context Can Save It</h1><p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
 <hr>
-<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever & Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
+<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever &amp; Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
 <ul>
 <li>They collapse multiple meanings of &quot;apple&quot; into one vector.  </li>
 <li>The top results can mix stock guides, product pages, and nutrition articles.</li>
@@ -1588,7 +1588,7 @@ Let&#39;s write a concise presentation for this.&quot;
 3. Health Benefits of Apples (Score: 0.501)
 </code></pre>
 <p>Both embeddings mix stock, fruit, and product topics. The <strong>Qwen</strong> model edges out OpenAI by a small margin, but neither is decisively focused.</p>
-<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen & Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
+<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen &amp; Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
 <pre><code class="language-python"># Minimal instruction-aware query construction
 instruction = &quot;Given a grocery shopping question, retrieve fruit purchase information&quot;
 query = &quot;I want to buy apple&quot;
@@ -2144,7 +2144,7 @@ class Item(AuditFieldsMixin):
         causal_mask = (1 - np.tri(x.shape[0])) * -1e10  # [n_seq, n_seq]
 </code></pre>
 <p>Combining all the things together, we get the following code.</p>
-<h3 id="final-mha-implementation">Final `mha` implementation</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
+<h3 id="final-mha-implementation">Final <code>mha</code> implementation</h3><pre><code class="language-python">def mha(x, c_attn, c_proj, n_head, kvcache=None):  # [n_seq, n_embd] -&gt; [n_seq, n_embd]
     # qkv projection
     # n_seq = 1 when we pass kvcache, so we will compute new_q, new_k and new_v
     x = linear(x, **c_attn)  # [n_seq, n_embd] -&gt; [n_seq, 3*n_embd]
@@ -2253,7 +2253,7 @@ The computer is a machine that can perform complex calculations, and it can perf
       <description>Solutions and hints for LeetCode biweekly and weekly contest problems, organized by contest with progressive hints.</description>
       <category>algorithms</category>
       <category>lc</category>
-      <content:encoded><![CDATA[<h3 id="biweekly-66-27th-nov-2021httpsleetcodecomcontestbiweekly-contest-66">[Biweekly-66 (27th Nov, 2021)](https://leetcode.com/contest/biweekly-contest-66/)</h3><ol>
+      <content:encoded><![CDATA[<h3 id="biweekly-66-27th-nov-2021"><a href="https://leetcode.com/contest/biweekly-contest-66/">Biweekly-66 (27th Nov, 2021)</a></h3><ol>
 <li><a href="https://leetcode.com/contest/biweekly-contest-66/problems/count-common-words-with-one-occurrence/">2085. Count Common Words With One Occurrence</a></li>
 </ol>
 <p>Use hashmap (Counter)</p>
@@ -2275,7 +2275,7 @@ The computer is a machine that can perform complex calculations, and it can perf
  calculate for normal and flipped version of grid</p>
 </li>
 </ol>
-<h3 id="weekly-269-28th-nov-2021httpsleetcodecomcontestweekly-contest-269">[Weekly-269 (28th Nov, 2021)](https://leetcode.com/contest/weekly-contest-269)</h3><ol>
+<h3 id="weekly-269-28th-nov-2021"><a href="https://leetcode.com/contest/weekly-contest-269">Weekly-269 (28th Nov, 2021)</a></h3><ol>
 <li><a href="https://leetcode.com/contest/weekly-contest-269/problems/find-target-indices-after-sorting-array/">2089. Find Target Indices After Sorting Array</a>
  Implementation </li>
 <li><a href="https://leetcode.com/contest/weekly-contest-269/problems/k-radius-subarray-averages/">2090. K Radius Subarray Averages</a>

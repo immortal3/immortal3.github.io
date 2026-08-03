@@ -80,7 +80,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Wordmaze: a one-shot, verifier-graded puzzle for RL","description":"Wordmaze is a single-turn word-ladder puzzle with a password constraint, built to be trivially gradable for RL.","datePublished":"2026-06-03T13:30:00.000Z","dateModified":"2026-06-04T13:47:54.000Z","inLanguage":"en","keywords":"llm, rl, grpo, reasoning, dataset","wordCount":4745,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/llm/wordmaze/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Wordmaze: a one-shot, verifier-graded puzzle for RL","description":"Wordmaze is a single-turn word-ladder puzzle with a password constraint, built to be trivially gradable for RL.","datePublished":"2026-06-03T13:30:00.000Z","dateModified":"2026-06-04T13:47:54.000Z","inLanguage":"en","keywords":"llm, rl, grpo, reasoning, dataset","wordCount":4745,"author":{"@type":"Person","name":"Dipkumar Patel","alternateName":"Dip","url":"https://dipkumar.dev","image":"https://dipkumar.dev/static/profile_image.jpeg","jobTitle":"Founding Engineer","worksFor":{"@type":"Organization","name":"Rapidflare","url":"https://rapidflare.ai"},"alumniOf":{"@type":"CollegeOrUniversity","name":"Ahmedabad University","url":"https://ahduni.edu.in"},"knowsAbout":["Machine Learning","Large Language Models","LLM Inference","AI Agents","Retrieval-Augmented Generation","Distributed Systems"],"sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/llm/wordmaze/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -121,6 +121,7 @@
                                         
                                         <div class="date-meta">
                                             June 3, 2026
+                                            
                                             
                                             <span class="reading-time">24 min read</span>
                                             
@@ -514,7 +515,7 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
 <p>So here&#39;s a test. If the tokenizer is the problem, handing the model the letters should help. I reran the 4B with every word spelled out with spaces, <code>c o l d</code> instead of <code>cold</code>. Now each letter is its own token, which is the idea behind character-level models <sup class="cite-ref"><a href="https://arxiv.org/abs/2105.13626" target="_blank" rel="noopener">[9]<span class="cite-tip">Xue et al. (2021) &middot; ByT5 &middot; arXiv:2105.13626</span></a></sup> <sup class="cite-ref"><a href="https://arxiv.org/abs/2103.06874" target="_blank" rel="noopener">[10]<span class="cite-tip">Clark et al. (2021) &middot; CANINE &middot; arXiv:2103.06874</span></a></sup>:</p>
 <p><picture><source srcset="/static/blog_photos/wordmaze/fig-tokenization.webp" type="image/webp"><img src="/static/blog_photos/wordmaze/fig-tokenization.png" alt="Char-spacing roughly doubles a 4B's character-level pass rates on Wordmaze m3-4" width="1517" height="1099" loading="lazy" decoding="async"></picture></p>
 <p>It worked. One-letter steps doubled, password matches nearly doubled, and fully-valid went from 18.5% to 26.5%, even though spacing makes the text about twice as long, so the model has <em>less</em> room to work, not more. Handing it the letters helped more than the extra length hurt. That&#39;s a strong hint the tokenizer, not raw smarts, is a real part of why small models struggle here.</p>
-<h2 id="whats-next">What's next</h2><p>That&#39;s the environment: a one-shot puzzle, a pure-function verifier with a per-check signal, a reproducible generator, and a baseline gap that runs from 99.5% at the frontier down to single digits for a 4B. The gap is the whole motivation. A small open model can <em>almost</em> do this when you give it room to reason, which is the regime where RL might help: there&#39;s a non-zero success rate to amplify.</p>
+<h2 id="whats-next">What&#39;s next</h2><p>That&#39;s the environment: a one-shot puzzle, a pure-function verifier with a per-check signal, a reproducible generator, and a baseline gap that runs from 99.5% at the frontier down to single digits for a 4B. The gap is the whole motivation. A small open model can <em>almost</em> do this when you give it room to reason, which is the regime where RL might help: there&#39;s a non-zero success rate to amplify.</p>
 <p>The next post is the training story: what happens when you point GRPO at a 4B and try to close that gap. It does not go the way you&#39;d hope. The first honest result is that a naive pipeline made the model <em>worse</em> than its untrained base, by learning to game the very checks above. That failure, what it says about reward design, and whether RL can push a model past what its base already does <sup class="cite-ref"><a href="https://arxiv.org/abs/2504.13837" target="_blank" rel="noopener">[11]<span class="cite-tip">Yue et al. (2025) &middot; Limits of RLVR &middot; arXiv:2504.13837</span></a></sup>, is part two.</p>
 <p>The dataset is on the <a href="https://huggingface.co/datasets/immortal3/wordmaze">Hub</a> if you want to point a model at it. If you beat 3.1-pro, I&#39;d like to know how.</p>
 <style>
@@ -550,15 +551,15 @@ Each row also carries a ready-to-use <code>prompt</code> and chat <code>messages
                                         
                                             <div class="post-footer-tags">
                                                 
-                                                    <a href="/tags/llm">#llm</a>
+                                                    <a href="/tags/llm/">#llm</a>
                                                 
-                                                    <a href="/tags/rl">#rl</a>
+                                                    <a href="/tags/rl/">#rl</a>
                                                 
-                                                    <a href="/tags/grpo">#grpo</a>
+                                                    <a href="/tags/grpo/">#grpo</a>
                                                 
-                                                    <a href="/tags/reasoning">#reasoning</a>
+                                                    <a href="/tags/reasoning/">#reasoning</a>
                                                 
-                                                    <a href="/tags/dataset">#dataset</a>
+                                                    <a href="/tags/dataset/">#dataset</a>
                                                 
                                             </div>
                                         

@@ -74,7 +74,7 @@
             
             
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Instruction Aware Embeddings","description":"Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings","datePublished":"2025-07-08T07:44:36.000Z","dateModified":"2026-03-14T04:15:47.000Z","inLanguage":"en","keywords":"rag, embedding","wordCount":974,"author":{"@type":"Person","name":"Dipkumar Patel","url":"https://dipkumar.dev","sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/instruction-aware-embeddings/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
+            {"@context":"https://schema.org","@type":"BlogPosting","headline":"Instruction Aware Embeddings","description":"Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings","datePublished":"2025-07-08T07:44:36.000Z","dateModified":"2026-03-14T04:15:47.000Z","inLanguage":"en","keywords":"rag, embedding","wordCount":974,"author":{"@type":"Person","name":"Dipkumar Patel","alternateName":"Dip","url":"https://dipkumar.dev","image":"https://dipkumar.dev/static/profile_image.jpeg","jobTitle":"Founding Engineer","worksFor":{"@type":"Organization","name":"Rapidflare","url":"https://rapidflare.ai"},"alumniOf":{"@type":"CollegeOrUniversity","name":"Ahmedabad University","url":"https://ahduni.edu.in"},"knowsAbout":["Machine Learning","Large Language Models","LLM Inference","AI Agents","Retrieval-Augmented Generation","Distributed Systems"],"sameAs":["https://github.com/immortal3","https://x.com/immortaldip"]},"publisher":{"@type":"Organization","name":"Dipkumar Patel","url":"https://dipkumar.dev","logo":{"@type":"ImageObject","url":"https://dipkumar.dev/static/icon.jpeg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://dipkumar.dev/posts/rag/instruction-aware-embeddings/"},"image":{"@type":"ImageObject","url":"https://dipkumar.dev/static/social-share-v4.jpg","width":1200,"height":630}}
             </script>
             
             
@@ -115,6 +115,9 @@
                                         
                                         <div class="date-meta">
                                             July 8, 2025
+                                            
+                                            <span class="updated-date">· Updated Mar 14, 2026</span>
+                                            
                                             
                                             <span class="reading-time">5 min read</span>
                                             
@@ -256,7 +259,7 @@
                                         <div class="markdown-body">
                                             <h1 id="why-your-retriever-is-failing-and-how-context-can-save-it">Why Your Retriever is Failing and How Context Can Save It</h1><p>Imagine asking &quot;I want to buy apple&quot; – do you mean Apple Inc. stock, the latest iPhone, or simply fruit? Without context, your retriever may serve you the wrong results.</p>
 <hr>
-<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever & Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
+<h2 id="1-what-is-the-problem-in-your-retriever-embedding">1. What Is the Problem in Your Retriever &amp; Embedding?</h2><p>Modern retrievers map queries and documents into high-dimensional vectors (embeddings) and rank by cosine similarity. But when a query is <strong>ambiguous</strong>, plain embeddings struggle:  </p>
 <ul>
 <li>They collapse multiple meanings of &quot;apple&quot; into one vector.  </li>
 <li>The top results can mix stock guides, product pages, and nutrition articles.</li>
@@ -292,7 +295,7 @@ Let&#39;s write a concise presentation for this.&quot;
 3. Health Benefits of Apples (Score: 0.501)
 </code></pre>
 <p>Both embeddings mix stock, fruit, and product topics. The <strong>Qwen</strong> model edges out OpenAI by a small margin, but neither is decisively focused.</p>
-<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen & Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
+<h2 id="4-introducing-qwen-replicating-the-same-thing-in-openai">4. Introducing Qwen &amp; Replicating the Same Thing in OpenAI</h2><p>The <a href="https://qwenlm.github.io/blog/qwen3-embedding/">Qwen3-Embedding-8B model</a> is <strong>instruction-aware</strong>, trained to accept task descriptions alongside queries. When we add a &quot;grocery shopping&quot; instruction:</p>
 <pre><code class="language-python"># Minimal instruction-aware query construction
 instruction = &quot;Given a grocery shopping question, retrieve fruit purchase information&quot;
 query = &quot;I want to buy apple&quot;
@@ -445,9 +448,9 @@ Note, OpenAI does not support instruction-aware embeddings yet, but we tried to 
                                         
                                             <div class="post-footer-tags">
                                                 
-                                                    <a href="/tags/rag">#rag</a>
+                                                    <a href="/tags/rag/">#rag</a>
                                                 
-                                                    <a href="/tags/embedding">#embedding</a>
+                                                    <a href="/tags/embedding/">#embedding</a>
                                                 
                                             </div>
                                         

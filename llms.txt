@@ -1,0 +1,30 @@
+# Dipkumar Patel — dipkumar.dev
+
+> Personal site of Dipkumar Patel (Dip): essays and notes on machine learning, LLM internals, AI agents, RAG, and distributed systems. Dip is a founding engineer at Rapidflare.
+
+Every post and note is also available as plain markdown: append `index.md` to its URL. The links below point directly at the markdown versions; drop the `index.md` suffix for the HTML version.
+
+## Posts
+- [Wordmaze: a one-shot, verifier-graded puzzle for RL](https://dipkumar.dev/posts/llm/wordmaze/index.md): Wordmaze is a single-turn word-ladder puzzle with a password constraint, built to be trivially gradable for RL.
+- [Claude Managed Agents: sharp edges and gotchas](https://dipkumar.dev/posts/agents/claude-managed-agents-gotchas/index.md): What Anthropic Claude Managed Agents provide, where the API is limited, and gotchas around sessions, environments, tools, and GitHub repos.
+- [IndiGo: India's Affordable Growth Carrier, by the Numbers](https://dipkumar.dev/posts/markets/indigo-investor-view/index.md): A beginner-friendly look at IndiGo. A live widget lets you tune three assumptions about how India flies and see what that means for IndiGo's size and market value in 5 to 10 years.
+- [A Practical Cost Checklist for Agent and Harness Engineering](https://dipkumar.dev/posts/agents/agent-harness-cost-checklist/index.md): A staged checklist for reducing agent and LLM costs, from prompt hygiene and model selection to tool pruning, trace analysis, and distillation.
+- [Agents Can Reason. They Still Can't Really Search.](https://dipkumar.dev/posts/agents/agent-search-problem/index.md): Agents have a search problem across the whole stack: web search, RAG, tool discovery, skills/workflow loading, and even context compaction.
+- [Bits per byte (BPB) for LLMs: tokenizer-agnostic loss](https://dipkumar.dev/posts/llm/bits-per-byte/index.md): BPB measures LLM loss per UTF-8 byte, making tokenizer comparisons fair. Formula, worked example, and PyTorch-style implementation.
+- [Creativity Is a Luxury](https://dipkumar.dev/posts/life/creativity-is-a-luxury/index.md): Creativity is a luxury. It requires time, energy and space.
+- [GPT-5 router: why chat apps will route across models](https://dipkumar.dev/posts/llm/gpt5-router/index.md): Why GPT-5 style routers send simple prompts to smaller models and hard prompts to reasoning models, and what that means for chat UX.
+- [Instruction Aware Embeddings](https://dipkumar.dev/posts/rag/instruction-aware-embeddings/index.md): Why Your Retriever is Failing and How Context Can Save It - Instruction Aware Embeddings
+- [How to improve RAG retrieval: recall, precision, and NDCG](https://dipkumar.dev/posts/rag/retrieval-imprv/index.md): Improve RAG retrieval without sacrificing precision: tune chunking, hybrid search, reranking, filters, and recall/NDCG metrics.
+- [AWS Bedrock Converse API: one endpoint for Claude, Llama, and Mistral](https://dipkumar.dev/posts/aws-bedrock/index.md): How to call Amazon Bedrock Converse API, pass messages and inference config, and handle common model-specific validation errors.
+- [Database audit fields: created_at, updated_at, created_by, updated_by](https://dipkumar.dev/posts/essential-db-design-1/index.md): When to add created_at, updated_at, deleted_at, created_by, and updated_by columns, and whether user audit fields need foreign keys.
+- [KV cache in GPT: how it speeds up transformer inference](https://dipkumar.dev/posts/gpt-kvcache/index.md): A NumPy walkthrough of GPT KV caching: what keys and values are cached, how attention uses them, and why generation gets faster.
+- [LC contest problems summary](https://dipkumar.dev/posts/leetcode-contest/index.md): Solutions and hints for LeetCode biweekly and weekly contest problems, organized by contest with progressive hints.
+- [Hugo commands](https://dipkumar.dev/posts/hugo-cmds/index.md): A quick reference for common Hugo static site generator commands and workflows.
+
+## Notes
+- [Positional Encoding and RoPE](https://dipkumar.dev/notes/llm/rope/index.md): A compact note on sinusoidal positional encoding, its key components, and how that geometry leads to RoPE.
+
+## Optional
+- [Work experience](https://dipkumar.dev/work/): roles, companies, and education timeline
+- [Full content dump](https://dipkumar.dev/llms-full.txt): every published post and note in one markdown file
+- [RSS feed](https://dipkumar.dev/feed.xml): full-content feed of recent posts
