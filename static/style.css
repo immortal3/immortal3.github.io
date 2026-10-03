@@ -1718,3 +1718,59 @@ pre[class*="language-"] {
 .not-found-links a {
     color: var(--accent-color);
 }
+
+/* Home: open to work */
+.home-open-to-work {
+    padding-left: 10px;
+    border-left: 2px solid var(--accent-color);
+}
+
+/* Projects page */
+.projects-list,
+.featured-list {
+    max-width: 650px;
+    width: 100%;
+    margin: 30px auto 0;
+}
+
+.project-item,
+.featured-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.project-item:last-child,
+.featured-item:last-child {
+    border-bottom: none;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 15px;
+}
+
+.project-title {
+    font-size: var(--font-size-lg);
+    margin: 0;
+}
+
+.project-year {
+    font-size: var(--font-size-sm);
+    color: var(--muted-color);
+    white-space: nowrap;
+}
+
+.project-description {
+    margin: 10px 0;
+    color: var(--muted-color);
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+    font-size: var(--font-size-sm);
+}

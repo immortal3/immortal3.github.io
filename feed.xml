@@ -9,7 +9,7 @@
     <atom:link href="https://dipkumar.dev/feed.xml" rel="self" type="application/rss+xml" />
     <description>Essays on machine learning, AI agents, LLM internals, RAG, and distributed systems by Dipkumar Patel.</description>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Aug 2026 05:35:21 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 03 Oct 2026 07:35:38 GMT</lastBuildDate>
     <generator>dipkumar.dev custom static generator</generator>
     <item>
       <title>Wordmaze: a one-shot, verifier-graded puzzle for RL</title>

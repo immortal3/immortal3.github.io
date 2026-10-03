@@ -14,6 +14,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://dipkumar.dev/featured/</loc>
+    <lastmod>2026-06-17T16:17:24.000Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://dipkumar.dev/notes/</loc>
     <lastmod>2026-04-18T04:18:56.492Z</lastmod>
     <changefreq>weekly</changefreq>
@@ -124,7 +130,13 @@
   <url>
     <loc>https://dipkumar.dev/work/</loc>
     <lastmod>2026-03-21T04:40:51.000Z</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dipkumar.dev/projects/</loc>
+    <lastmod>2026-10-03T07:33:58.704Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

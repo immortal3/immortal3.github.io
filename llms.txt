@@ -1,6 +1,6 @@
 # Dipkumar Patel — dipkumar.dev
 
-> Personal site of Dipkumar Patel (Dip): essays and notes on machine learning, LLM internals, AI agents, RAG, and distributed systems. Dip is a founding engineer at Rapidflare.
+> Personal site of Dipkumar Patel (Dip): essays and notes on machine learning, LLM internals, AI agents, RAG, and distributed systems. Dip is a founding engineer at Rapidflare and is open to new roles.
 
 Every post and note is also available as plain markdown: append `index.md` to its URL. The links below point directly at the markdown versions; drop the `index.md` suffix for the HTML version.
 
@@ -26,5 +26,7 @@ Every post and note is also available as plain markdown: append `index.md` to it
 
 ## Optional
 - [Work experience](https://dipkumar.dev/work/): roles, companies, and education timeline
+- [Featured](https://dipkumar.dev/featured/): the best essays to start with
+- [Projects](https://dipkumar.dev/projects/): open-source code, datasets, and paper implementations
 - [Full content dump](https://dipkumar.dev/llms-full.txt): every published post and note in one markdown file
 - [RSS feed](https://dipkumar.dev/feed.xml): full-content feed of recent posts
